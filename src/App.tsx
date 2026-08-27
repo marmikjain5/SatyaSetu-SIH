@@ -11,6 +11,7 @@ import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanki
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
+import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 
 export function App() {
   return (
@@ -29,6 +30,7 @@ export function App() {
           <Route path="manufacturers" element={<ManufacturerRiskRanking />} />
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
           <Route path="analytics" element={<AnalyticsIntelligence />} />
+          <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
           <Route path="settings" element={<SettingsRegulatoryRules />} />
         </Route>
 
