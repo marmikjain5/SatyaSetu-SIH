@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
+  ScanLine,
   ShieldAlert,
   Building2,
   MessageSquareWarning,
@@ -45,6 +46,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       label: 'Products',
       icon: Package,
       badge: 'Live',
+    },
+    {
+      to: '/dashboard/scanner',
+      label: 'Product Scanner',
+      icon: ScanLine,
+      badge: 'New',
     },
     {
       to: '/dashboard/violations',

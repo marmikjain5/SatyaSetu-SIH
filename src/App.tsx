@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { OverviewDashboard } from './pages/dashboard/OverviewDashboard';
 import { ProductsIntelligence } from './pages/dashboard/ProductsIntelligence';
+import { ProductScanner } from './pages/dashboard/ProductScanner';
 import { ViolationsLedger } from './pages/dashboard/ViolationsLedger';
 import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanking';
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
@@ -23,6 +24,7 @@ export function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<OverviewDashboard />} />
           <Route path="products" element={<ProductsIntelligence />} />
+          <Route path="scanner" element={<ProductScanner />} />
           <Route path="violations" element={<ViolationsLedger />} />
           <Route path="manufacturers" element={<ManufacturerRiskRanking />} />
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
