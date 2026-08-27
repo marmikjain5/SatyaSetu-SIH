@@ -8,11 +8,13 @@ import {
   Gavel,
   CheckCircle,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 
 export const WorkflowTimelineSection: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(2); // default to compliance monitoring
+  const [activeStep, setActiveStep] = useState(0); // Stage 01: Consumer Encounter
 
   const steps = [
     {
@@ -90,11 +92,11 @@ export const WorkflowTimelineSection: React.FC = () => {
   return (
     <section id="workflow" className="py-20 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-14">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
             End-to-End Governance Lifecycle
           </span>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-3">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
             Why It Matters: The Enforcement Chain
           </h2>
           <p className="text-sm text-slate-600 mt-2">
@@ -102,33 +104,68 @@ export const WorkflowTimelineSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Interactive Step Navigator Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200 mb-10">
-          {steps.map((step) => {
-            const Icon = step.icon;
-            const isCurrent = activeStep === step.id;
-            return (
-              <button
-                key={step.id}
-                onClick={() => setActiveStep(step.id)}
-                className={`p-3 rounded-lg text-left transition-all flex flex-col justify-between ${
-                  isCurrent
-                    ? 'bg-white shadow-card border border-slate-200 text-slate-900'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400">
-                    {step.phase}
-                  </span>
-                  <Icon
-                    className={`h-4 w-4 ${isCurrent ? 'text-blue-600' : 'text-slate-400'}`}
-                  />
-                </div>
-                <div className="text-xs font-bold truncate">{step.title}</div>
-              </button>
-            );
-          })}
+        {/* Interactive Step Navigator Bar with Flanking Left / Right Arrows */}
+        <div className="flex items-center gap-2 sm:gap-4 mb-10">
+          {/* Left Arrow */}
+          <button
+            onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+            disabled={activeStep === 0}
+            aria-label="Previous enforcement stage"
+            className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-700 shrink-0 transition-all ${
+              activeStep === 0
+                ? 'opacity-40 cursor-not-allowed'
+                : 'hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 active:scale-95'
+            }`}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          {/* 5 Stages Tabs */}
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200">
+            {steps.map((step) => {
+              const Icon = step.icon;
+              const isCurrent = activeStep === step.id;
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => setActiveStep(step.id)}
+                  className={`p-3 rounded-lg text-left transition-all flex flex-col justify-between ${
+                    isCurrent
+                      ? 'bg-white shadow-card border border-blue-500/80 text-slate-900 ring-1 ring-blue-500/20'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className={`text-[10px] font-mono uppercase font-bold ${
+                        isCurrent ? 'text-blue-600' : 'text-slate-400'
+                      }`}
+                    >
+                      {step.phase}
+                    </span>
+                    <Icon
+                      className={`h-4 w-4 ${isCurrent ? 'text-blue-600' : 'text-slate-400'}`}
+                    />
+                  </div>
+                  <div className="text-xs font-bold truncate">{step.title}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right Arrow */}
+          <button
+            onClick={() => setActiveStep((prev) => Math.min(steps.length - 1, prev + 1))}
+            disabled={activeStep === steps.length - 1}
+            aria-label="Next enforcement stage"
+            className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-700 shrink-0 transition-all ${
+              activeStep === steps.length - 1
+                ? 'opacity-40 cursor-not-allowed'
+                : 'hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 active:scale-95'
+            }`}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Active Stage Detailed Breakdown Box */}

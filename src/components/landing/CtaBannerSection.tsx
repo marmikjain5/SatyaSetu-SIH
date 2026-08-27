@@ -1,0 +1,62 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Shield, ArrowRight, ExternalLink } from 'lucide-react';
+import { Button } from '../ui/Button';
+
+interface CtaBannerSectionProps {
+  onRequestDemo: () => void;
+}
+
+export const CtaBannerSection: React.FC<CtaBannerSectionProps> = ({ onRequestDemo }) => {
+  return (
+    <section className="py-16 bg-[#F8FAFC]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-b from-blue-50/80 via-indigo-50/40 to-blue-50/60 border border-blue-200/80 p-8 sm:p-12 md:p-14 text-center shadow-xs overflow-hidden">
+          {/* Subtle ambient background glow */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            {/* Top Shield Icon */}
+            <div className="inline-flex p-3 rounded-2xl bg-blue-600 text-white shadow-sm mb-1">
+              <Shield className="h-6 w-6" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Ready to Strengthen Consumer Protection?
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+              Join regulators and enforcement agencies in building a transparent and compliant digital marketplace.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-3.5">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={onRequestDemo}
+                className="shadow-sm font-semibold gap-2"
+              >
+                <span>Request a Demo</span>
+                <ArrowRight className="h-4 w-4 text-blue-200" />
+              </Button>
+
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="font-semibold gap-2 bg-white text-slate-800 border-slate-300 hover:border-slate-400 shadow-2xs"
+                >
+                  <span>Explore Platform</span>
+                  <ExternalLink className="h-4 w-4 text-slate-500" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
