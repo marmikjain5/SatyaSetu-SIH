@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, ShieldAlert, Building2, MessageSquareText, TrendingUp } from 'lucide-react';
+import { Package, ShieldAlert, Building2, MessageSquareText, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '../ui/Button';
 
 export const StatsCounterSection: React.FC = () => {
   const stats = [
@@ -39,57 +41,73 @@ export const StatsCounterSection: React.FC = () => {
   ];
 
   return (
-    <section id="stats" className="py-16 bg-white border-y border-slate-200/90">
+    <section id="stats" className="py-16 lg:py-20 bg-white border-y border-slate-200/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-            Real-Time Compliance Telemetry
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-3">
-            National Scale Intelligence at a Glance
-          </h2>
-          <p className="text-sm text-slate-600 mt-2">
-            Continuous automated monitoring across India's digital commerce and packaged retail ecosystem.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          {/* Left Column: Heading, Description & Action */}
+          <div className="lg:col-span-5 space-y-5 text-left">
+            <span className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+              Platform at a Glance
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
+              National Scale Intelligence at a Glance
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-lg">
+              Continuous automated monitoring across India's digital commerce and packaged retail ecosystem.
+            </p>
+            <div className="pt-2">
+              <a href="#preview">
+                <Button variant="outline" size="sm" className="font-semibold gap-2 bg-white text-slate-800 border-slate-300 hover:border-blue-600 hover:text-blue-600 shadow-xs">
+                  <span>View Live Metrics</span>
+                  <ArrowUpRight className="h-4 w-4 text-blue-600" />
+                </Button>
+              </a>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, idx) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.35, delay: idx * 0.1 }}
-                className="bg-[#F8FAFC] rounded-xl border border-slate-200 p-6 hover:border-slate-300 hover:shadow-card transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-blue-600 shadow-xs">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    <TrendingUp className="h-3 w-3" />
-                    {stat.growth}
-                  </span>
-                </div>
+          {/* Right Column: 2x2 Metric Cards Grid */}
+          <div className="lg:col-span-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              {stats.map((stat, idx) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: idx * 0.08 }}
+                    className="bg-[#F8FAFC] rounded-2xl border border-slate-200 p-5 sm:p-6 hover:border-slate-300 hover:shadow-card transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-blue-600 shadow-2xs">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          <TrendingUp className="h-3 w-3" />
+                          {stat.growth}
+                        </span>
+                      </div>
 
-                <div className="mt-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 font-sans">
-                    {stat.count}
-                  </div>
-                  <div className="text-sm font-semibold text-slate-800 mt-1">{stat.label}</div>
-                  <p className="text-xs text-slate-500 mt-0.5">{stat.sublabel}</p>
-                </div>
+                      <div className="mt-4">
+                        <div className="text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+                          {stat.count}
+                        </div>
+                        <div className="text-sm font-bold text-slate-900 mt-1">{stat.label}</div>
+                        <p className="text-xs text-slate-500 mt-0.5">{stat.sublabel}</p>
+                      </div>
+                    </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                  <span>Standard:</span>
-                  <span className="text-slate-700 font-medium">{stat.highlight}</span>
-                </div>
-              </motion.div>
-            );
-          })}
+                    <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                      <span>Standard:</span>
+                      <span className="text-slate-800 font-medium">{stat.highlight}</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </section>
