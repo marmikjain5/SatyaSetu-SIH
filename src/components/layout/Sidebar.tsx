@@ -80,6 +80,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       badge: undefined,
     },
     {
+      to: '/dashboard/regulatory-rag',
+      label: 'Regulatory RAG',
+      icon: BookOpen,
+      badge: 'RAG',
+      badgeVariant: 'warning' as const,
+    },
+    {
       to: '/dashboard/settings',
       label: 'Settings',
       icon: Settings,

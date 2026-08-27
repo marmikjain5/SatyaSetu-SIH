@@ -17,19 +17,22 @@ import {
   CheckCircle2,
   AlertCircle,
   Scan,
+  Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Tabs } from '../ui/Tabs';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
+import { queryRegulatoryRAG } from '../../lib/ragKnowledgeService';
 import type {
   ExtractedProductData,
   DeclarationField,
   DeclarationFieldKey,
   ValidationStatus,
 } from '../../types/scan';
-import { cn } from '../../lib/utils';
+import { cn, formatCurrency } from '../../lib/utils';
 
 // ─── Status Badges ──────────────────────────────────────────────
 
@@ -73,6 +76,7 @@ interface DeclarationCardProps {
   field: DeclarationField;
   onEdit: (key: DeclarationFieldKey, value: string) => void;
   onHighlight: (key: DeclarationFieldKey | null) => void;
+  onAskRAG: (field: DeclarationField) => void;
   isHighlighted: boolean;
 }
 
@@ -80,6 +84,7 @@ const DeclarationCard: React.FC<DeclarationCardProps> = ({
   field,
   onEdit,
   onHighlight,
+  onAskRAG,
   isHighlighted,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -201,17 +206,20 @@ const DeclarationCard: React.FC<DeclarationCardProps> = ({
         )}
       </div>
 
-      {/* Footer: OCR Snippet & Bounding Box Indicator */}
-      {hasValue && (
-        <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-          <span className="truncate max-w-[200px]" title={field.sourceText}>
-            Snippet: "{field.sourceText}"
-          </span>
-          <span className="font-mono shrink-0">
-            {field.sourcePass.replace(/_/g, ' ')}
-          </span>
-        </div>
-      )}
+      {/* Contextual RAG Guidance Link */}
+      <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+        <span className="truncate text-[10px] text-slate-400 font-mono">
+          {hasValue ? `Pass: ${field.sourcePass.replace(/_/g, ' ')}` : 'Mandatory Rule Check'}
+        </span>
+        <button
+          onClick={() => onAskRAG(field)}
+          className="text-[10px] font-semibold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded border border-blue-200 flex items-center gap-1 transition-colors shrink-0"
+          title="Search RAG Intelligence for official statutory clause & penalties"
+        >
+          <Sparkles className="h-2.5 w-2.5 text-blue-600" />
+          <span>Ask RAG Guidance</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -312,6 +320,7 @@ export const OCRResultsPanel: React.FC = () => {
   const [copiedPayload, setCopiedPayload] = useState(false);
   const [highlightedKey, setHighlightedKey] = useState<DeclarationFieldKey | null>(null);
   const [localOverrides, setLocalOverrides] = useState<Partial<Record<DeclarationFieldKey, string>>>({});
+  const [selectedRAGField, setSelectedRAGField] = useState<DeclarationField | null>(null);
 
   if (!currentScan || currentScan.status !== 'completed' || !currentScan.extractedData) {
     return null;
@@ -435,6 +444,7 @@ export const OCRResultsPanel: React.FC = () => {
                   field={field}
                   onEdit={handleEdit}
                   onHighlight={setHighlightedKey}
+                  onAskRAG={(f) => setSelectedRAGField(f)}
                   isHighlighted={highlightedKey === field.key}
                 />
               ))}
@@ -551,7 +561,93 @@ export const OCRResultsPanel: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Contextual RAG Intelligence Modal */}
+        {selectedRAGField && (() => {
+          const ragResult = queryRegulatoryRAG({ fieldKey: selectedRAGField.key, evaluationDate: '2026-08-27' });
+          const topChunk = ragResult.matchedChunks[0];
+
+          return (
+            <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 space-y-5 relative max-h-[90vh] overflow-y-auto">
+                <button
+                  onClick={() => setSelectedRAGField(null)}
+                  className="absolute right-4 top-4 text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>SatyaDrishti RAG Regulatory Evidence</span>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                    Statutory Guidance: {selectedRAGField.label}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">Rule Code: {selectedRAGField.ruleCode}</p>
+                </div>
+
+                {topChunk ? (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="primary" size="sm" className="font-mono">
+                          {topChunk.authority}
+                        </Badge>
+                        <Badge variant="success" size="sm">
+                          {topChunk.status}
+                        </Badge>
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900">{topChunk.section}</h4>
+                      <p className="text-xs text-slate-700 leading-relaxed">{topChunk.content}</p>
+                    </div>
+
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-1">
+                      <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">
+                        Verbatim Official Gazette Statutory Clause:
+                      </span>
+                      <p className="text-xs text-amber-950 font-serif italic">"{topChunk.verbatimClause}"</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                      <div className="p-3 bg-slate-100 rounded-lg">
+                        <span className="text-[10px] text-slate-500 uppercase block">Official Gazette Ref</span>
+                        <span className="font-bold text-slate-800">{topChunk.officialGazetteRef}</span>
+                      </div>
+                      <div className="p-3 bg-slate-100 rounded-lg">
+                        <span className="text-[10px] text-slate-500 uppercase block">Statutory Fine Schedule</span>
+                        <span className="font-bold text-rose-600">
+                          {formatCurrency(topChunk.penalties.minFine)} - {formatCurrency(topChunk.penalties.maxFine)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <a
+                        href={topChunk.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      >
+                        <span>Download Official Gazette PDF</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      <Button variant="primary" size="sm" onClick={() => setSelectedRAGField(null)}>
+                        Close RAG Intelligence
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">No RAG chunk found for this field.</p>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
 };
+
