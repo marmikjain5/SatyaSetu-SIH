@@ -15,6 +15,8 @@ import { ImageUploader } from '../../components/scanner/ImageUploader';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
+import { ComplianceResultsPanel } from '../../components/scanner/ComplianceResultsPanel';
+import { RuleAuditView } from '../../components/scanner/RuleAuditView';
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
 
 export const ProductScanner: React.FC = () => {
@@ -49,7 +51,7 @@ export const ProductScanner: React.FC = () => {
             Product Scanner
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.
+            Scan product packaging &amp; labels using optical character recognition for Legal Metrology compliance verification.
           </p>
         </div>
       </div>
@@ -128,8 +130,14 @@ export const ProductScanner: React.FC = () => {
       {/* Processing Status */}
       <OCRProcessingCard />
 
-      {/* Results */}
+      {/* OCR Extraction Results */}
       <OCRResultsPanel />
+
+      {/* Compliance Validation Results */}
+      <ComplianceResultsPanel />
+
+      {/* Detailed Rule Audit Trail */}
+      <RuleAuditView />
 
       {/* Scan History */}
       <ScanHistoryTable />

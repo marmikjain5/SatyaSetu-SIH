@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { ScanRecord, UploadedImage, ExtractedProductData } from '../types/scan';
+import type { ComplianceValidationResult } from '../types/ruleEngine';
 import { ocrService } from '../lib/ocrService';
+import { validateProduct } from '../lib/ruleEngineService';
 
 interface ScanState {
   // State
@@ -10,6 +12,8 @@ interface ScanState {
   isProcessing: boolean;
   currentProgress: number;
   currentStatusMessage: string;
+  /** Validation results keyed by scan ID */
+  validationResults: Record<string, ComplianceValidationResult>;
 
   // Actions
   addImages: (files: File[]) => void;
@@ -22,6 +26,7 @@ interface ScanState {
   deleteScan: (id: string) => void;
   clearHistory: () => void;
   viewScan: (scan: ScanRecord | null) => void;
+  setValidationResult: (scanId: string, result: ComplianceValidationResult) => void;
 }
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
@@ -58,6 +63,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   isProcessing: false,
   currentProgress: 0,
   currentStatusMessage: '',
+  validationResults: {},
 
   addImages: (files) => {
     const validFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
@@ -127,11 +133,19 @@ export const useScanStore = create<ScanState>((set, get) => ({
           extractedData: result.extractedData,
         };
 
+        // Auto-trigger Rule Engine Validation
+        const validationResult = validateProduct(result.extractedData);
+        validationResult.scanId = completedScan.id;
+
         set((state) => ({
           scans: [completedScan, ...state.scans],
           currentScan: completedScan,
           currentProgress: 100,
-          currentStatusMessage: 'Extraction complete',
+          currentStatusMessage: 'Extraction complete — compliance validated',
+          validationResults: {
+            ...state.validationResults,
+            [completedScan.id]: validationResult,
+          },
         }));
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'OCR processing failed';
@@ -182,17 +196,30 @@ export const useScanStore = create<ScanState>((set, get) => ({
   },
 
   deleteScan: (id) => {
-    set((state) => ({
-      scans: state.scans.filter((s) => s.id !== id),
-      currentScan: state.currentScan?.id === id ? null : state.currentScan,
-    }));
+    set((state) => {
+      const { [id]: _removed, ...remainingResults } = state.validationResults;
+      return {
+        scans: state.scans.filter((s) => s.id !== id),
+        currentScan: state.currentScan?.id === id ? null : state.currentScan,
+        validationResults: remainingResults,
+      };
+    });
   },
 
   clearHistory: () => {
-    set({ scans: [], currentScan: null });
+    set({ scans: [], currentScan: null, validationResults: {} });
   },
 
   viewScan: (scan) => {
     set({ currentScan: scan });
+  },
+
+  setValidationResult: (scanId, result) => {
+    set((state) => ({
+      validationResults: {
+        ...state.validationResults,
+        [scanId]: result,
+      },
+    }));
   },
 }));
