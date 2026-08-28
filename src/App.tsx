@@ -10,6 +10,7 @@ import { ViolationsLedger } from './pages/dashboard/ViolationsLedger';
 import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanking';
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
+import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonitoring';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { AnimatedThemeToggler } from './components/ui/AnimatedThemeToggler';
@@ -32,6 +33,7 @@ export function App() {
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
+          <Route path="factory-hygiene" element={<FactoryHygieneMonitoring />} />
           <Route path="settings" element={<SettingsRegulatoryRules />} />
         </Route>
 
