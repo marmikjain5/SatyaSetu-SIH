@@ -16,9 +16,11 @@ import { ViolationsTable } from '../../components/hygiene/ViolationsTable';
 import { InspectionHistory } from '../../components/hygiene/InspectionHistory';
 import { HygieneTrendChart } from '../../components/hygiene/HygieneTrendChart';
 import { FactoryDetailModal } from './FactoryDetailModal';
+import { FactoryImageInspection } from '../../components/hygiene/FactoryImageInspection';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
+  { id: 'vision', label: 'AI Vision Inspection' },
   { id: 'zones', label: 'Zone Monitoring' },
   { id: 'inspections', label: 'Inspections' },
   { id: 'alerts', label: 'Alerts & Violations' },
@@ -133,6 +135,11 @@ export const FactoryHygieneMonitoring: React.FC = () => {
           />
           <HygieneTrendChart trends={trends} />
         </div>
+      )}
+
+      {/* AI Vision Inspection Tab */}
+      {activeTab === 'vision' && (
+        <FactoryImageInspection />
       )}
 
       {/* Zone Monitoring Tab */}
