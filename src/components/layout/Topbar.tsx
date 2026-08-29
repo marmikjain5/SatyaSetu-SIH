@@ -15,6 +15,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
 
 interface TopbarProps {
   onOpenCommandPalette: () => void;
@@ -84,6 +85,9 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
           <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
           <span>Rules Active: v4.2</span>
         </div>
+
+        {/* Animated Theme Toggler */}
+        <AnimatedThemeToggler />
 
         {/* Notifications Dropdown */}
         <div className="relative">
