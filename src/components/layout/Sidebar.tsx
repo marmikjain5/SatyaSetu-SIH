@@ -16,6 +16,7 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
+  Factory,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -85,6 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       icon: BookOpen,
       badge: 'RAG',
       badgeVariant: 'warning' as const,
+    },
+    {
+      to: '/dashboard/factory-hygiene',
+      label: 'Factory Hygiene',
+      icon: Factory,
+      badge: undefined,
     },
     {
       to: '/dashboard/settings',
