@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { SciFiCard } from '../ui/SciFiCard';
 
 export const CoreCapabilitiesSection: React.FC = () => {
   const [activeCard, setActiveCard] = useState<number | null>(null);
@@ -179,54 +180,57 @@ export const CoreCapabilitiesSection: React.FC = () => {
                 <div
                   key={item.id}
                   data-carousel-card
+                  className="snap-start shrink-0 w-[285px] sm:w-[325px] md:w-[355px]"
                   onMouseEnter={() => setActiveCard(item.id)}
                   onMouseLeave={() => setActiveCard(null)}
-                  className={`snap-start shrink-0 w-[280px] sm:w-[320px] md:w-[350px] bg-white rounded-2xl border p-6 transition-all duration-200 flex flex-col justify-between ${
-                    isHovered
-                      ? 'border-blue-500 shadow-card-hover -translate-y-1'
-                      : 'border-slate-200 shadow-subtle'
-                  }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 text-blue-600">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <Badge variant="secondary" size="sm" className="font-mono text-[10px]">
-                        {item.badge}
-                      </Badge>
-                    </div>
-
-                    <h3 className="text-base font-bold text-slate-900 mt-4 tracking-tight flex items-center justify-between">
-                      <span>{item.title}</span>
-                      <ArrowUpRight
-                        className={`h-4 w-4 transition-transform text-slate-400 ${
-                          isHovered ? 'translate-x-0.5 -translate-y-0.5 text-blue-600' : ''
-                        }`}
-                      />
-                    </h3>
-                    <p className="text-xs font-medium text-blue-600 mt-0.5">{item.subtitle}</p>
-
-                    <p className="text-xs text-slate-600 mt-3 leading-relaxed">{item.description}</p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-100 space-y-2.5">
-                    <div className="space-y-1.5">
-                      {item.metrics.map((metric) => (
-                        <div key={metric} className="flex items-center gap-2 text-[11px] text-slate-600">
-                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                          <span>{metric}</span>
+                  <SciFiCard
+                    className="p-6 h-[410px]"
+                    outerClassName="h-[410px]"
+                  >
+                    {/* Upper Content */}
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-xs">
+                          <Icon className="h-5 w-5" />
                         </div>
-                      ))}
+                        <Badge variant="secondary" size="sm" className="font-mono text-[10px] bg-slate-100/90 dark:bg-slate-800/90 border-slate-200 dark:border-slate-700">
+                          {item.badge}
+                        </Badge>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white mt-4 tracking-tight flex items-center justify-between group-hover/scifi:text-blue-600 dark:group-hover/scifi:text-blue-400 transition-colors">
+                        <span>{item.title}</span>
+                        <ArrowUpRight
+                          className={`h-4 w-4 transition-transform text-slate-400 dark:text-slate-500 ${
+                            isHovered ? 'translate-x-0.5 -translate-y-0.5 text-blue-600 dark:text-blue-400' : ''
+                          }`}
+                        />
+                      </h3>
+                      <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-0.5">{item.subtitle}</p>
+
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">{item.description}</p>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                      <span>Statutory Reference:</span>
-                      <span className="bg-slate-50 px-2 py-0.5 rounded border border-slate-200 text-slate-700 font-medium">
-                        {item.tag}
-                      </span>
+                    {/* Lower Metrics & Footer */}
+                    <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800/80 space-y-2.5">
+                      <div className="space-y-1.5">
+                        {item.metrics.map((metric) => (
+                          <div key={metric} className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+                            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>{metric}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between text-[10px] font-mono text-slate-400 dark:text-slate-400">
+                        <span>Statutory Reference:</span>
+                        <span className="bg-slate-100/80 dark:bg-slate-800/90 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium">
+                          {item.tag}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </SciFiCard>
                 </div>
               );
             })}

@@ -41,28 +41,23 @@
   }
 
   /* Universal Dark Theme Adaptations */
-  .dark .bg-white {
+  .dark .bg-white,
+  .dark [class*="bg-white/"] {
     background-color: #111827 !important;
-  }
-  .dark .bg-white\/90 {
-    background-color: rgba(17, 24, 39, 0.9) !important;
-  }
-  .dark .bg-white\/80 {
-    background-color: rgba(17, 24, 39, 0.8) !important;
   }
   .dark .bg-\[\#F8FAFC\] {
     background-color: #0B0F19 !important;
   }
-  .dark .bg-slate-50 {
-    background-color: #151D2F !important;
+  .dark .bg-slate-50,
+  .dark [class*="bg-slate-50/"] {
+    background-color: #0F172A !important;
   }
-  .dark .bg-slate-100 {
+  .dark .bg-slate-100,
+  .dark [class*="bg-slate-100/"] {
     background-color: #1E293B !important;
   }
-  .dark .bg-slate-100\/80 {
-    background-color: rgba(30, 41, 59, 0.8) !important;
-  }
-  .dark .bg-slate-200 {
+  .dark .bg-slate-200,
+  .dark [class*="bg-slate-200/"] {
     background-color: #334155 !important;
   }
   .dark .text-slate-900 {
@@ -81,8 +76,7 @@
     color: #64748B !important;
   }
   .dark .border-slate-200,
-  .dark .border-slate-200\/80,
-  .dark .border-slate-200\/90,
+  .dark [class*="border-slate-200/"],
   .dark .border-slate-300,
   .dark .border-slate-100 {
     border-color: #1E293B !important;
@@ -106,13 +100,13 @@
       linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px) !important;
   }
   .dark ::-webkit-scrollbar-track {
-    background: #0F172A;
+    background: #0B0F19;
   }
   .dark ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #1E293B;
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #334155;
   }
 }
 
@@ -203,3 +197,218 @@
 .pulse-danger-animation {
   animation: pulse-danger 2s infinite;
 }
+
+/* ==========================================================================
+   Futuristic Glow Ray Card (Uiverse Style with moving dot, ray & HUD lines)
+   ========================================================================== */
+@keyframes moveDot {
+  0%, 100% {
+    top: 10%;
+    right: 10%;
+  }
+  25% {
+    top: 10%;
+    right: calc(100% - 24px);
+  }
+  50% {
+    top: calc(100% - 24px);
+    right: calc(100% - 24px);
+  }
+  75% {
+    top: calc(100% - 24px);
+    right: 10%;
+  }
+}
+
+.scifi-card-outer {
+  position: relative;
+  padding: 1.5px;
+  border-radius: 18px;
+  background: radial-gradient(circle 260px at 0% 0%, rgba(59, 130, 246, 0.45), rgba(15, 23, 42, 0.12) 70%, transparent);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .scifi-card-outer {
+  background: radial-gradient(circle 280px at 0% 0%, rgba(255, 255, 255, 0.55), rgba(59, 130, 246, 0.3) 40%, rgba(12, 13, 18, 0.8) 80%);
+}
+
+.scifi-card-outer:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px -8px rgba(37, 99, 235, 0.22);
+}
+
+.dark .scifi-card-outer:hover {
+  box-shadow: 0 16px 36px -6px rgba(59, 130, 246, 0.3), 0 0 24px -2px rgba(255, 255, 255, 0.12);
+}
+
+.scifi-dot {
+  width: 6px;
+  height: 6px;
+  aspect-ratio: 1;
+  position: absolute;
+  background-color: #3b82f6;
+  box-shadow: 0 0 12px #3b82f6, 0 0 4px #60a5fa;
+  border-radius: 9999px;
+  z-index: 10;
+  pointer-events: none;
+  animation: moveDot 6s linear infinite;
+}
+
+.dark .scifi-dot {
+  background-color: #ffffff;
+  box-shadow: 0 0 14px #ffffff, 0 0 6px #60a5fa;
+}
+
+.scifi-card-inner {
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: radial-gradient(circle 320px at 0% 0%, #ffffff, #f8fafc 85%);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .scifi-card-inner {
+  border: 1px solid #1f2533;
+  background: radial-gradient(circle 340px at 0% 0%, #161e2e, #0c0e14 90%);
+}
+
+.scifi-ray {
+  width: 240px;
+  height: 50px;
+  border-radius: 100px;
+  position: absolute;
+  background-color: rgba(59, 130, 246, 0.25);
+  opacity: 0.5;
+  box-shadow: 0 0 45px rgba(59, 130, 246, 0.35);
+  filter: blur(12px);
+  transform-origin: 10%;
+  top: 0;
+  left: 0;
+  transform: rotate(38deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dark .scifi-ray {
+  background-color: #cbd5e1;
+  opacity: 0.3;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
+}
+
+.scifi-line {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.scifi-line.topl {
+  top: 10%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 30%, rgba(226, 232, 240, 0.4) 70%);
+}
+
+.dark .scifi-line.topl {
+  background: linear-gradient(90deg, #64748b 30%, #1e2430 70%);
+}
+
+.scifi-line.bottoml {
+  bottom: 10%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(226, 232, 240, 0.3);
+}
+
+.dark .scifi-line.bottoml {
+  background: rgba(30, 36, 48, 0.4);
+}
+
+.scifi-line.leftl {
+  left: 10%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.25) 30%, rgba(226, 232, 240, 0.4) 70%);
+}
+
+.dark .scifi-line.leftl {
+  background: linear-gradient(180deg, #64748b 30%, #1e2430 70%);
+}
+
+.scifi-line.rightl {
+  right: 10%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(226, 232, 240, 0.3);
+}
+
+.dark .scifi-line.rightl {
+  background: rgba(30, 36, 48, 0.4);
+}
+
+.scifi-card-text {
+  font-weight: 800;
+  background: linear-gradient(45deg, #0f172a 10%, #2563eb 60%, #0f172a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .scifi-card-text {
+  background: linear-gradient(45deg, #64748b 0%, #ffffff 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ==========================================================================
+   Tactile Pressable Box Button (Uiverse Style adapted to GovTech Theme)
+   ========================================================================== */
+.box-button {
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 14px;
+  background-color: #1e293b;
+  padding-bottom: 4px;
+  transition: all 0.08s ease-in-out;
+  user-select: none;
+}
+
+.dark .box-button {
+  background-color: #020617;
+}
+
+.box-button > .button,
+.box-button > button,
+.box-button > div {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 8px 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.08s ease-in-out;
+}
+
+.box-button:hover > .button,
+.box-button:hover > button,
+.box-button:hover > div {
+  background-color: #1d4ed8;
+}
+
+.box-button:active {
+  padding-bottom: 0px;
+  transform: translateY(4px);
+}
+
+
