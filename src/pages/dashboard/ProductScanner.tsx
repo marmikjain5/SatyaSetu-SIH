@@ -17,11 +17,13 @@ import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
 import { ComplianceResultsPanel } from '../../components/scanner/ComplianceResultsPanel';
 import { RuleAuditView } from '../../components/scanner/RuleAuditView';
+import { RecommendationsCard } from '../../components/scanner/RecommendationsCard';
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
 
 export const ProductScanner: React.FC = () => {
   const {
     scans,
+    currentScan,
     uploadedImages,
     isProcessing,
     startScan,
@@ -130,14 +132,26 @@ export const ProductScanner: React.FC = () => {
       {/* Processing Status */}
       <OCRProcessingCard />
 
-      {/* OCR Extraction Results */}
-      <OCRResultsPanel />
+      {/* Side-by-Side: Statutory Declarations (Left) & Compliance Validation (Right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+        {/* OCR Extraction Results */}
+        <OCRResultsPanel />
 
-      {/* Compliance Validation Results */}
-      <ComplianceResultsPanel />
+        {/* Compliance Validation Results */}
+        <ComplianceResultsPanel />
+      </div>
 
-      {/* Detailed Rule Audit Trail */}
-      <RuleAuditView />
+      {/* Two-Column: Rule Audit Trail (Left ~75%) & Recommendations (Right ~25%) */}
+      {currentScan?.status === 'completed' && currentScan?.extractedData && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-8 xl:col-span-9 h-full">
+            <RuleAuditView />
+          </div>
+          <div className="lg:col-span-4 xl:col-span-3 h-full">
+            <RecommendationsCard />
+          </div>
+        </div>
+      )}
 
       {/* Scan History */}
       <ScanHistoryTable />
