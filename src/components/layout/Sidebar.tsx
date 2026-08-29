@@ -17,6 +17,7 @@ import {
   ExternalLink,
   BookOpen,
   Factory,
+  Scale,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -92,6 +93,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       label: 'Factory Hygiene',
       icon: Factory,
       badge: undefined,
+    },
+    {
+      to: '/dashboard/legal-review',
+      label: 'AI Legal Review',
+      icon: Scale,
+      badge: 'AI',
+      badgeVariant: 'warning' as const,
     },
     {
       to: '/dashboard/settings',
