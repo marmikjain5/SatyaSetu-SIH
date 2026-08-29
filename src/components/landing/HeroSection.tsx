@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, CheckCircle, Lock, Sparkles, Building2, UserCheck, Scale } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LiveComplianceWidget } from './LiveComplianceWidget';
+import { GridPattern } from '../ui/GridPattern';
+import { cn } from '../../lib/utils';
 
 interface HeroSectionProps {
   onRequestDemo: () => void;
@@ -10,7 +12,32 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestDemo }) => {
   return (
-    <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-grid-pattern">
+    <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-[#F8FAFC]">
+      {/* Grid Pattern Background Texture */}
+      <GridPattern
+        squares={[
+          [4, 4],
+          [5, 1],
+          [8, 2],
+          [5, 3],
+          [5, 5],
+          [10, 10],
+          [12, 15],
+          [15, 10],
+          [10, 15],
+          [15, 10],
+          [10, 15],
+          [15, 10],
+          [2, 6],
+          [7, 12],
+          [20, 8],
+        ]}
+        className={cn(
+          "[mask-image:radial-gradient(750px_circle_at_center,white,transparent)]",
+          "inset-x-0 inset-y-[-20%] h-[180%] skew-y-6 fill-blue-600/[0.06] stroke-slate-900/[0.05]"
+        )}
+      />
+
       {/* Subtle top ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-blue-500/5 blur-3xl pointer-events-none" />
 

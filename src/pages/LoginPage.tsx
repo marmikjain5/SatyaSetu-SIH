@@ -19,6 +19,8 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { useAuthStore } from '../store/authStore';
 import { UserRole } from '../types/auth';
+import { GridPattern } from '../components/ui/GridPattern';
+import { cn } from '../lib/utils';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,18 +118,46 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-grid-pattern relative">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Texture Pattern */}
+      <GridPattern
+        width={40}
+        height={40}
+        squares={[
+          [4, 4],
+          [5, 1],
+          [8, 2],
+          [5, 3],
+          [5, 5],
+          [10, 10],
+          [12, 15],
+          [15, 10],
+          [10, 15],
+          [15, 10],
+          [10, 15],
+          [15, 10],
+          [3, 8],
+          [18, 6],
+          [22, 12],
+          [2, 16],
+        ]}
+        className={cn(
+          "[mask-image:radial-gradient(650px_circle_at_center,white,transparent)]",
+          "inset-x-0 inset-y-[-30%] h-[200%] skew-y-12 fill-blue-600/[0.07] stroke-slate-900/[0.06]"
+        )}
+      />
+
       {/* Back to Home Link */}
-      <div className="absolute top-6 left-6">
+      <div className="absolute top-6 left-6 z-20">
         <Link
           to="/"
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-xs"
+          className="text-xs font-semibold text-slate-600 hover:text-slate-900 inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200 shadow-xs transition-colors"
         >
           ← Return to Public Overview
         </Link>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         {/* Emblem & Branding */}
         <div className="flex justify-center">
           <div className="h-12 w-12 rounded-xl bg-[#0F172A] border border-slate-800 flex items-center justify-center text-blue-500 shadow-card">

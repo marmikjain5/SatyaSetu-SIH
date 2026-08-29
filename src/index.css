@@ -13,15 +13,126 @@
     --color-bg: #F8FAFC;
   }
 
+  .dark {
+    --color-primary: #F8FAFC;
+    --color-secondary: #E2E8F0;
+    --color-bg: #0B0F19;
+  }
+
   * {
     border-color: #E2E8F0;
+  }
+
+  .dark * {
+    border-color: #1E293B;
   }
 
   body {
     background-color: #F8FAFC;
     color: #0F172A;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+
+  .dark body,
+  html.dark body {
+    background-color: #0B0F19;
+    color: #F8FAFC;
+  }
+
+  /* Universal Dark Theme Adaptations */
+  .dark .bg-white {
+    background-color: #111827 !important;
+  }
+  .dark .bg-white\/90 {
+    background-color: rgba(17, 24, 39, 0.9) !important;
+  }
+  .dark .bg-white\/80 {
+    background-color: rgba(17, 24, 39, 0.8) !important;
+  }
+  .dark .bg-\[\#F8FAFC\] {
+    background-color: #0B0F19 !important;
+  }
+  .dark .bg-slate-50 {
+    background-color: #151D2F !important;
+  }
+  .dark .bg-slate-100 {
+    background-color: #1E293B !important;
+  }
+  .dark .bg-slate-100\/80 {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+  }
+  .dark .bg-slate-200 {
+    background-color: #334155 !important;
+  }
+  .dark .text-slate-900 {
+    color: #F8FAFC !important;
+  }
+  .dark .text-slate-800 {
+    color: #E2E8F0 !important;
+  }
+  .dark .text-slate-700 {
+    color: #CBD5E1 !important;
+  }
+  .dark .text-slate-600 {
+    color: #94A3B8 !important;
+  }
+  .dark .text-slate-500 {
+    color: #64748B !important;
+  }
+  .dark .border-slate-200,
+  .dark .border-slate-200\/80,
+  .dark .border-slate-200\/90,
+  .dark .border-slate-300,
+  .dark .border-slate-100 {
+    border-color: #1E293B !important;
+  }
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: #0F172A !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+  }
+  .dark input::placeholder {
+    color: #64748B !important;
+  }
+  .dark .surface-glass {
+    background: rgba(17, 24, 39, 0.85) !important;
+  }
+  .dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px) !important;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: #0F172A;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}
+
+/* View Transitions API circular reveal animation */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
 }
 
 /* Custom scrollbars */

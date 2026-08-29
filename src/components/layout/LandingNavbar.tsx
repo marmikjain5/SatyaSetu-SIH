@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShieldCheck, ArrowRight, Activity, Terminal } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
 import { useAuthStore } from '../../store/authStore';
 
 interface LandingNavbarProps {
@@ -74,6 +75,8 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
 
         {/* Right CTA Actions */}
         <div className="flex items-center gap-3">
+          <AnimatedThemeToggler />
+
           <Button variant="outline" size="sm" onClick={onRequestDemo} className="hidden sm:inline-flex gap-1.5">
             <Activity className="h-3.5 w-3.5 text-blue-600" />
             Request Demo

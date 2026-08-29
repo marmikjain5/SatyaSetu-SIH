@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { GridPattern } from '../ui/GridPattern';
+import { cn } from '../../lib/utils';
 
 interface CtaBannerSectionProps {
   onRequestDemo: () => void;
@@ -12,6 +14,25 @@ export const CtaBannerSection: React.FC<CtaBannerSectionProps> = ({ onRequestDem
     <section className="py-16 bg-[#F8FAFC]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-b from-blue-50/80 via-indigo-50/40 to-blue-50/60 border border-blue-200/80 p-8 sm:p-12 md:p-14 text-center shadow-xs overflow-hidden">
+          {/* Subtle GridPattern texture */}
+          <GridPattern
+            width={32}
+            height={32}
+            squares={[
+              [2, 2],
+              [4, 5],
+              [8, 3],
+              [14, 2],
+              [18, 4],
+              [24, 2],
+              [28, 5],
+            ]}
+            className={cn(
+              '[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]',
+              'inset-x-0 inset-y-[-20%] h-[160%] skew-y-6 fill-blue-600/[0.08] stroke-blue-900/[0.06]'
+            )}
+          />
+
           {/* Subtle ambient background glow */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
 
