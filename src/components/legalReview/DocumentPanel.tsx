@@ -6,6 +6,7 @@ import {
   Hash,
   Tag,
   ChevronDown,
+  Scale,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Badge } from '../ui/Badge';
@@ -26,6 +27,11 @@ export const DocumentPanel: React.FC = () => {
     analysisResult,
     selectDocument,
   } = useLegalReviewStore();
+
+  // Check if the selected document is an external (hygiene-generated) one
+  const isExternalDocument = selectedDocument
+    ? !documents.some((d) => d.id === selectedDocument.id)
+    : false;
 
   // Collect evidence strings for highlighting
   const evidenceTexts = analysisResult?.findings.map((f) => {
@@ -79,6 +85,16 @@ export const DocumentPanel: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Hygiene Source Banner (when viewing an external document) */}
+        {isExternalDocument && selectedDocument && (
+          <div className="p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg flex items-center gap-2">
+            <Scale className="h-4 w-4 text-indigo-500 shrink-0" />
+            <p className="text-[11px] text-indigo-700 leading-tight">
+              <span className="font-semibold">Source: Factory Hygiene Monitoring</span> — This document was generated from a hygiene violation record for AI legal review.
+            </p>
+          </div>
+        )}
+
         {/* Document Selector */}
         <div>
           <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
@@ -98,6 +114,11 @@ export const DocumentPanel: React.FC = () => {
                   {doc.title}
                 </option>
               ))}
+              {isExternalDocument && selectedDocument && (
+                <option key={selectedDocument.id} value={selectedDocument.id}>
+                  ⚖ {selectedDocument.title} (from Hygiene)
+                </option>
+              )}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
           </div>

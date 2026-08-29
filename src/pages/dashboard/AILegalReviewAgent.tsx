@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Scale,
   Sparkles,
@@ -9,10 +10,13 @@ import {
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { useLegalReviewStore } from '../../store/legalReviewStore';
+import { useHygieneStore } from '../../store/hygieneStore';
 import { DocumentPanel } from '../../components/legalReview/DocumentPanel';
 import { AnalysisSummary } from '../../components/legalReview/AnalysisSummary';
 import { FindingCard } from '../../components/legalReview/FindingCard';
 import { ChatAssistant } from '../../components/legalReview/ChatAssistant';
+import { createReviewDocumentFromViolation } from '../../lib/legalReviewIntegration';
+import type { HygieneViolation } from '../../types/hygiene';
 
 export const AILegalReviewAgent: React.FC = () => {
   const {
@@ -21,7 +25,28 @@ export const AILegalReviewAgent: React.FC = () => {
     isAnalyzing,
     analyzeDocument,
     resetSession,
+    loadExternalDocument,
   } = useLegalReviewStore();
+
+  const { getFactoryById } = useHygieneStore();
+  const location = useLocation();
+  const hasLoadedRef = useRef(false);
+
+  // Receive hygiene violation from navigation state
+  useEffect(() => {
+    const state = location.state as { hygieneViolation?: HygieneViolation } | null;
+    if (state?.hygieneViolation && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      const violation = state.hygieneViolation;
+      const factory = getFactoryById(violation.factoryId);
+      const factoryName = factory?.name;
+      const reviewDoc = createReviewDocumentFromViolation(violation, factoryName);
+      loadExternalDocument(reviewDoc, violation, factoryName);
+
+      // Clear navigation state to prevent re-loading on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, getFactoryById, loadExternalDocument]);
 
   return (
     <div className="space-y-6">

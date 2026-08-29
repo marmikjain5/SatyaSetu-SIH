@@ -11,11 +11,15 @@ import type {
   AIAnalysisResult,
   ReviewMessage,
 } from '../types/legalReview';
+import type { HygieneViolation } from '../types/hygiene';
 import {
   MOCK_LEGAL_DOCUMENTS,
   MOCK_ANALYSIS_RESULTS,
   generateMockResponse,
 } from '../data/mockLegalReviewData';
+import {
+  createAnalysisForHygieneViolation,
+} from '../lib/legalReviewIntegration';
 
 interface LegalReviewState {
   // Data
@@ -36,9 +40,14 @@ interface LegalReviewState {
   markFindingReviewed: (findingId: string) => void;
   markFindingResolved: (findingId: string) => void;
   resetSession: () => void;
+  loadExternalDocument: (document: ReviewDocument, sourceViolation?: HygieneViolation, factoryName?: string) => void;
 }
 
 let analyzeTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Track the source violation for hygiene-generated documents
+let _pendingHygieneViolation: HygieneViolation | null = null;
+let _pendingFactoryName: string | undefined = undefined;
 
 export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
   // Initialize from mock data
@@ -88,7 +97,18 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
 
     // Simulated analysis delay (1.5s)
     analyzeTimer = setTimeout(() => {
-      const result = MOCK_ANALYSIS_RESULTS[selectedDocument.id];
+      // Check pre-computed mock results first (existing sample documents)
+      const preComputedResult = MOCK_ANALYSIS_RESULTS[selectedDocument.id];
+
+      // For hygiene-generated documents, dynamically generate analysis
+      const result: AIAnalysisResult | undefined = preComputedResult
+        || (_pendingHygieneViolation
+          ? createAnalysisForHygieneViolation(
+              _pendingHygieneViolation,
+              selectedDocument.id,
+              _pendingFactoryName
+            )
+          : undefined);
 
       if (result) {
         // Deep-clone findings so each session has independent state
@@ -209,10 +229,40 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       analyzeTimer = null;
     }
 
+    _pendingHygieneViolation = null;
+    _pendingFactoryName = undefined;
+
     set({
       selectedDocument: null,
       analysisResult: null,
       messages: [],
+      isAnalyzing: false,
+      expandedFindingId: null,
+    });
+  },
+
+  loadExternalDocument: (document, sourceViolation, factoryName) => {
+    // Clear any pending analysis timer
+    if (analyzeTimer) {
+      clearTimeout(analyzeTimer);
+      analyzeTimer = null;
+    }
+
+    // Store the source violation for analysis generation
+    _pendingHygieneViolation = sourceViolation || null;
+    _pendingFactoryName = factoryName;
+
+    set({
+      selectedDocument: document,
+      analysisResult: null,
+      messages: [
+        {
+          id: `msg-sys-${Date.now()}`,
+          role: 'system',
+          message: `Document loaded from Factory Hygiene Monitoring: "${document.title}". This hygiene violation has been sent to the AI Legal Review module for analysis. Click "Analyze Document" to start the simulated AI review.`,
+          timestamp: new Date().toISOString(),
+        },
+      ],
       isAnalyzing: false,
       expandedFindingId: null,
     });
