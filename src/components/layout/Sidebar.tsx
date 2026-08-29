@@ -165,6 +165,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                     ? 'primary'
                     : user.role === 'inspector'
                     ? 'warning'
+                    : user.role === 'manufacturer'
+                    ? 'secondary'
                     : 'success'
                 }
                 size="sm"

@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
+import { AboutPage } from './pages/AboutPage';
 import { LoginPage } from './pages/LoginPage';
+import { PublicDirectoryPage } from './pages/PublicDirectoryPage';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { OverviewDashboard } from './pages/dashboard/OverviewDashboard';
 import { ProductsIntelligence } from './pages/dashboard/ProductsIntelligence';
@@ -22,7 +24,11 @@ export function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/directory" element={<PublicDirectoryPage />} />
+        <Route path="/verify" element={<PublicDirectoryPage />} />
+        <Route path="/public-directory" element={<Navigate to="/" replace />} />
 
         {/* Authenticated Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>

@@ -168,6 +168,88 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
         </div>
 
+        {/* Statutory Declarations Breakdown: FSSAI, Ingredients & Nutrition */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200">
+          {/* Ingredients & Manufacturer */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] flex items-center gap-1">
+                <FileCheck2 className="h-3.5 w-3.5 text-blue-600" />
+                <span>Declared Ingredients & Additives</span>
+              </span>
+              {product.fssaiLicenseNumber && (
+                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  FSSAI: {product.fssaiLicenseNumber}
+                </span>
+              )}
+            </div>
+
+            {product.ingredientsList && product.ingredientsList.length > 0 ? (
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-700 space-y-1">
+                {product.ingredientsList.map((ing, i) => (
+                  <div key={i} className="text-[11px] flex items-start gap-1.5">
+                    <span className="text-slate-400 font-mono">•</span>
+                    <span>{ing}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-500 text-[11px]">
+                Standard industrial/non-food consumer declaration.
+              </div>
+            )}
+
+            {/* Customer Care Contact */}
+            <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-200 text-[11px] text-blue-950 font-mono">
+              <span className="text-[10px] text-blue-700 block uppercase font-sans font-bold">Official Grievance Contact:</span>
+              <span className="font-semibold">{product.customerCareContact}</span>
+            </div>
+          </div>
+
+          {/* Nutrition Table */}
+          <div className="space-y-3">
+            <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
+              Declared Nutritional Facts ({product.nutritionalInfo?.perUnit || 'Per 100g'})
+            </span>
+            {product.nutritionalInfo ? (
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden font-mono text-[11px]">
+                <table className="w-full text-left">
+                  <tbody className="divide-y divide-slate-100">
+                    <tr className="bg-slate-50 font-bold">
+                      <td className="px-3 py-1.5 text-slate-900 font-sans">Energy</td>
+                      <td className="px-3 py-1.5 text-right text-slate-900">{product.nutritionalInfo.energyKcal}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-1.5 text-slate-700 font-sans">Protein</td>
+                      <td className="px-3 py-1.5 text-right">{product.nutritionalInfo.protein}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-1.5 text-slate-700 font-sans">Carbohydrates</td>
+                      <td className="px-3 py-1.5 text-right">{product.nutritionalInfo.carbohydrates}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-1.5 text-slate-500 font-sans pl-5">- Added Sugars</td>
+                      <td className="px-3 py-1.5 text-right text-amber-700 font-bold">{product.nutritionalInfo.addedSugars}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-1.5 text-slate-700 font-sans">Total Fat</td>
+                      <td className="px-3 py-1.5 text-right">{product.nutritionalInfo.totalFat}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-1.5 text-slate-700 font-sans">Sodium</td>
+                      <td className="px-3 py-1.5 text-right">{product.nutritionalInfo.sodium}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-500 text-[11px]">
+                Non-food consumer appliance / garment. Nutritional declarations exempt under FSSR 2011.
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Claim Analysis NLP Findings */}
         {product.claims && product.claims.length > 0 && (
           <div className="space-y-2">

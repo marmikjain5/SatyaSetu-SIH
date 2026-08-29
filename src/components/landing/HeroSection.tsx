@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, CheckCircle, Lock, Sparkles, Building2, UserCheck, Scale } from 'lucide-react';
+import { ArrowRight, ShieldCheck, CheckCircle, Lock, Sparkles, Building2, UserCheck, Scale, Factory } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LiveComplianceWidget } from './LiveComplianceWidget';
 import { GridPattern } from '../ui/GridPattern';
@@ -65,19 +65,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestDemo }) => {
 
             {/* CTA Buttons */}
             <div className="pt-2 flex flex-wrap items-center gap-3.5">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={onRequestDemo}
-                className="shadow-sm font-semibold gap-2"
-              >
-                <span>Request Demo</span>
-                <ArrowRight className="h-4 w-4 text-blue-400" />
-              </Button>
+              <Link to="/">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="shadow-sm font-semibold gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <ShieldCheck className="h-4 w-4 text-blue-200" />
+                  <span>Public Product Directory (Home)</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
 
               <Link to="/login">
                 <Button variant="outline" size="lg" className="font-semibold gap-2 bg-white">
-                  <span>Explore Platform</span>
+                  <span>Official Portal Login</span>
                   <Scale className="h-4 w-4 text-slate-600" />
                 </Button>
               </Link>
@@ -118,6 +120,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestDemo }) => {
                 >
                   <Scale className="h-3 w-3 text-blue-600" />
                   <span>Field Inspector</span>
+                </Link>
+                <Link
+                  to="/login?role=manufacturer"
+                  className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1.5 transition-colors"
+                >
+                  <Factory className="h-3 w-3 text-indigo-600" />
+                  <span>Manufacturer Cell</span>
                 </Link>
                 <Link
                   to="/login?role=consumer"

@@ -19,6 +19,29 @@ export interface Product {
   expiryDate?: string;
   countryOfOrigin: string;
   customerCareContact: string;
+  customerCarePhone?: string;
+  customerCareEmail?: string;
+  fssaiLicenseNumber?: string;
+  manufacturerAddress?: string;
+  packerAddress?: string;
+  unitSalePrice?: string;
+  dietaryType?: 'Vegetarian' | 'Non-Vegetarian' | 'Non-Food / General';
+  allergenInfo?: string[];
+  ingredientsList?: string[];
+  nutritionalInfo?: {
+    servingSize?: string;
+    perUnit?: string;
+    energyKcal: number | string;
+    protein: string;
+    totalFat: string;
+    saturatedFat?: string;
+    transFat?: string;
+    carbohydrates: string;
+    totalSugars: string;
+    addedSugars: string;
+    sodium: string;
+    dietaryFiber?: string;
+  };
   complianceScore: number; // 0 - 100
   status: ComplianceStatus;
   violationsCount: number;

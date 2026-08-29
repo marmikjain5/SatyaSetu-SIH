@@ -55,31 +55,41 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
         </Link>
 
         {/* Center Nav Links */}
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
-          <a href="#stats" className="hover:text-slate-900 transition-colors">
-            Intelligence Data
-          </a>
-          <a href="#capabilities" className="hover:text-slate-900 transition-colors">
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
+          <Link
+            to="/"
+            className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200/80 transition-colors"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span>Product Directory</span>
+          </Link>
+          <Link to="/about" className="hover:text-slate-900 transition-colors font-medium">
+            About Platform
+          </Link>
+          <Link to="/about#capabilities" className="hover:text-slate-900 transition-colors">
             Core Capabilities
-          </a>
-          <a href="#workflow" className="hover:text-slate-900 transition-colors">
+          </Link>
+          <Link to="/about#workflow" className="hover:text-slate-900 transition-colors">
             Enforcement Flow
-          </a>
-          <a href="#preview" className="hover:text-slate-900 transition-colors">
-            Platform Preview
-          </a>
-          <a href="#features" className="hover:text-slate-900 transition-colors">
-            Regulatory Bento
-          </a>
+          </Link>
+          <Link to="/about#preview" className="hover:text-slate-900 transition-colors">
+            Preview
+          </Link>
         </nav>
 
         {/* Right CTA Actions */}
         <div className="flex items-center gap-3">
+          <Link to="/directory" className="sm:hidden">
+            <Button variant="outline" size="sm" className="text-xs">
+              Directory
+            </Button>
+          </Link>
+
           <AnimatedThemeToggler />
 
           <Button variant="outline" size="sm" onClick={onRequestDemo} className="hidden sm:inline-flex gap-1.5">
             <Activity className="h-3.5 w-3.5 text-blue-600" />
-            Request Demo
+            <span>Request Demo</span>
           </Button>
 
           {isAuthenticated && user ? (

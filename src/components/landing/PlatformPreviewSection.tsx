@@ -220,7 +220,7 @@ export const PlatformPreviewSection: React.FC = () => {
                       <div>
                         <h4 className="text-base font-bold text-slate-900">Citizen Product Trust Verifier</h4>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          Enter barcode number or upload product label picture to verify statutory compliance.
+                          Enter SKU / product name or upload product label picture to verify statutory compliance.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -228,7 +228,7 @@ export const PlatformPreviewSection: React.FC = () => {
                           <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
                           <input
                             type="text"
-                            defaultValue="8901030998124"
+                            defaultValue="SKU-AMZ-WHEY-2KG"
                             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 font-mono focus:border-blue-600 focus:outline-none"
                           />
                         </div>

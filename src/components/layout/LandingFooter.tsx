@@ -88,6 +88,16 @@ export const LandingFooter: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
+                <Link to="/" className="hover:text-white transition-colors text-blue-400">
+                  Public Citizen Product Directory
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-white transition-colors">
+                  About Platform & AI Engine
+                </Link>
+              </li>
+              <li>
                 <Link to="/login" className="hover:text-white transition-colors text-blue-400">
                   Directorate General Dashboard
                 </Link>
@@ -95,11 +105,6 @@ export const LandingFooter: React.FC = () => {
               <li>
                 <Link to="/login" className="hover:text-white transition-colors text-blue-400">
                   Zonal Inspector Workstation
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-white transition-colors text-blue-400">
-                  Public Citizen Verification Portal
                 </Link>
               </li>
               <li className="hover:text-white transition-colors">National Consumer Helpline (1915)</li>
