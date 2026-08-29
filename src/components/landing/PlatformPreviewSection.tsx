@@ -32,20 +32,20 @@ export const PlatformPreviewSection: React.FC = () => {
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-3">
             Multi-Stakeholder Intelligence Architecture
           </h2>
-          <p className="text-sm text-slate-600 mt-2">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
             Tailored interfaces for senior regulators, field inspection teams, grievance officers, and the general public.
           </p>
         </div>
 
         {/* Showcase Tab Selector */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs gap-1 max-w-full overflow-x-auto">
+          <div className="inline-flex p-1.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs gap-1 max-w-full overflow-x-auto">
             <button
               onClick={() => setActiveTab('inspector')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'inspector'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Scale className="h-4 w-4" />
@@ -54,10 +54,10 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('consumer')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'consumer'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <UserCheck className="h-4 w-4" />
@@ -66,10 +66,10 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('complaints')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'complaints'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <MessageSquareWarning className="h-4 w-4" />
@@ -78,14 +78,14 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('risk')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'risk'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <LineChart className="h-4 w-4" />
-              <span>Risk Analytics Suite</span>
+              <span>Risk & Entity Analytics</span>
             </button>
           </div>
         </div>
