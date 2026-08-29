@@ -11,6 +11,7 @@ import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanki
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonitoring';
+import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { AnimatedThemeToggler } from './components/ui/AnimatedThemeToggler';
@@ -34,6 +35,7 @@ export function App() {
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
           <Route path="factory-hygiene" element={<FactoryHygieneMonitoring />} />
+          <Route path="legal-review" element={<AILegalReviewAgent />} />
           <Route path="settings" element={<SettingsRegulatoryRules />} />
         </Route>
 
