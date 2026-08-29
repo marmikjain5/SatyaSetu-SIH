@@ -9,6 +9,7 @@ import {
   Building2,
   Scale,
   UserCheck,
+  Factory,
   ArrowRight,
   AlertCircle,
   CheckCircle2,
@@ -39,6 +40,9 @@ export const LoginPage: React.FC = () => {
     if (roleParam === 'inspector') {
       setEmail('inspector@demo.gov.in');
       setPassword('inspect123');
+    } else if (roleParam === 'manufacturer') {
+      setEmail('manufacturer@demo.gov.in');
+      setPassword('manuf123');
     } else if (roleParam === 'consumer') {
       setEmail('consumer@demo.gov.in');
       setPassword('consumer123');
@@ -58,12 +62,13 @@ export const LoginPage: React.FC = () => {
     const lower = emailInput.toLowerCase();
     if (lower.includes('admin')) return 'admin';
     if (lower.includes('inspect')) return 'inspector';
+    if (lower.includes('manuf') || lower.includes('mfg')) return 'manufacturer';
     return 'consumer';
   };
 
   const currentDetectedRole = detectRole(email);
 
-  const handleQuickFill = (role: 'admin' | 'inspector' | 'consumer') => {
+  const handleQuickFill = (role: 'admin' | 'inspector' | 'manufacturer' | 'consumer') => {
     setError('');
     if (role === 'admin') {
       setEmail('admin@demo.gov.in');
@@ -71,6 +76,9 @@ export const LoginPage: React.FC = () => {
     } else if (role === 'inspector') {
       setEmail('inspector@demo.gov.in');
       setPassword('inspect123');
+    } else if (role === 'manufacturer') {
+      setEmail('manufacturer@demo.gov.in');
+      setPassword('manuf123');
     } else {
       setEmail('consumer@demo.gov.in');
       setPassword('consumer123');
@@ -101,6 +109,11 @@ export const LoginPage: React.FC = () => {
       }
       if (email === 'inspector@demo.gov.in' && password !== 'inspect123') {
         setError('Invalid password for Inspector. Correct demo password is: inspect123');
+        setIsLoading(false);
+        return;
+      }
+      if (email === 'manufacturer@demo.gov.in' && password !== 'manuf123') {
+        setError('Invalid password for Manufacturer. Correct demo password is: manuf123');
         setIsLoading(false);
         return;
       }
@@ -148,12 +161,18 @@ export const LoginPage: React.FC = () => {
       />
 
       {/* Back to Home Link */}
-      <div className="absolute top-6 left-6 z-20">
+      <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
         <Link
           to="/"
           className="text-xs font-semibold text-slate-600 hover:text-slate-900 inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200 shadow-xs transition-colors"
         >
-          ← Return to Public Overview
+          ← Public Overview
+        </Link>
+        <Link
+          to="/directory"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-800 inline-flex items-center gap-1.5 bg-blue-50/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-blue-200 shadow-xs transition-colors"
+        >
+          <span>Product Directory (No Login)</span>
         </Link>
       </div>
 
@@ -169,22 +188,22 @@ export const LoginPage: React.FC = () => {
           Satya<span className="text-blue-600">Drishti</span> Compliance Suite
         </h2>
         <p className="mt-1 text-center text-xs text-slate-500">
-          National Consumer Protection & Legal Metrology Intelligence Portal
+          Official Access Gateway for CCPA Regulators, Inspectors & Verified Users
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-slate-200 space-y-6">
+        <div className="bg-white py-7 px-6 sm:px-8 shadow-card rounded-2xl border border-slate-200 space-y-5">
           {/* Quick Demo Credentials Switcher */}
           <div>
             <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">
               Select Demo Role (1-Click Auto-Fill):
             </span>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin')}
-                className={`p-2.5 rounded-lg border text-left transition-all ${
+                className={`p-2 rounded-lg border text-left transition-all ${
                   email === 'admin@demo.gov.in'
                     ? 'border-blue-600 bg-blue-50/70 text-blue-950 font-semibold'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -200,7 +219,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleQuickFill('inspector')}
-                className={`p-2.5 rounded-lg border text-left transition-all ${
+                className={`p-2 rounded-lg border text-left transition-all ${
                   email === 'inspector@demo.gov.in'
                     ? 'border-blue-600 bg-blue-50/70 text-blue-950 font-semibold'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -215,8 +234,24 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="button"
+                onClick={() => handleQuickFill('manufacturer')}
+                className={`p-2 rounded-lg border text-left transition-all ${
+                  email === 'manufacturer@demo.gov.in'
+                    ? 'border-blue-600 bg-blue-50/70 text-blue-950 font-semibold'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-1 text-[11px] text-indigo-700 font-bold">
+                  <Factory className="h-3.5 w-3.5" />
+                  <span>Manufacturer</span>
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Brand Officer</div>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleQuickFill('consumer')}
-                className={`p-2.5 rounded-lg border text-left transition-all ${
+                className={`p-2 rounded-lg border text-left transition-all ${
                   email === 'consumer@demo.gov.in'
                     ? 'border-blue-600 bg-blue-50/70 text-blue-950 font-semibold'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -290,6 +325,8 @@ export const LoginPage: React.FC = () => {
                     ? 'primary'
                     : currentDetectedRole === 'inspector'
                     ? 'warning'
+                    : currentDetectedRole === 'manufacturer'
+                    ? 'secondary'
                     : 'success'
                 }
                 size="sm"
@@ -312,7 +349,7 @@ export const LoginPage: React.FC = () => {
           </form>
 
           {/* Footnote */}
-          <div className="pt-4 border-t border-slate-100 text-center text-[11px] text-slate-400">
+          <div className="pt-3 border-t border-slate-100 text-center text-[11px] text-slate-400">
             <span>NIC / CERT-In Certified Regulatory Environment • Smart India Hackathon</span>
           </div>
         </div>

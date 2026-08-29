@@ -23,9 +23,9 @@ export const WorkflowTimelineSection: React.FC = () => {
       title: 'Consumer Encounter',
       actor: 'Public Citizen / Buyer',
       icon: Users,
-      summary: 'Consumer scans barcode or encounters misleading e-commerce claim/dual-MRP pricing.',
+      summary: 'Consumer searches product or encounters misleading e-commerce claim/dual-MRP pricing.',
       details: [
-        'Instant mobile barcode & packaging image capture',
+        'Instant mobile packaging & label image capture',
         'Citizen grievance submission via National Consumer Helpline integration',
         'Transparent trust rating verification in < 1 second',
       ],

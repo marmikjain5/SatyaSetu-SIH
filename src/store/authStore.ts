@@ -32,6 +32,16 @@ const DEMO_USERS: Record<string, User> = {
     badgeNumber: 'NAT-CV-5912',
     lastLogin: 'Yesterday, 04:30 PM',
   },
+  'manufacturer@demo.gov.in': {
+    id: 'USR-MFG-501',
+    name: 'Vikramaditya Singhania',
+    email: 'manufacturer@demo.gov.in',
+    role: 'manufacturer',
+    department: 'Apex FMCG Enterprises / Statutory Affairs',
+    designation: 'Chief Compliance & Quality Officer',
+    badgeNumber: 'FSSAI-MFG-9402',
+    lastLogin: 'Today, 09:15 AM',
+  },
 };
 
 const STORAGE_KEY = 'satyadrishti_auth_session';
@@ -58,14 +68,34 @@ export const useAuthStore = create<AuthState>((set) => {
 
       if (!matchedUser) {
         // Fallback or auto-generate for custom input
-        const role = requestedRole || (normalizedEmail.includes('admin') ? 'admin' : normalizedEmail.includes('inspect') ? 'inspector' : 'consumer');
+        const role = requestedRole || (
+          normalizedEmail.includes('admin')
+            ? 'admin'
+            : normalizedEmail.includes('inspect')
+            ? 'inspector'
+            : normalizedEmail.includes('manuf') || normalizedEmail.includes('mfg')
+            ? 'manufacturer'
+            : 'consumer'
+        );
         matchedUser = {
           id: `USR-${Date.now().toString().slice(-4)}`,
           name: normalizedEmail.split('@')[0].replace('.', ' ').toUpperCase(),
           email: normalizedEmail,
           role,
-          department: role === 'admin' ? 'CCPA Directorate' : role === 'inspector' ? 'Legal Metrology Division' : 'Consumer Vigilance Portal',
-          designation: role === 'admin' ? 'Compliance Admin' : role === 'inspector' ? 'Field Inspector' : 'Registered Citizen',
+          department: role === 'admin'
+            ? 'CCPA Directorate'
+            : role === 'inspector'
+            ? 'Legal Metrology Division'
+            : role === 'manufacturer'
+            ? 'Manufacturer Compliance Cell'
+            : 'Consumer Vigilance Portal',
+          designation: role === 'admin'
+            ? 'Compliance Admin'
+            : role === 'inspector'
+            ? 'Field Inspector'
+            : role === 'manufacturer'
+            ? 'Brand Compliance Officer'
+            : 'Registered Citizen',
           badgeNumber: `SAT-${Math.floor(1000 + Math.random() * 9000)}`,
           lastLogin: 'Just now',
         };
