@@ -39,6 +39,7 @@ interface ComplianceState {
     officerName?: string,
     assignedInspector?: string
   ) => void;
+  updateComplaint: (complaint: Complaint) => void;
   toggleRule: (ruleId: string) => void;
 }
 
@@ -157,6 +158,14 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
             : undefined,
         };
       }),
+    }));
+  },
+
+  updateComplaint: (updatedComplaint) => {
+    set((state) => ({
+      complaints: state.complaints.map((c) =>
+        c.id === updatedComplaint.id ? updatedComplaint : c
+      ),
     }));
   },
 

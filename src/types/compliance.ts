@@ -215,6 +215,17 @@ export interface OfficerDecisionRecord {
   assignedInspector?: string;
 }
 
+export interface ScannerDiscrepancyItem {
+  ruleCode: string;
+  ruleName: string;
+  ruleDescription: string;
+  fieldKey: string;
+  status: 'fail' | 'warning' | 'pass' | 'not-applicable' | string;
+  evidence: string;
+  expectedStandard: string;
+  ragMapping?: RegulatoryMappingItem;
+}
+
 export interface Complaint {
   id: string;
   ticketId: string;
@@ -243,6 +254,7 @@ export interface Complaint {
   sentimentScore: number; // 0 - 1 (urgency / frustration)
   aiMatchedRule: string;
   needsReview?: boolean;
+  scannerDetectedDiscrepancies?: ScannerDiscrepancyItem[];
 }
 
 export interface RegulatoryRule {

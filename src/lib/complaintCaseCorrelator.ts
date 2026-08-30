@@ -15,6 +15,8 @@
 import { classifyComplaintText } from './complaintClassifier';
 import { processMultiEvidenceImages, ProcessedEvidenceInput } from './complaintOcrPipeline';
 import { queryRegulatoryRAG } from './ragKnowledgeService';
+import { validateProduct } from './ruleEngineService';
+import type { ExtractedProductData } from '../types/scan';
 import type {
   Complaint,
   EvidenceImageItem,
@@ -24,6 +26,8 @@ import type {
   CaseCorrelationSummary,
   OfficerDecisionRecord,
   PlatformType,
+  ScannerDiscrepancyItem,
+  RegulatoryMappingItem,
 } from '../types/compliance';
 
 export interface ComplaintSubmissionInput {
@@ -40,7 +44,7 @@ export interface ComplaintSubmissionInput {
 }
 
 /**
- * Correlates consumer claim, OCR extractions, and Regulatory RAG context to form an Evidence-Backed Dossier.
+ * Correlates consumer claim, multi-evidence OCR extractions, label discrepancy scanning, and Regulatory RAG context.
  */
 export async function buildEvidenceBackedComplaintCase(
   input: ComplaintSubmissionInput,
@@ -61,8 +65,8 @@ export async function buildEvidenceBackedComplaintCase(
     });
   }
 
-  // Step 2: Deterministic Complaint Classification
-  onProgress?.(55, 'Step 2/4: Executing Deterministic Text & Discrepancy Classifier...');
+  // Step 2: Deterministic Complaint Classification for User Claims
+  onProgress?.(55, 'Step 2/4: Classifying User Claims & Scanning Package Label...');
 
   const classification: ComplaintClassificationResult = classifyComplaintText(
     input.description,
@@ -72,21 +76,46 @@ export async function buildEvidenceBackedComplaintCase(
     }
   );
 
-  // Step 3: Query Existing SatyaDrishti Regulatory RAG System
-  onProgress?.(75, 'Step 3/4: Querying SatyaDrishti Hybrid Regulatory RAG & Rule Versioning System...');
+  // Run Label Rule Engine Validation on extracted OCR data (detecting missing MRP, net qty, address, importer, etc.)
+  const mockProductData: ExtractedProductData = {
+    productName: input.productName,
+    mrp: ocrOut.consolidatedSummary.declaredMrp || '',
+    netQuantity: ocrOut.consolidatedSummary.netQuantity || '',
+    manufacturer: ocrOut.consolidatedSummary.manufacturer || input.brand || '',
+    address: ocrOut.consolidatedSummary.manufacturer || '',
+    importer: ocrOut.consolidatedSummary.importer || '',
+    countryOfOrigin: '',
+    packingDate: ocrOut.consolidatedSummary.packingDate || '',
+    manufacturingDate: '',
+    expiryDate: ocrOut.consolidatedSummary.expiryDate || '',
+    batchNumber: '',
+    customerCare: ocrOut.consolidatedSummary.customerCare || '',
+    fssaiLicense: ocrOut.consolidatedSummary.fssaiLicense || '',
+    barcode: ocrOut.consolidatedSummary.barcode || '',
+    rawText: ocrOut.allRawText,
+    confidence: (ocrOut.consolidatedSummary.extractionConfidence || 85) / 100,
+    fieldConfidence: {} as any,
+    declarations: {} as any,
+    compliancePayload: {} as any,
+    imageDimensions: { width: 800, height: 600 },
+    ocrPassResults: [],
+  };
 
-  const ragQueryText = `${classification.categoryLabel} ${input.description} ${input.productName} ${ocrOut.allRawText}`;
-  const ragResult = queryRegulatoryRAG({
-    queryText: ragQueryText,
+  const validationResult = validateProduct(mockProductData);
+
+  // Step 3: Query Regulatory RAG for User Claim AND Scanner-Detected Label Issues
+  onProgress?.(75, 'Step 3/4: Querying Regulatory RAG for User Claim & Label Discrepancies...');
+
+  // A. Query RAG for primary user claim
+  const userClaimRagQueryText = `${classification.categoryLabel} ${input.description} ${input.productName} ${ocrOut.allRawText}`;
+  const userClaimRagResult = queryRegulatoryRAG({
+    queryText: userClaimRagQueryText,
     productCategory: 'all',
     evaluationDate: new Date().toISOString().split('T')[0],
   });
 
-  const matchedRegulatoryItems = ragResult.matchedChunks.slice(0, 4).map((chunk) => {
-    // Locate matching active rule item if present
-    const activeRule = ragResult.activeRules.find((r) => r.code === chunk.ruleCode);
-    const activeVersionNum = activeRule ? activeRule.activeVersion : 1;
-
+  const matchedRegulatoryItems: RegulatoryMappingItem[] = userClaimRagResult.matchedChunks.slice(0, 3).map((chunk) => {
+    const activeRule = userClaimRagResult.activeRules.find((r) => r.code === chunk.ruleCode);
     return {
       ruleCode: chunk.ruleCode,
       title: chunk.title,
@@ -95,19 +124,68 @@ export async function buildEvidenceBackedComplaintCase(
       section: chunk.section,
       officialGazetteRef: chunk.officialGazetteRef,
       effectiveDate: chunk.effectiveDate,
-      activeVersion: activeVersionNum,
+      activeVersion: activeRule ? activeRule.activeVersion : 1,
       verbatimClause: chunk.verbatimClause || chunk.content,
       penalties: chunk.penalties || { minFine: 10000, maxFine: 50000 },
       relevanceScore: chunk.relevanceScore,
     };
   });
 
+  // B. Process Scanner-Detected Label Discrepancies & Query RAG for each
+  const scannerDetectedDiscrepancies: ScannerDiscrepancyItem[] = [];
+
+  validationResult.audit
+    .filter((a) => a.status === 'fail' || a.status === 'warning')
+    .forEach((auditEntry) => {
+      const discRagQuery = `${input.productName} ${auditEntry.ruleName} ${auditEntry.ruleCode} ${auditEntry.evidence}`;
+      const discRagRes = queryRegulatoryRAG({
+        queryText: discRagQuery,
+        productCategory: 'all',
+        evaluationDate: new Date().toISOString().split('T')[0],
+      });
+
+      const topChunk = discRagRes.matchedChunks[0];
+      let ragMapping: RegulatoryMappingItem | undefined = undefined;
+
+      if (topChunk) {
+        ragMapping = {
+          ruleCode: topChunk.ruleCode,
+          title: topChunk.title,
+          authority: topChunk.authority,
+          actName: topChunk.title,
+          section: topChunk.section,
+          officialGazetteRef: topChunk.officialGazetteRef,
+          effectiveDate: topChunk.effectiveDate,
+          activeVersion: 1,
+          verbatimClause: topChunk.verbatimClause || topChunk.content,
+          penalties: topChunk.penalties || { minFine: auditEntry.penaltyRange.minFine, maxFine: auditEntry.penaltyRange.maxFine },
+          relevanceScore: topChunk.relevanceScore,
+        };
+
+        // Add to main regulatory mapping items if not already present
+        if (!matchedRegulatoryItems.some((m) => m.ruleCode === ragMapping!.ruleCode)) {
+          matchedRegulatoryItems.push(ragMapping);
+        }
+      }
+
+      scannerDetectedDiscrepancies.push({
+        ruleCode: auditEntry.ruleCode,
+        ruleName: auditEntry.ruleName,
+        ruleDescription: auditEntry.ruleDescription,
+        fieldKey: auditEntry.fieldKey,
+        status: auditEntry.status,
+        evidence: auditEntry.evidence,
+        expectedStandard: auditEntry.expectedStandard,
+        ragMapping,
+      });
+    });
+
   const regulatoryMappingResult: RegulatoryMappingResult = {
-    queryUsed: classification.categoryLabel,
-    evaluationDate: ragResult.evaluationDate,
+    queryUsed: `${classification.categoryLabel} + ${scannerDetectedDiscrepancies.length} scanner label issues`,
+    evaluationDate: userClaimRagResult.evaluationDate,
     matchedRules: matchedRegulatoryItems,
-    provenanceSource: 'SatyaDrishti Hybrid Regulatory RAG & Knowledge Graph Engine',
-    legalFindingDeclared: false, // MANDATORY: Raw RAG is never an automatic legal finding
+    provenanceSource: 'SatyaDrishti Hybrid Regulatory RAG & Rule Versioning System',
+    legalFindingDeclared: false,
   };
 
   // Step 4: Synthesize Four-Way Case Correlation
@@ -126,13 +204,17 @@ export async function buildEvidenceBackedComplaintCase(
     ocrEvidenceExtracted += ` Receipt Charged Price: ${ocrOut.consolidatedSummary.receiptPrice}.`;
   }
   if (ocrOut.consolidatedSummary.priceOverchargeAmount) {
-    ocrEvidenceExtracted += ` Detected Price Discrepancy: +₹${ocrOut.consolidatedSummary.priceOverchargeAmount}.`;
+    ocrEvidenceExtracted += ` Price Overcharge: +₹${ocrOut.consolidatedSummary.priceOverchargeAmount}.`;
+  }
+
+  if (scannerDetectedDiscrepancies.length > 0) {
+    ocrEvidenceExtracted += ` Scanner detected ${scannerDetectedDiscrepancies.length} additional label discrepancy(s).`;
   }
 
   const caseCorrelationSummary: CaseCorrelationSummary = {
     complainantAllegation,
     ocrEvidenceExtracted,
-    regulatoryMappingSummary: `Mapped to ${matchedRegulatoryItems.length} active statutory rule(s) via Regulatory RAG. Top reference: ${aiMatchedRule}.`,
+    regulatoryMappingSummary: `Mapped primary claim & ${scannerDetectedDiscrepancies.length} scanner-detected label issues to ${matchedRegulatoryItems.length} active statutory rule(s) via Regulatory RAG. Top reference: ${aiMatchedRule}.`,
     verificationStatus: 'Pending Human Officer Review',
   };
 
@@ -142,7 +224,7 @@ export async function buildEvidenceBackedComplaintCase(
     officerName: 'System Ingestion Triage Engine',
     action: 'ACCEPT_INVESTIGATION',
     actionLabel: 'Case Ingested & Triaged',
-    notes: 'Case dossier synthesized from consumer submission, multi-evidence OCR, and Regulatory RAG context. Awaiting human officer determination.',
+    notes: `Case dossier synthesized from consumer claims, multi-evidence OCR, label discrepancy scanning (${scannerDetectedDiscrepancies.length} issues detected), and Regulatory RAG context.`,
   };
 
   const ticketId = `NCH-GRV-2026-${Math.floor(10000 + Math.random() * 90000)}`;
@@ -169,11 +251,12 @@ export async function buildEvidenceBackedComplaintCase(
     caseCorrelationSummary,
     officerDecisionHistory: [initialOfficerRecord],
     status: classification.needsReview ? 'Triaged' : 'New',
-    priority: classification.confidenceScore > 80 ? 'Urgent' : 'High',
+    priority: classification.confidenceScore > 80 || scannerDetectedDiscrepancies.length > 2 ? 'Urgent' : 'High',
     submittedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     sentimentScore: Math.round((0.7 + (classification.confidenceScore / 100) * 0.28) * 100) / 100,
     aiMatchedRule,
     needsReview: classification.needsReview,
+    scannerDetectedDiscrepancies,
   };
 
   onProgress?.(100, 'Complaint Case Dossier Successfully Built');

@@ -579,6 +579,39 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Additional Packaging Label Discrepancies Discovered by Scanner */}
+                {selectedComplaint.scannerDetectedDiscrepancies && selectedComplaint.scannerDetectedDiscrepancies.length > 0 && (
+                  <div className="mt-4 p-4 rounded-xl border border-purple-200 bg-purple-50/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-purple-700" />
+                        <h4 className="text-xs font-extrabold text-purple-950 uppercase tracking-wider">
+                          Additional Label Discrepancies Discovered by Scanner ({selectedComplaint.scannerDetectedDiscrepancies.length} Unseen Issues)
+                        </h4>
+                      </div>
+                      <Badge variant="secondary" size="sm" className="font-mono">
+                        RAG Mapped
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2">
+                      {selectedComplaint.scannerDetectedDiscrepancies.map((disc, idx) => (
+                        <div key={idx} className="p-3 bg-white rounded-lg border border-purple-100 text-xs space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-900">{disc.ruleName}</span>
+                            <span className="font-mono font-bold text-purple-700 text-[10px]">{disc.ruleCode}</span>
+                          </div>
+                          <p className="text-slate-600 text-[11px]">{disc.ruleDescription}</p>
+                          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 border-t border-slate-100 font-mono">
+                            <span>OCR Evidence: <strong className="text-slate-800">{disc.evidence}</strong></span>
+                            <span>RAG Section: <strong className="text-purple-900">{disc.ragMapping?.section || 'Legal Metrology Rules'}</strong></span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
