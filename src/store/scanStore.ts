@@ -3,6 +3,10 @@ import type { ScanRecord, UploadedImage, ExtractedProductData } from '../types/s
 import type { ComplianceValidationResult } from '../types/ruleEngine';
 import { ocrService } from '../lib/ocrService';
 import { validateProduct } from '../lib/ruleEngineService';
+import {
+  processScanDiscrepanciesAndCorrelate,
+  ScanCorrelationResult,
+} from '../lib/scanComplaintCorrelator';
 
 interface ScanState {
   // State
@@ -14,6 +18,8 @@ interface ScanState {
   currentStatusMessage: string;
   /** Validation results keyed by scan ID */
   validationResults: Record<string, ComplianceValidationResult>;
+  /** Correlation results (RAG mappings, verified user complaints, auto-added complaints) */
+  correlationResults: Record<string, ScanCorrelationResult>;
 
   // Actions
   addImages: (files: File[]) => void;
@@ -64,6 +70,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   currentProgress: 0,
   currentStatusMessage: '',
   validationResults: {},
+  correlationResults: {},
 
   addImages: (files) => {
     const validFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
@@ -137,14 +144,26 @@ export const useScanStore = create<ScanState>((set, get) => ({
         const validationResult = validateProduct(result.extractedData);
         validationResult.scanId = completedScan.id;
 
+        // Auto-trigger RAG Statutory Mapping, User Complaint Verification & Auto-Adding Missing Complaints
+        const correlationResult = processScanDiscrepanciesAndCorrelate(
+          completedScan.id,
+          result.extractedData,
+          validationResult,
+          result.rawText
+        );
+
         set((state) => ({
           scans: [completedScan, ...state.scans],
           currentScan: completedScan,
           currentProgress: 100,
-          currentStatusMessage: 'Extraction complete — compliance validated',
+          currentStatusMessage: `Extraction complete — RAG mapped ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s). Ready to lodge complaint if needed.`,
           validationResults: {
             ...state.validationResults,
             [completedScan.id]: validationResult,
+          },
+          correlationResults: {
+            ...state.correlationResults,
+            [completedScan.id]: correlationResult,
           },
         }));
       } catch (err) {

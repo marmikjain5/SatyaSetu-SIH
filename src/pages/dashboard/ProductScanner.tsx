@@ -16,6 +16,7 @@ import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
 import { ComplianceResultsPanel } from '../../components/scanner/ComplianceResultsPanel';
+import { ScanCorrelationCard } from '../../components/scanner/ScanCorrelationCard';
 import { RuleAuditView } from '../../components/scanner/RuleAuditView';
 import { RecommendationsCard } from '../../components/scanner/RecommendationsCard';
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
@@ -140,6 +141,9 @@ export const ProductScanner: React.FC = () => {
         {/* Compliance Validation Results */}
         <ComplianceResultsPanel />
       </div>
+
+      {/* RAG Discrepancy Mapping & Complaint Verification Panel */}
+      {currentScan?.status === 'completed' && <ScanCorrelationCard />}
 
       {/* Two-Column: Rule Audit Trail (Left ~75%) & Recommendations (Right ~25%) */}
       {currentScan?.status === 'completed' && currentScan?.extractedData && (
