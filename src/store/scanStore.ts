@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import type { ScanRecord, UploadedImage, ExtractedProductData } from '../types/scan';
 import type { ComplianceValidationResult } from '../types/ruleEngine';
+import type { ReadabilityAnalysisResult } from '../types/readability';
 import { ocrService } from '../lib/ocrService';
 import { validateProduct } from '../lib/ruleEngineService';
+import { readabilityService } from '../lib/readabilityService';
 import {
   processScanDiscrepanciesAndCorrelate,
   ScanCorrelationResult,
@@ -20,6 +22,8 @@ interface ScanState {
   validationResults: Record<string, ComplianceValidationResult>;
   /** Correlation results (RAG mappings, verified user complaints, auto-added complaints) */
   correlationResults: Record<string, ScanCorrelationResult>;
+  /** Readability analysis results keyed by scan ID */
+  readabilityResults: Record<string, ReadabilityAnalysisResult>;
 
   // Actions
   addImages: (files: File[]) => void;
@@ -33,6 +37,7 @@ interface ScanState {
   clearHistory: () => void;
   viewScan: (scan: ScanRecord | null) => void;
   setValidationResult: (scanId: string, result: ComplianceValidationResult) => void;
+  setReadabilityResult: (scanId: string, result: ReadabilityAnalysisResult) => void;
 }
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
@@ -71,6 +76,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   currentStatusMessage: '',
   validationResults: {},
   correlationResults: {},
+  readabilityResults: {},
 
   addImages: (files) => {
     const validFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
@@ -132,31 +138,40 @@ export const useScanStore = create<ScanState>((set, get) => ({
           });
         });
 
+        // Auto-trigger Rule Engine Validation
+        const validationResult = validateProduct(result.extractedData);
+        validationResult.scanId = scanId;
+
+        // Auto-trigger RAG Statutory Mapping, User Complaint Verification & Auto-Adding Missing Complaints
+        const correlationResult = processScanDiscrepanciesAndCorrelate(
+          scanId,
+          result.extractedData,
+          validationResult,
+          result.rawText
+        );
+
+        // Auto-trigger Feature 4: Font Size & Optical Readability Analysis Engine
+        const readabilityResult = await readabilityService.analyze(
+          scanId,
+          image.dataUrl,
+          result.extractedData,
+          result.extractedData.imageDimensions || { width: 800, height: 600 }
+        );
+
         const completedScan: ScanRecord = {
           ...scanRecord,
           status: 'completed',
           progress: 100,
           confidence: result.confidence,
           extractedData: result.extractedData,
+          readabilityResult,
         };
-
-        // Auto-trigger Rule Engine Validation
-        const validationResult = validateProduct(result.extractedData);
-        validationResult.scanId = completedScan.id;
-
-        // Auto-trigger RAG Statutory Mapping, User Complaint Verification & Auto-Adding Missing Complaints
-        const correlationResult = processScanDiscrepanciesAndCorrelate(
-          completedScan.id,
-          result.extractedData,
-          validationResult,
-          result.rawText
-        );
 
         set((state) => ({
           scans: [completedScan, ...state.scans],
           currentScan: completedScan,
           currentProgress: 100,
-          currentStatusMessage: `Extraction complete — RAG mapped ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s). Ready to lodge complaint if needed.`,
+          currentStatusMessage: `Extraction & Readability complete — Score: ${readabilityResult.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s) mapped.`,
           validationResults: {
             ...state.validationResults,
             [completedScan.id]: validationResult,
@@ -164,6 +179,10 @@ export const useScanStore = create<ScanState>((set, get) => ({
           correlationResults: {
             ...state.correlationResults,
             [completedScan.id]: correlationResult,
+          },
+          readabilityResults: {
+            ...state.readabilityResults,
+            [completedScan.id]: readabilityResult,
           },
         }));
       } catch (err) {
@@ -216,17 +235,21 @@ export const useScanStore = create<ScanState>((set, get) => ({
 
   deleteScan: (id) => {
     set((state) => {
-      const { [id]: _removed, ...remainingResults } = state.validationResults;
+      const { [id]: _remVal, ...remainingValidation } = state.validationResults;
+      const { [id]: _remCorr, ...remainingCorrelation } = state.correlationResults;
+      const { [id]: _remRead, ...remainingReadability } = state.readabilityResults;
       return {
         scans: state.scans.filter((s) => s.id !== id),
         currentScan: state.currentScan?.id === id ? null : state.currentScan,
-        validationResults: remainingResults,
+        validationResults: remainingValidation,
+        correlationResults: remainingCorrelation,
+        readabilityResults: remainingReadability,
       };
     });
   },
 
   clearHistory: () => {
-    set({ scans: [], currentScan: null, validationResults: {} });
+    set({ scans: [], currentScan: null, validationResults: {}, correlationResults: {}, readabilityResults: {} });
   },
 
   viewScan: (scan) => {
@@ -237,6 +260,15 @@ export const useScanStore = create<ScanState>((set, get) => ({
     set((state) => ({
       validationResults: {
         ...state.validationResults,
+        [scanId]: result,
+      },
+    }));
+  },
+
+  setReadabilityResult: (scanId, result) => {
+    set((state) => ({
+      readabilityResults: {
+        ...state.readabilityResults,
         [scanId]: result,
       },
     }));
