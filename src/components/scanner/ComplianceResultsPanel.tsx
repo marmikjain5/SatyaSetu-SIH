@@ -9,21 +9,30 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  FileCheck,
 } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/Card';
+import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
+import { useReportStore } from '../../store/reportStore';
+import { reportService } from '../../lib/reportService';
+import { ComplianceReportModal } from './ComplianceReportModal';
 import { cn, formatCurrency } from '../../lib/utils';
 import type { RuleAuditEntry } from '../../types/ruleEngine';
+import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 // ─── Main Component ─────────────────────────────────────────────
 
 export const ComplianceResultsPanel: React.FC = () => {
-  const { currentScan, validationResults } = useScanStore();
+  const { currentScan, validationResults, readabilityResults } = useScanStore();
+  const { addReport } = useReportStore();
 
   const [showAllViolations, setShowAllViolations] = useState(false);
   const [showAllWarnings, setShowAllWarnings] = useState(false);
   const [showAllMissing, setShowAllMissing] = useState(false);
   const [expandedViolationIds, setExpandedViolationIds] = useState<Record<string, boolean>>({});
+  const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   if (
     !currentScan ||
@@ -101,15 +110,33 @@ export const ComplianceResultsPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Top-Right Status Badge (NON-COMPLIANT / COMPLIANT / NEEDS ATTENTION) */}
-        <span
-          className={cn(
-            'px-3 py-1 rounded-md border text-xs font-bold uppercase tracking-wider shrink-0 self-start',
-            statusConfig.badgeClass
-          )}
-        >
-          {statusConfig.label}
-        </span>
+        {/* Top-Right Status Badge & Report Action */}
+        <div className="flex items-center gap-2 shrink-0 self-start">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const readResult = readabilityResults[currentScan.id] || currentScan.readabilityResult;
+              const rep = reportService.generateComplianceReport(currentScan, result, readResult);
+              addReport(rep);
+              setActiveReport(rep);
+              setIsReportModalOpen(true);
+            }}
+            className="text-xs h-7 gap-1 border-slate-200"
+          >
+            <FileCheck className="h-3 w-3 text-blue-600" />
+            <span>Generate Report</span>
+          </Button>
+
+          <span
+            className={cn(
+              'px-3 py-1 rounded-md border text-xs font-bold uppercase tracking-wider',
+              statusConfig.badgeClass
+            )}
+          >
+            {statusConfig.label}
+          </span>
+        </div>
       </CardHeader>
 
       <CardContent className="p-4 sm:p-5 space-y-5 flex-1 flex flex-col">
@@ -361,6 +388,21 @@ export const ComplianceResultsPanel: React.FC = () => {
           </div>
         )}
       </CardContent>
+
+      {/* Compliance Inspection Report Modal */}
+      {activeReport && (
+        <ComplianceReportModal
+          report={activeReport}
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          onRegenerate={(opts) => {
+            const readResult = readabilityResults[currentScan.id] || currentScan.readabilityResult;
+            const updated = reportService.generateComplianceReport(currentScan, result, readResult, opts);
+            addReport(updated);
+            setActiveReport(updated);
+          }}
+        />
+      )}
     </Card>
   );
 };
