@@ -60,6 +60,22 @@
   .dark [class*="bg-slate-200/"] {
     background-color: #334155 !important;
   }
+  .dark .bg-red-50,
+  .dark [class*="bg-red-50/"] {
+    background-color: rgba(69, 10, 10, 0.4) !important;
+  }
+  .dark .bg-amber-50,
+  .dark [class*="bg-amber-50/"] {
+    background-color: rgba(69, 26, 3, 0.4) !important;
+  }
+  .dark .bg-blue-50,
+  .dark [class*="bg-blue-50/"] {
+    background-color: rgba(23, 37, 84, 0.4) !important;
+  }
+  .dark .bg-emerald-50,
+  .dark [class*="bg-emerald-50/"] {
+    background-color: rgba(6, 78, 59, 0.4) !important;
+  }
   .dark .text-slate-900 {
     color: #F8FAFC !important;
   }

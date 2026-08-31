@@ -144,6 +144,8 @@ export interface UploadedImage {
   addedAt: number;
 }
 
+import type { ReadabilityAnalysisResult } from './readability';
+
 /** A completed or in-progress scan record */
 export interface ScanRecord {
   id: string;
@@ -154,6 +156,7 @@ export interface ScanRecord {
   progress: number;
   confidence: number;
   extractedData: ExtractedProductData | null;
+  readabilityResult?: ReadabilityAnalysisResult;
   errorMessage?: string;
 }
 
