@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ScanLine,
   Images,
@@ -7,8 +7,14 @@ import {
   Clock,
   Play,
   Trash2,
+  FileText,
+  History,
+  Download,
+  FileCheck,
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
+import { useReportStore } from '../../store/reportStore';
+import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
@@ -21,6 +27,9 @@ import { ScanCorrelationCard } from '../../components/scanner/ScanCorrelationCar
 import { RuleAuditView } from '../../components/scanner/RuleAuditView';
 import { RecommendationsCard } from '../../components/scanner/RecommendationsCard';
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
+import { ComplianceReportModal } from '../../components/scanner/ComplianceReportModal';
+import { ReportHistoryModal } from '../../components/scanner/ReportHistoryModal';
+import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
   const {
@@ -30,7 +39,33 @@ export const ProductScanner: React.FC = () => {
     isProcessing,
     startScan,
     clearImages,
+    validationResults,
+    readabilityResults,
   } = useScanStore();
+
+  const { reports, addReport } = useReportStore();
+
+  const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
+  const handleGenerateReport = (options?: Partial<ReportGenerationOptions>) => {
+    if (!currentScan || !currentScan.extractedData) return;
+
+    const valResult = validationResults[currentScan.id];
+    const readResult = readabilityResults[currentScan.id] || currentScan.readabilityResult;
+
+    const report = reportService.generateComplianceReport(
+      currentScan,
+      valResult,
+      readResult,
+      options
+    );
+
+    addReport(report);
+    setActiveReport(report);
+    setIsReportModalOpen(true);
+  };
 
   const totalScans = scans.length;
   const completedScans = scans.filter((s) => s.status === 'completed');
@@ -57,6 +92,36 @@ export const ProductScanner: React.FC = () => {
           <p className="text-xs text-slate-500 mt-0.5">
             Scan product packaging &amp; labels using optical character recognition for Legal Metrology compliance verification.
           </p>
+        </div>
+
+        {/* Top Header Report Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="text-xs gap-1.5 border-slate-200"
+          >
+            <History className="h-3.5 w-3.5 text-slate-600" />
+            <span>Report Archive</span>
+            {reports.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
+                {reports.length}
+              </span>
+            )}
+          </Button>
+
+          {currentScan?.status === 'completed' && currentScan?.extractedData && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleGenerateReport()}
+              className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 shadow-sm"
+            >
+              <FileCheck className="h-3.5 w-3.5" />
+              <span>Generate Compliance Report</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -163,6 +228,27 @@ export const ProductScanner: React.FC = () => {
 
       {/* Scan History */}
       <ScanHistoryTable />
+
+      {/* Feature 5: Compliance Inspection Report Modal */}
+      {activeReport && (
+        <ComplianceReportModal
+          report={activeReport}
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          onRegenerate={(opts) => handleGenerateReport(opts)}
+        />
+      )}
+
+      {/* Feature 5: Compliance Reports History Modal */}
+      <ReportHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        onSelectReport={(report) => {
+          setActiveReport(report);
+          setIsHistoryModalOpen(false);
+          setIsReportModalOpen(true);
+        }}
+      />
     </div>
   );
 };

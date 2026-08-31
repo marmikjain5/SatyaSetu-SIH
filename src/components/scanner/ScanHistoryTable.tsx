@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { History, Search, Eye, Trash2, Clock } from 'lucide-react';
+import { History, Search, Eye, Trash2, Clock, FileCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useScanStore } from '../../store/scanStore';
+import { useReportStore } from '../../store/reportStore';
+import { reportService } from '../../lib/reportService';
+import { ComplianceReportModal } from './ComplianceReportModal';
 import type { ScanRecord } from '../../types/scan';
+import type { ComplianceInspectionReport } from '../../types/report';
 
 export const ScanHistoryTable: React.FC = () => {
-  const { scans, viewScan, deleteScan, clearHistory } = useScanStore();
+  const { scans, viewScan, deleteScan, clearHistory, validationResults, readabilityResults } = useScanStore();
+  const { addReport } = useReportStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  const handleOpenReport = (scan: ScanRecord) => {
+    const valResult = validationResults[scan.id];
+    const readResult = readabilityResults[scan.id] || scan.readabilityResult;
+    const report = reportService.generateComplianceReport(scan, valResult, readResult);
+    addReport(report);
+    setActiveReport(report);
+    setIsReportOpen(true);
+  };
 
   const filteredScans = scans.filter((scan) =>
     scan.imageName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -142,15 +158,27 @@ export const ScanHistoryTable: React.FC = () => {
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {scan.status === 'completed' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => viewScan(scan)}
-                        className="h-7 text-xs text-blue-600 gap-1"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span>View</span>
-                      </Button>
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenReport(scan)}
+                          className="h-7 text-xs text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 gap-1"
+                          title="Generate & View Compliance Report"
+                        >
+                          <FileCheck className="h-3.5 w-3.5" />
+                          <span>Report</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => viewScan(scan)}
+                          className="h-7 text-xs text-blue-600 gap-1"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>View</span>
+                        </Button>
+                      </>
                     )}
                     <Button
                       variant="ghost"
@@ -175,6 +203,25 @@ export const ScanHistoryTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Compliance Inspection Report Modal */}
+      {activeReport && (
+        <ComplianceReportModal
+          report={activeReport}
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          onRegenerate={(opts) => {
+            const scan = scans.find((s) => s.id === activeReport.scanId);
+            if (scan) {
+              const valResult = validationResults[scan.id];
+              const readResult = readabilityResults[scan.id] || scan.readabilityResult;
+              const updated = reportService.generateComplianceReport(scan, valResult, readResult, opts);
+              addReport(updated);
+              setActiveReport(updated);
+            }
+          }}
+        />
+      )}
     </Card>
   );
 };
