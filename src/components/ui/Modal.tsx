@@ -11,6 +11,7 @@ export interface ModalProps {
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
   className?: string;
+  theme?: 'light' | 'dark';
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,6 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = '2xl',
   className,
+  theme = 'light',
 }) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -47,6 +49,8 @@ export const Modal: React.FC<ModalProps> = ({
     '5xl': 'max-w-5xl',
   };
 
+  const isDark = theme === 'dark';
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -58,7 +62,7 @@ export const Modal: React.FC<ModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
           />
 
           {/* Dialog */}
@@ -68,20 +72,51 @@ export const Modal: React.FC<ModalProps> = ({
             exit={{ opacity: 0, scale: 0.98, y: 8 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className={cn(
-              'relative w-full bg-white rounded-xl shadow-modal border border-slate-200 overflow-hidden z-10 my-8',
+              'relative w-full rounded-xl overflow-hidden z-10 my-8 shadow-2xl transition-colors',
+              isDark
+                ? 'bg-slate-900 border border-slate-800 text-white'
+                : 'bg-white border border-slate-200 text-slate-900 shadow-modal',
               maxWidthClasses[maxWidth],
               className
             )}
           >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/50 flex items-center justify-between">
+            <div
+              className={cn(
+                'px-6 py-4 border-b flex items-center justify-between',
+                isDark
+                  ? 'border-slate-800 bg-slate-950/80'
+                  : 'border-slate-200/80 bg-slate-50/50'
+              )}
+            >
               <div>
-                <h3 className="text-base font-semibold text-slate-900 tracking-tight">{title}</h3>
-                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+                <h3
+                  className={cn(
+                    'text-base font-bold tracking-tight',
+                    isDark ? 'text-white' : 'text-slate-900 font-semibold'
+                  )}
+                >
+                  {title}
+                </h3>
+                {subtitle && (
+                  <p
+                    className={cn(
+                      'text-xs mt-0.5',
+                      isDark ? 'text-slate-400' : 'text-slate-500'
+                    )}
+                  >
+                    {subtitle}
+                  </p>
+                )}
               </div>
               <button
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+                className={cn(
+                  'rounded-lg p-1.5 transition-colors',
+                  isDark
+                    ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
+                )}
                 aria-label="Close dialog"
               >
                 <X className="h-5 w-5" />
@@ -89,7 +124,14 @@ export const Modal: React.FC<ModalProps> = ({
             </div>
 
             {/* Body */}
-            <div className="max-h-[calc(85vh-8rem)] overflow-y-auto p-6">{children}</div>
+            <div
+              className={cn(
+                'max-h-[calc(85vh-8rem)] overflow-y-auto p-5 sm:p-6 scrollbar-thin',
+                isDark ? 'bg-slate-900 text-white' : 'bg-white'
+              )}
+            >
+              {children}
+            </div>
           </motion.div>
         </div>
       )}
