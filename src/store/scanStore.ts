@@ -9,6 +9,7 @@ import {
   processScanDiscrepanciesAndCorrelate,
   ScanCorrelationResult,
 } from '../lib/scanComplaintCorrelator';
+import { useComplianceStore } from './complianceStore';
 
 interface ScanState {
   // State
@@ -166,6 +167,14 @@ export const useScanStore = create<ScanState>((set, get) => ({
           extractedData: result.extractedData,
           readabilityResult,
         };
+
+        // Automatically ingest scanned product into the central Compliance Products Repository
+        useComplianceStore.getState().addScannedProduct(
+          result.extractedData,
+          image.dataUrl,
+          result.confidence,
+          validationResult
+        );
 
         set((state) => ({
           scans: [completedScan, ...state.scans],
