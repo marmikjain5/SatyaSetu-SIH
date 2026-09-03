@@ -6,7 +6,6 @@ import { TrustedByRegulators } from '../components/landing/TrustedByRegulators';
 import { StatsCounterSection } from '../components/landing/StatsCounterSection';
 import { CoreCapabilitiesSection } from '../components/landing/CoreCapabilitiesSection';
 import { WorkflowTimelineSection } from '../components/landing/WorkflowTimelineSection';
-import { PlatformPreviewSection } from '../components/landing/PlatformPreviewSection';
 import { BentoFeaturesGrid } from '../components/landing/BentoFeaturesGrid';
 import { CtaBannerSection } from '../components/landing/CtaBannerSection';
 import { RequestDemoModal } from '../components/landing/RequestDemoModal';
@@ -23,7 +22,6 @@ export const AboutPage: React.FC = () => {
         <StatsCounterSection />
         <CoreCapabilitiesSection />
         <WorkflowTimelineSection />
-        <PlatformPreviewSection />
         <BentoFeaturesGrid />
         <CtaBannerSection onRequestDemo={() => setIsDemoModalOpen(true)} />
       </main>
