@@ -17,10 +17,12 @@ import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { AnimatedThemeToggler } from './components/ui/AnimatedThemeToggler';
+import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
 export function App() {
   return (
     <BrowserRouter>
+      <ScrollToAnchor />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />

@@ -23,7 +23,7 @@ export const PlatformPreviewSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'inspector' | 'consumer' | 'complaints' | 'risk'>('inspector');
 
   return (
-    <section id="preview" className="py-20 bg-[#F8FAFC]">
+    <section id="preview" className="py-20 bg-[#F8FAFC] scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
