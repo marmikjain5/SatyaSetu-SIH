@@ -42,6 +42,7 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { buildEvidenceBackedComplaintCase } from '../../lib/complaintCaseCorrelator';
 import { ProcessedEvidenceInput } from '../../lib/complaintOcrPipeline';
+import { cn } from '../../lib/utils';
 
 export const ConsumerComplaintsPortal: React.FC = () => {
   const { complaints, addFullComplaint, updateOfficerDecision } = useComplianceStore();
@@ -193,25 +194,24 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>National Metrology & Consumer Protection Review Engine</span>
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
+        <div className="space-y-2 lg:max-w-[70%]">
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-300 bg-slate-800 border border-slate-700 tracking-wide">
+            National Metrology &amp; Consumer Protection Review Engine
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-            Consumer Complaints & Officer Dossier Portal
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+            Consumer Complaints &amp; Officer Dossier Portal
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Multi-evidence OCR extraction, deterministic classification, hybrid Regulatory RAG provenance & officer decision workflow.
+          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            Multi-evidence OCR extraction, deterministic classification, hybrid Regulatory RAG provenance &amp; officer decision workflow.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="primary"
             size="sm"
-            className="text-xs gap-1.5 bg-blue-700 hover:bg-blue-800"
+            className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow-2xs"
             onClick={() => setIsSubmitModalOpen(true)}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -221,86 +221,109 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       </div>
 
       {/* Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[11px] font-mono text-slate-500 uppercase block">Total Complaints Filed</span>
-          <div className="text-2xl font-bold text-slate-900 font-mono mt-1">{complaints.length} Cases</div>
-          <span className="text-[11px] text-blue-600 font-medium">Auto-Triaged via Deterministic OCR</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+            Total Complaints Filed
+          </span>
+          <div className="text-2xl font-bold text-white font-mono my-1.5">
+            {complaints.length} Cases
+          </div>
+          <span className="text-xs text-slate-400 font-medium">
+            Auto-Triaged via Deterministic OCR
+          </span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[11px] font-mono text-slate-500 uppercase block">Needs Human Review</span>
-          <div className="text-2xl font-bold text-amber-600 font-mono mt-1">{needsReviewCount} Pending</div>
-          <span className="text-[11px] text-amber-700 font-medium">Confidence &lt; 60% Triage Threshold</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+            Needs Human Review
+          </span>
+          <div className="text-2xl font-bold text-white font-mono my-1.5">
+            {needsReviewCount} Pending
+          </div>
+          <span className="text-xs text-slate-400 font-medium">
+            Confidence &lt; 60% Triage Threshold
+          </span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[11px] font-mono text-slate-500 uppercase block">Under Active Investigation</span>
-          <div className="text-2xl font-bold text-purple-700 font-mono mt-1">{inInvestigationCount} Docketed</div>
-          <span className="text-[11px] text-purple-600 font-medium">Show-Cause Notices Issued</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+            Under Active Investigation
+          </span>
+          <div className="text-2xl font-bold text-white font-mono my-1.5">
+            {inInvestigationCount} Docketed
+          </div>
+          <span className="text-xs text-slate-400 font-medium">
+            Show-Cause Notices Issued
+          </span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-[11px] font-mono text-slate-500 uppercase block">Resolved & Recovered</span>
-          <div className="text-2xl font-bold text-emerald-700 font-mono mt-1">{resolvedCount} Cases</div>
-          <span className="text-[11px] text-emerald-600 font-medium">Officer Verified Determinations</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+            Resolved &amp; Recovered
+          </span>
+          <div className="text-2xl font-bold text-white font-mono my-1.5">
+            {resolvedCount} Cases
+          </div>
+          <span className="text-xs text-slate-400 font-medium">
+            Officer Verified Determinations
+          </span>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <div className="md:col-span-8">
-              <Input
-                placeholder="Search Ticket ID, Citizen, Product, Brand, Category, or Rule..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                icon={<Search className="h-4 w-4" />}
-                className="text-xs"
-              />
-            </div>
-            <div className="md:col-span-4">
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:outline-none font-medium"
-              >
-                {statuses.map((st) => (
-                  <option key={st} value={st}>
-                    Filter Status: {st}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <div className="md:col-span-8">
+            <Input
+              placeholder="Search Ticket ID, Citizen, Product, Brand, Category, or Rule..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              icon={<Search className="h-4 w-4 text-slate-400" />}
+              className="text-xs bg-slate-950/60 border-slate-800 text-white placeholder:text-slate-500 focus:border-blue-500"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className="md:col-span-4">
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none font-medium"
+            >
+              {statuses.map((st) => (
+                <option key={st} value={st} className="bg-slate-900 text-slate-200">
+                  Filter Status: {st}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
 
       {/* Complaints Ingestion Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <MessageSquareWarning className="h-4 w-4 text-slate-700" />
-            <span>Grievance Dossier Stream ({filteredComplaints.length})</span>
-          </CardTitle>
-          <span className="text-xs font-mono text-slate-500">Government Officer Adjudication Queue</span>
-        </CardHeader>
+      <div className="rounded-xl border border-slate-800 bg-slate-900 text-white overflow-hidden shadow-xs">
+        <div className="px-5 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-base font-bold text-white tracking-tight">
+            Grievance Dossier Stream ({filteredComplaints.length})
+          </h2>
+          <span className="text-xs font-mono text-slate-400">
+            Government Officer Adjudication Queue
+          </span>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+            <thead className="bg-slate-950/60 text-slate-400 font-semibold border-b border-slate-800 uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="px-4 py-3">Ticket & Complainant</th>
-                <th className="px-3 py-3">Product & Platform</th>
-                <th className="px-3 py-3">Classification & Confidence</th>
+                <th className="px-4 py-3">Ticket &amp; Complainant</th>
+                <th className="px-3 py-3">Product &amp; Platform</th>
+                <th className="px-3 py-3">Classification &amp; Confidence</th>
                 <th className="px-3 py-3">Discrepancy / Overcharge</th>
                 <th className="px-3 py-3">Regulatory RAG Provenance</th>
                 <th className="px-3 py-3">Officer Status</th>
                 <th className="px-4 py-3 text-right">Inspect Dossier</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-800/80">
               {filteredComplaints.map((cmp) => {
                 const confScore = cmp.classificationResult?.confidenceScore || Math.round(cmp.sentimentScore * 100);
                 const isOvercharged = cmp.extractedEvidenceSummary?.priceOverchargeAmount;
@@ -312,90 +335,81 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                       setSelectedComplaint(cmp);
                       setDossierTab('correlation');
                     }}
-                    className="hover:bg-slate-50/90 cursor-pointer transition-colors"
+                    className="hover:bg-slate-800/40 cursor-pointer transition-colors"
                   >
-                    <td className="px-4 py-3">
-                      <div className="font-mono text-blue-700 font-bold">{cmp.ticketId}</div>
-                      <div className="font-semibold text-slate-900 mt-0.5">{cmp.consumerName}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{cmp.submittedAt}</div>
+                    <td className="px-4 py-3.5">
+                      <div className="font-mono text-blue-400 font-bold">{cmp.ticketId}</div>
+                      <div className="font-semibold text-white mt-0.5">{cmp.consumerName}</div>
+                      <div className="text-[10px] text-slate-500 font-mono">{cmp.submittedAt}</div>
                     </td>
 
-                    <td className="px-3 py-3 max-w-xs">
-                      <div className="font-medium text-slate-900 line-clamp-1">{cmp.productName}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                    <td className="px-3 py-3.5 max-w-xs">
+                      <div className="font-medium text-slate-200 line-clamp-1">{cmp.productName}</div>
+                      <div className="text-[11px] text-slate-400 font-mono">
                         {cmp.brand} • {cmp.platform} {cmp.orderNumber ? `(Order: ${cmp.orderNumber})` : ''}
                       </div>
                     </td>
 
-                    <td className="px-3 py-3 max-w-xs">
-                      <div className="font-semibold text-slate-800 line-clamp-1">{cmp.category}</div>
+                    <td className="px-3 py-3.5 max-w-xs">
+                      <div className="font-semibold text-slate-200 line-clamp-1">{cmp.category}</div>
                       <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px]">
                         <span className="text-slate-500">Confidence:</span>
-                        <span
-                          className={`font-bold ${
-                            confScore >= 80
-                              ? 'text-emerald-700'
-                              : confScore >= 60
-                              ? 'text-amber-700'
-                              : 'text-red-600'
-                          }`}
-                        >
-                          {confScore}%
-                        </span>
+                        <span className="font-bold text-slate-200">{confScore}%</span>
                         {cmp.needsReview && (
-                          <span className="bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-semibold text-[9px] border border-amber-300">
+                          <span className="text-amber-400 font-medium ml-1">
                             Needs Review
                           </span>
                         )}
                       </div>
                     </td>
 
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3.5">
                       {isOvercharged ? (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-2 py-1 rounded text-[11px] font-mono font-bold">
-                          +₹{isOvercharged} Overcharge
-                          <span className="block text-[9px] font-normal text-red-600">
+                        <div className="font-mono">
+                          <div className="text-rose-400 font-semibold text-xs">
+                            +₹{isOvercharged} Overcharge
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">
                             Pkg ₹{cmp.extractedEvidenceSummary?.declaredMrp} vs Bill ₹{cmp.extractedEvidenceSummary?.receiptPrice}
-                          </span>
+                          </div>
                         </div>
                       ) : (
-                        <span className="text-[11px] font-mono text-slate-500">
-                          {cmp.evidenceImages?.length || 1} Evidence Image(s)
-                        </span>
+                        <div className="font-mono text-slate-400">
+                          <div className="text-slate-500 text-xs mb-0.5">–</div>
+                          <div className="text-[11px]">
+                            {cmp.evidenceImages?.length || 1} Evidence Image(s)
+                          </div>
+                        </div>
                       )}
                     </td>
 
-                    <td className="px-3 py-3 max-w-xs">
-                      <div className="text-[11px] text-slate-800 font-medium line-clamp-1">
+                    <td className="px-3 py-3.5 max-w-xs">
+                      <div className="text-[11px] text-slate-300 font-medium line-clamp-1">
                         {cmp.aiMatchedRule}
                       </div>
-                      <span className="text-[10px] text-blue-600 font-mono block mt-0.5">
-                        ✓ Active Rule Version Mapped
+                      <span className="text-[10px] text-blue-400 font-mono block mt-0.5">
+                        Active Rule Version Mapped
                       </span>
                     </td>
 
-                    <td className="px-3 py-3">
-                      <Badge
-                        variant={
-                          cmp.status === 'Resolved'
-                            ? 'success'
-                            : cmp.status === 'Notice Dispatched' || cmp.status === 'Investigation'
-                            ? 'danger'
-                            : cmp.status === 'Assigned for Inspection'
-                            ? 'warning'
-                            : 'secondary'
-                        }
-                        size="sm"
+                    <td className="px-3 py-3.5">
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-transparent',
+                          cmp.status === 'New' || cmp.needsReview
+                            ? 'text-amber-400 border border-amber-800/60'
+                            : 'text-slate-300 border border-slate-700/80'
+                        )}
                       >
                         {cmp.status}
-                      </Badge>
+                      </span>
                     </td>
 
-                    <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-blue-700 gap-1 font-semibold">
+                    <td className="px-4 py-3.5 text-right">
+                      <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-semibold hover:text-blue-300">
                         <span>Inspect Case</span>
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
+                        <span className="text-sm leading-none">›</span>
+                      </span>
                     </td>
                   </tr>
                 );
@@ -403,7 +417,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
 
       {/* Comprehensive Government Officer Case Dossier Modal */}
       {selectedComplaint && (
@@ -413,93 +427,121 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           title={`Government Officer Review Dossier: ${selectedComplaint.ticketId}`}
           subtitle={`Case Dossier lodged by ${selectedComplaint.consumerName} (${selectedComplaint.consumerEmail})`}
           maxWidth="4xl"
+          theme="dark"
         >
           <div className="space-y-4 text-xs">
             {/* Top Overview Strip */}
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3 font-mono">
-              <div>
-                <span className="text-slate-400 text-[10px] uppercase block">Product Title</span>
-                <span className="font-bold text-slate-900 line-clamp-1">{selectedComplaint.productName}</span>
+            <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <div className="sm:pr-3 sm:border-r sm:border-slate-800/80">
+                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+                  Product Title
+                </span>
+                <span className="font-bold text-white line-clamp-1 mt-0.5 text-xs">
+                  {selectedComplaint.productName}
+                </span>
               </div>
-              <div>
-                <span className="text-slate-400 text-[10px] uppercase block">Brand & Platform</span>
-                <span className="font-bold text-slate-900">
+              <div className="sm:px-3 sm:border-r sm:border-slate-800/80">
+                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+                  Brand &amp; Platform
+                </span>
+                <span className="font-bold text-white mt-0.5 text-xs">
                   {selectedComplaint.brand} ({selectedComplaint.platform})
                 </span>
               </div>
-              <div>
-                <span className="text-slate-400 text-[10px] uppercase block">Current Status</span>
-                <Badge variant="primary" size="sm" className="mt-0.5">
+              <div className="sm:px-3 sm:border-r sm:border-slate-800/80">
+                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+                  Current Status
+                </span>
+                <span
+                  className={cn(
+                    'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider mt-1 bg-transparent',
+                    selectedComplaint.status === 'New' || selectedComplaint.needsReview
+                      ? 'text-amber-400 border border-amber-800/60'
+                      : selectedComplaint.status === 'Resolved'
+                      ? 'text-emerald-400 border border-emerald-800/60'
+                      : 'text-slate-300 border border-slate-700/80'
+                  )}
+                >
                   {selectedComplaint.status}
-                </Badge>
+                </span>
               </div>
-              <div>
-                <span className="text-slate-400 text-[10px] uppercase block">Assigned Officer</span>
-                <span className="font-bold text-blue-700">
+              <div className="sm:pl-3">
+                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+                  Assigned Officer
+                </span>
+                <span
+                  className="font-bold text-blue-400 mt-0.5 text-xs block truncate"
+                  title={selectedComplaint.assignedOfficer || 'Pending Assignment'}
+                >
                   {selectedComplaint.assignedOfficer || 'Pending Assignment'}
                 </span>
               </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-slate-200 text-xs font-semibold gap-4">
+            <div className="border-b border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => setDossierTab('correlation')}
-                className={`pb-2.5 border-b-2 flex items-center gap-1.5 transition-colors ${
+                className={cn(
+                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'correlation'
-                    ? 'border-blue-600 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                    ? 'border-blue-500 text-white font-semibold'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                )}
               >
-                <Scale className="h-4 w-4" />
+                <Scale className={cn('h-3.5 w-3.5', dossierTab === 'correlation' ? 'text-blue-400' : 'text-slate-500')} />
                 <span>4-Way Case Correlation</span>
               </button>
 
               <button
                 onClick={() => setDossierTab('evidence')}
-                className={`pb-2.5 border-b-2 flex items-center gap-1.5 transition-colors ${
+                className={cn(
+                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'evidence'
-                    ? 'border-blue-600 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                    ? 'border-blue-500 text-white font-semibold'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                )}
               >
-                <ImageIcon className="h-4 w-4" />
-                <span>Evidence & OCR Image Inspector ({selectedComplaint.evidenceImages?.length || 1})</span>
+                <ImageIcon className={cn('h-3.5 w-3.5', dossierTab === 'evidence' ? 'text-blue-400' : 'text-slate-500')} />
+                <span>Evidence &amp; OCR Image Inspector ({selectedComplaint.evidenceImages?.length || 1})</span>
               </button>
 
               <button
                 onClick={() => setDossierTab('rag')}
-                className={`pb-2.5 border-b-2 flex items-center gap-1.5 transition-colors ${
+                className={cn(
+                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'rag'
-                    ? 'border-blue-600 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                    ? 'border-blue-500 text-white font-semibold'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                )}
               >
-                <FileSearch className="h-4 w-4" />
+                <FileSearch className={cn('h-3.5 w-3.5', dossierTab === 'rag' ? 'text-blue-400' : 'text-slate-500')} />
                 <span>Regulatory RAG Provenance</span>
               </button>
 
               <button
                 onClick={() => setDossierTab('actions')}
-                className={`pb-2.5 border-b-2 flex items-center gap-1.5 transition-colors ${
+                className={cn(
+                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'actions'
-                    ? 'border-blue-600 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                    ? 'border-blue-500 text-white font-semibold'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                )}
               >
-                <UserCheck className="h-4 w-4" />
-                <span>Officer Action & Decision</span>
+                <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-400' : 'text-slate-500')} />
+                <span>Officer Action &amp; Decision</span>
               </button>
 
               <button
                 onClick={() => setDossierTab('audit')}
-                className={`pb-2.5 border-b-2 flex items-center gap-1.5 transition-colors ${
+                className={cn(
+                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'audit'
-                    ? 'border-blue-600 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                    ? 'border-blue-500 text-white font-semibold'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                )}
               >
-                <Clock className="h-4 w-4" />
+                <Clock className={cn('h-3.5 w-3.5', dossierTab === 'audit' ? 'text-blue-400' : 'text-slate-500')} />
                 <span>Audit Timeline ({selectedComplaint.officerDecisionHistory?.length || 0})</span>
               </button>
             </div>
@@ -508,73 +550,95 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {dossierTab === 'correlation' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Complainant Statement */}
-                  <div className="p-3.5 bg-amber-50/80 rounded-xl border border-amber-200 space-y-1.5">
-                    <div className="flex items-center gap-2 text-amber-900 font-bold uppercase text-[10px]">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                  {/* Section 1: Complainant Statement */}
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-amber-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
                       <span>1. Complainant Free-Text Allegation</span>
                     </div>
-                    <p className="text-slate-800 text-xs leading-relaxed italic bg-white p-2.5 rounded border border-amber-100">
+                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 text-xs leading-relaxed italic">
                       "{selectedComplaint.description}"
-                    </p>
+                    </div>
                   </div>
 
-                  {/* Deterministic OCR Extraction */}
-                  <div className="p-3.5 bg-blue-50/80 rounded-xl border border-blue-200 space-y-1.5">
-                    <div className="flex items-center gap-2 text-blue-900 font-bold uppercase text-[10px]">
-                      <FileCheck2 className="h-3.5 w-3.5 text-blue-600" />
-                      <span>2. OCR & Evidence Extraction Finding</span>
+                  {/* Section 2: Deterministic OCR Extraction */}
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <FileCheck2 className="h-3.5 w-3.5 text-blue-400" />
+                      <span>2. OCR &amp; Evidence Extraction Finding</span>
                     </div>
-                    <div className="text-slate-800 text-xs bg-white p-2.5 rounded border border-blue-100 space-y-1 font-mono">
-                      <div>
-                        Packaging MRP: <strong>{selectedComplaint.extractedEvidenceSummary?.declaredMrp || 'Extracted from OCR'}</strong>
+                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5 font-mono text-xs text-slate-300">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-slate-400">Packaging MRP:</span>
+                        <strong className="text-white">
+                          {selectedComplaint.extractedEvidenceSummary?.declaredMrp || 'Extracted from OCR'}
+                        </strong>
                       </div>
                       {selectedComplaint.extractedEvidenceSummary?.receiptPrice && (
-                        <div>
-                          Receipt Store Price: <strong>{selectedComplaint.extractedEvidenceSummary.receiptPrice}</strong>
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-slate-400">Receipt Store Price:</span>
+                          <strong className="text-white">
+                            {selectedComplaint.extractedEvidenceSummary.receiptPrice}
+                          </strong>
                         </div>
                       )}
                       {selectedComplaint.extractedEvidenceSummary?.priceOverchargeAmount && (
-                        <div className="text-red-600 font-bold">
-                          Calculated Overcharge: +₹{selectedComplaint.extractedEvidenceSummary.priceOverchargeAmount}
+                        <div className="pt-1.5 border-t border-slate-800">
+                          <div className="text-rose-400 font-bold text-xs">
+                            +₹{selectedComplaint.extractedEvidenceSummary.priceOverchargeAmount} Overcharge
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            Pkg ₹{selectedComplaint.extractedEvidenceSummary?.declaredMrp} vs Bill ₹{selectedComplaint.extractedEvidenceSummary?.receiptPrice}
+                          </div>
                         </div>
                       )}
-                      <div>
-                        Manufacturer: <strong>{selectedComplaint.extractedEvidenceSummary?.manufacturer || 'Detected on label'}</strong>
+                      <div className="pt-1 border-t border-slate-800/80 flex items-baseline justify-between gap-2 text-[11px]">
+                        <span className="text-slate-400 font-sans">Manufacturer:</span>
+                        <strong
+                          className="text-slate-200 truncate"
+                          title={selectedComplaint.extractedEvidenceSummary?.manufacturer || 'Detected on label'}
+                        >
+                          {selectedComplaint.extractedEvidenceSummary?.manufacturer || 'Detected on label'}
+                        </strong>
                       </div>
                     </div>
                   </div>
 
-                  {/* Regulatory RAG Context */}
-                  <div className="p-3.5 bg-purple-50/80 rounded-xl border border-purple-200 space-y-1.5">
-                    <div className="flex items-center gap-2 text-purple-900 font-bold uppercase text-[10px]">
-                      <Scale className="h-3.5 w-3.5 text-purple-600" />
+                  {/* Section 3: Regulatory RAG Context */}
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <Scale className="h-3.5 w-3.5 text-blue-400" />
                       <span>3. Regulatory RAG Mapped Context</span>
                     </div>
-                    <div className="text-slate-800 text-xs bg-white p-2.5 rounded border border-purple-100 space-y-1">
-                      <div className="font-bold text-purple-950">{selectedComplaint.aiMatchedRule}</div>
-                      <div className="text-[11px] text-purple-700">
-                        {selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.verbatimClause ||
-                          'Rule mandates accurate statutory declaration and prohibits selling above MRP.'}
+                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-2 text-xs">
+                      <div className="font-bold text-white text-xs">
+                        {selectedComplaint.aiMatchedRule}
                       </div>
-                      <span className="text-[10px] text-purple-600 font-mono block mt-1">
-                        Active Rule Version: {selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.activeVersion || 1}
+                      <div className="text-[11px] text-slate-300 italic leading-relaxed">
+                        "{selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.verbatimClause ||
+                          'Rule mandates accurate statutory declaration and prohibits selling above MRP.'}"
+                      </div>
+                      <span className="text-[10px] text-blue-400 font-mono block pt-1 border-t border-slate-800">
+                        Active Rule Version: #{selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.activeVersion || 1}
                       </span>
                     </div>
                   </div>
 
-                  {/* Verification Status */}
-                  <div className="p-3.5 bg-emerald-50/80 rounded-xl border border-emerald-200 space-y-1.5">
-                    <div className="flex items-center gap-2 text-emerald-900 font-bold uppercase text-[10px]">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                  {/* Section 4: Verification Status */}
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                       <span>4. Human Officer Verification Status</span>
                     </div>
-                    <div className="text-slate-800 text-xs bg-white p-2.5 rounded border border-emerald-100 space-y-1">
-                      <div className="font-bold text-emerald-900">
-                        {selectedComplaint.caseCorrelationSummary?.verificationStatus || selectedComplaint.status}
+                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5 text-xs">
+                      <div className="font-bold text-emerald-400 text-xs inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span>
+                          {selectedComplaint.caseCorrelationSummary?.verificationStatus || selectedComplaint.status}
+                        </span>
                       </div>
-                      <p className="text-[11px] text-slate-600">
-                        Automated systems provide OCR evidence & regulatory context. Final legal determination requires officer decision.
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Automated systems provide OCR evidence &amp; regulatory context. Final legal determination requires officer decision.
                       </p>
                     </div>
                   </div>
@@ -582,30 +646,27 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
                 {/* Additional Packaging Label Discrepancies Discovered by Scanner */}
                 {selectedComplaint.scannerDetectedDiscrepancies && selectedComplaint.scannerDetectedDiscrepancies.length > 0 && (
-                  <div className="mt-4 p-4 rounded-xl border border-purple-200 bg-purple-50/50 space-y-3">
+                  <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-purple-700" />
-                        <h4 className="text-xs font-extrabold text-purple-950 uppercase tracking-wider">
-                          Additional Label Discrepancies Discovered by Scanner ({selectedComplaint.scannerDetectedDiscrepancies.length} Unseen Issues)
-                        </h4>
-                      </div>
-                      <Badge variant="secondary" size="sm" className="font-mono">
+                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                        Additional Label Discrepancies Discovered by Scanner ({selectedComplaint.scannerDetectedDiscrepancies.length} Unseen Issues)
+                      </h4>
+                      <span className="text-[10px] font-mono text-blue-400 border border-blue-800/60 bg-blue-950/60 px-2 py-0.5 rounded">
                         RAG Mapped
-                      </Badge>
+                      </span>
                     </div>
 
                     <div className="space-y-2">
                       {selectedComplaint.scannerDetectedDiscrepancies.map((disc, idx) => (
-                        <div key={idx} className="p-3 bg-white rounded-lg border border-purple-100 text-xs space-y-1">
+                        <div key={idx} className="p-3 rounded-lg border border-slate-800 bg-slate-900 text-xs space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900">{disc.ruleName}</span>
-                            <span className="font-mono font-bold text-purple-700 text-[10px]">{disc.ruleCode}</span>
+                            <span className="font-bold text-white">{disc.ruleName}</span>
+                            <span className="font-mono text-blue-400 text-[10px]">{disc.ruleCode}</span>
                           </div>
-                          <p className="text-slate-600 text-[11px]">{disc.ruleDescription}</p>
-                          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 border-t border-slate-100 font-mono">
-                            <span>OCR Evidence: <strong className="text-slate-800">{disc.evidence}</strong></span>
-                            <span>RAG Section: <strong className="text-purple-900">{disc.ragMapping?.section || 'Legal Metrology Rules'}</strong></span>
+                          <p className="text-slate-400 text-[11px]">{disc.ruleDescription}</p>
+                          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 border-t border-slate-800 font-mono">
+                            <span>OCR Evidence: <strong className="text-slate-300">{disc.evidence}</strong></span>
+                            <span>RAG Section: <strong className="text-slate-300">{disc.ragMapping?.section || 'Legal Metrology Rules'}</strong></span>
                           </div>
                         </div>
                       ))}
@@ -618,37 +679,39 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 2: EVIDENCE & OCR IMAGE INSPECTOR */}
             {dossierTab === 'evidence' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <div className="flex items-center justify-between bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
                   {/* Image Selectors */}
                   <div className="flex gap-2">
                     {(selectedComplaint.evidenceImages || []).map((img, idx) => (
                       <button
                         key={img.id || idx}
                         onClick={() => setSelectedEvidenceIndex(idx)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        className={cn(
+                          'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                           selectedEvidenceIndex === idx
                             ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-                        }`}
+                            : 'bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-850 hover:text-white'
+                        )}
                       >
                         Evidence #{idx + 1}: {img.tag}
                       </button>
                     ))}
                     {(!selectedComplaint.evidenceImages || selectedComplaint.evidenceImages.length === 0) && (
-                      <span className="text-xs font-semibold text-slate-600">Packaging Evidence Image</span>
+                      <span className="text-xs font-semibold text-slate-400">Packaging Evidence Image</span>
                     )}
                   </div>
 
                   {/* Toggle Bounding Box Overlay */}
                   <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-slate-500">View Mode:</span>
+                    <span className="text-slate-400">View Mode:</span>
                     <button
                       onClick={() => setShowAnnotatedCopy(!showAnnotatedCopy)}
-                      className={`px-2.5 py-1 rounded border font-bold text-[10px] transition-colors ${
+                      className={cn(
+                        'px-2.5 py-1 rounded border font-semibold text-[10px] transition-colors',
                         showAnnotatedCopy
-                          ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                          : 'bg-slate-200 text-slate-700 border-slate-300'
-                      }`}
+                          ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                      )}
                     >
                       {showAnnotatedCopy ? '✓ Annotated Copy (Bounding Boxes)' : 'Original Clean Image'}
                     </button>
@@ -657,7 +720,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
                 {/* Evidence Image Viewer */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  <div className="md:col-span-7 bg-slate-900 rounded-xl p-3 flex items-center justify-center min-h-[300px]">
+                  <div className="md:col-span-7 bg-slate-950 rounded-xl p-3 flex items-center justify-center min-h-[300px] border border-slate-800">
                     {selectedComplaint.evidenceImages?.[selectedEvidenceIndex] ? (
                       <img
                         src={
@@ -667,50 +730,50 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                             : selectedComplaint.evidenceImages[selectedEvidenceIndex].originalUrl
                         }
                         alt="Evidence"
-                        className="max-h-[380px] w-auto object-contain rounded border border-slate-700 shadow-lg"
+                        className="max-h-[380px] w-auto object-contain rounded border border-slate-800 shadow-lg"
                       />
                     ) : (
                       <img
                         src={selectedComplaint.evidenceUrls?.[0] || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600'}
                         alt="Default Evidence"
-                        className="max-h-[380px] w-auto object-contain rounded border border-slate-700"
+                        className="max-h-[380px] w-auto object-contain rounded border border-slate-800"
                       />
                     )}
                   </div>
 
                   {/* OCR Extractions List */}
-                  <div className="md:col-span-5 space-y-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                    <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
+                  <div className="md:col-span-5 space-y-3 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                    <h4 className="font-bold text-slate-300 text-xs uppercase tracking-wider font-mono">
                       Extracted Statutory Parameters
                     </h4>
 
                     <div className="space-y-2 text-[11px] font-mono">
-                      <div className="p-2 bg-white rounded border border-slate-200">
+                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
                         <span className="text-slate-400 block text-[10px]">Declared Packaging MRP</span>
-                        <span className="font-bold text-slate-900">
+                        <span className="font-bold text-white">
                           {selectedComplaint.extractedEvidenceSummary?.declaredMrp || '₹3,499.00'}
                         </span>
                       </div>
 
                       {selectedComplaint.extractedEvidenceSummary?.receiptPrice && (
-                        <div className="p-2 bg-white rounded border border-slate-200">
+                        <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
                           <span className="text-slate-400 block text-[10px]">Receipt Charged Price</span>
-                          <span className="font-bold text-red-600">
+                          <span className="font-bold text-rose-400">
                             {selectedComplaint.extractedEvidenceSummary.receiptPrice}
                           </span>
                         </div>
                       )}
 
-                      <div className="p-2 bg-white rounded border border-slate-200">
+                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
                         <span className="text-slate-400 block text-[10px]">Net Quantity</span>
-                        <span className="font-bold text-slate-900">
+                        <span className="font-bold text-white">
                           {selectedComplaint.extractedEvidenceSummary?.netQuantity || '2 kg'}
                         </span>
                       </div>
 
-                      <div className="p-2 bg-white rounded border border-slate-200">
+                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
                         <span className="text-slate-400 block text-[10px]">Manufacturer Address</span>
-                        <span className="font-medium text-slate-800 text-[10px] leading-tight block mt-0.5">
+                        <span className="font-medium text-slate-300 text-[10px] leading-tight block mt-0.5">
                           {selectedComplaint.extractedEvidenceSummary?.manufacturer || 'NutriPro Labs Pvt Ltd'}
                         </span>
                       </div>
@@ -723,36 +786,36 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 3: REGULATORY RAG PROVENANCE */}
             {dossierTab === 'rag' && (
               <div className="space-y-4">
-                <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-200 space-y-1">
-                  <span className="font-bold text-blue-900 uppercase text-[10px] block">
-                    Regulatory RAG Engine & Rule Versioning Provenance
+                <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-200 uppercase text-[10px] block font-mono">
+                    Regulatory RAG Engine &amp; Rule Versioning Provenance
                   </span>
-                  <p className="text-xs text-blue-800">
+                  <p className="text-xs text-slate-400">
                     Active statutory rules retrieved via SatyaDrishti Regulatory RAG. All rule versions are resolved against active gazette notifications.
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   {(selectedComplaint.regulatoryMappingResult?.matchedRules || []).map((rule, idx) => (
-                    <div key={idx} className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+                    <div key={idx} className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 shadow-xs space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-blue-700 text-xs">{rule.ruleCode}</span>
-                        <Badge variant="primary" size="sm" className="font-mono text-[10px]">
+                        <span className="font-mono font-bold text-blue-400 text-xs">{rule.ruleCode}</span>
+                        <span className="font-mono text-[10px] text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60">
                           Active Rule Version #{rule.activeVersion}
-                        </Badge>
+                        </span>
                       </div>
 
-                      <h4 className="font-bold text-slate-900 text-xs">{rule.title}</h4>
-                      <div className="text-[11px] font-medium text-slate-700">{rule.section}</div>
+                      <h4 className="font-bold text-white text-xs">{rule.title}</h4>
+                      <div className="text-[11px] font-medium text-slate-400">{rule.section}</div>
 
-                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-800 italic">
+                      <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 italic">
                         "{rule.verbatimClause}"
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-500 pt-1 border-t border-slate-100">
-                        <div>Gazette: <strong>{rule.officialGazetteRef}</strong></div>
-                        <div>Effective Date: <strong>{rule.effectiveDate}</strong></div>
-                        <div>Max Penalty: <strong>₹{rule.penalties.maxFine.toLocaleString()}</strong></div>
+                      <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-400 pt-1 border-t border-slate-800">
+                        <div>Gazette: <strong className="text-slate-200">{rule.officialGazetteRef}</strong></div>
+                        <div>Effective Date: <strong className="text-slate-200">{rule.effectiveDate}</strong></div>
+                        <div>Max Penalty: <strong className="text-slate-200">₹{rule.penalties.maxFine.toLocaleString()}</strong></div>
                       </div>
                     </div>
                   ))}
@@ -762,63 +825,64 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
             {/* TAB 4: OFFICER ACTION & DECISION FORM */}
             {dossierTab === 'actions' && (
-              <form onSubmit={handleOfficerDecisionSubmit} className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <form onSubmit={handleOfficerDecisionSubmit} className="space-y-4 bg-slate-950/60 p-4 sm:p-5 rounded-xl border border-slate-800 text-white">
                 <div className="space-y-1">
-                  <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono">
                     Record Formal Government Officer Determination
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-400">
                     Select the statutory action to take on this complaint case docket.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                       Statutory Action
                     </label>
                     <select
                       value={officerActionType}
                       onChange={(e) => setOfficerActionType(e.target.value as OfficerActionType)}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:outline-none font-semibold"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none font-semibold"
                     >
-                      <option value="ACCEPT_INVESTIGATION">Accept for Formal Investigation</option>
-                      <option value="ASSIGN_INSPECTION">Assign Zonal Officer for On-Site Inspection</option>
-                      <option value="REQUEST_INFO">Request More Information from Complainant</option>
-                      <option value="INSUFFICIENT_EVIDENCE">Mark as Insufficient Evidence</option>
-                      <option value="REJECT">Reject / Dismiss Complaint</option>
-                      <option value="RESOLVE">Resolve Complaint & Recover Penalty</option>
+                      <option value="ACCEPT_INVESTIGATION" className="bg-slate-900">Accept for Formal Investigation</option>
+                      <option value="ASSIGN_INSPECTION" className="bg-slate-900">Assign Zonal Officer for On-Site Inspection</option>
+                      <option value="REQUEST_INFO" className="bg-slate-900">Request More Information from Complainant</option>
+                      <option value="INSUFFICIENT_EVIDENCE" className="bg-slate-900">Mark as Insufficient Evidence</option>
+                      <option value="REJECT" className="bg-slate-900">Reject / Dismiss Complaint</option>
+                      <option value="RESOLVE" className="bg-slate-900">Resolve Complaint &amp; Recover Penalty</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                       Assigned Inspector / Officer Name
                     </label>
                     <Input
                       value={assignedInspector}
                       onChange={(e) => setAssignedInspector(e.target.value)}
+                      className="text-xs bg-slate-900 border-slate-800 text-white focus:border-blue-500"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Officer Decision Rationale & Investigation Notes
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Officer Decision Rationale &amp; Investigation Notes
                   </label>
                   <textarea
                     rows={4}
                     value={officerNotes}
                     onChange={(e) => setOfficerNotes(e.target.value)}
                     placeholder="Enter formal justification, instructions for zonal inspection team, or notice details..."
-                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none leading-relaxed"
+                    className="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs text-slate-200 focus:border-blue-500 focus:outline-none leading-relaxed placeholder:text-slate-500"
                     required
                   />
                 </div>
 
                 <div className="pt-2 flex justify-end gap-3">
-                  <Button variant="primary" size="sm" type="submit" className="gap-1.5 bg-blue-700 hover:bg-blue-800">
+                  <Button variant="primary" size="sm" type="submit" className="gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold">
                     <UserCheck className="h-4 w-4" />
                     <span>Submit Formal Decision</span>
                   </Button>
@@ -829,19 +893,19 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 5: AUDIT TIMELINE */}
             {dossierTab === 'audit' && (
               <div className="space-y-3">
-                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider font-mono">
                   Timestamped Officer Decision Audit History
                 </h4>
 
                 <div className="space-y-2">
                   {(selectedComplaint.officerDecisionHistory || []).map((rec) => (
-                    <div key={rec.id} className="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-1 font-mono">
+                    <div key={rec.id} className="p-3 bg-slate-950/60 rounded-lg border border-slate-800 text-xs space-y-1 font-mono">
                       <div className="flex justify-between text-[11px]">
-                        <span className="font-bold text-blue-700">{rec.actionLabel}</span>
-                        <span className="text-slate-400">{rec.timestamp}</span>
+                        <span className="font-bold text-blue-400">{rec.actionLabel}</span>
+                        <span className="text-slate-500">{rec.timestamp}</span>
                       </div>
-                      <div className="text-slate-800 font-semibold">{rec.officerName}</div>
-                      <p className="text-slate-600 font-sans text-xs italic">"{rec.notes}"</p>
+                      <div className="text-slate-200 font-semibold">{rec.officerName}</div>
+                      <p className="text-slate-400 font-sans text-xs italic">"{rec.notes}"</p>
                     </div>
                   ))}
                 </div>

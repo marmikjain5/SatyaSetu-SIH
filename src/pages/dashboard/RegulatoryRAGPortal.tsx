@@ -33,7 +33,7 @@ import {
   RegulatoryAuthority,
   RegulatoryRuleItem,
 } from '../../lib/ragKnowledgeService';
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency, cn } from '../../lib/utils';
 
 export const RegulatoryRAGPortal: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,59 +152,85 @@ export const RegulatoryRAGPortal: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Hybrid Vector + Knowledge Graph RAG Engine</span>
+      {/* Page Hero Header */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
+        {/* Left (65–70%) */}
+        <div className="space-y-2 lg:max-w-[68%]">
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-300 bg-slate-800 border border-slate-700 tracking-wide">
+            Hybrid Vector + Knowledge Graph RAG Engine
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-            Regulatory Intelligence & Guideline Assistant
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+            Regulatory Intelligence &amp; Guideline Assistant
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
             Search official Indian gazette notifications, statutory clauses, effective date mandates, and pending rule amendments.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
+        {/* Right (30–35%) */}
+        <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center lg:items-start xl:items-center gap-2.5 shrink-0">
+          <button
+            type="button"
             onClick={handleTriggerGazetteCrawler}
-            isLoading={isCrawling}
             disabled={isCrawling}
-            className="text-xs gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-750 text-xs font-semibold text-slate-200 hover:text-white transition-all disabled:opacity-50 shadow-2xs"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isCrawling ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn('h-3.5 w-3.5 text-blue-400', isCrawling && 'animate-spin')} />
             <span>{isCrawling ? 'Crawling Gazette Feeds...' : 'Crawl Gazette Feeds Now'}</span>
-          </Button>
+          </button>
 
-          <Badge variant="primary" size="lg" className="gap-1 font-mono text-xs">
-            <ShieldCheck className="h-4 w-4" />
-            <span>4 Official Authorities Indexed</span>
-          </Badge>
+          <div className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700/80 bg-slate-800/60 text-xs">
+            <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+            <span className="font-bold text-white">4</span>
+            <span className="text-slate-400 text-[11px]">Official Authorities Indexed</span>
+          </div>
         </div>
       </div>
 
       {/* Crawled Notification Alert Banner */}
       {crawledAlert && (
-        <div className="p-3.5 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl flex items-center justify-between text-xs font-mono animate-in fade-in">
+        <div className="p-3 bg-slate-900 border border-blue-500/40 text-blue-200 rounded-lg flex items-center justify-between text-xs font-mono animate-in fade-in">
           <div className="flex items-center gap-2">
-            <RefreshCw className={`h-4 w-4 text-blue-600 ${isCrawling ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn('h-3.5 w-3.5 text-blue-400', isCrawling && 'animate-spin')} />
             <span>{crawledAlert}</span>
           </div>
           <button
             onClick={() => setCrawledAlert(null)}
-            className="text-blue-500 hover:text-blue-800 font-bold px-2"
+            className="text-slate-400 hover:text-white font-bold px-2 transition-colors"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Primary Navigation Tabs */}
-      <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} variant="segmented" />
+      {/* Unified Horizontal Navigation Tabs */}
+      <div className="border-b border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'inline-flex items-center gap-2 pb-3 pt-2 text-xs font-medium border-b-2 transition-all whitespace-nowrap -mb-px',
+                isActive
+                  ? 'border-blue-500 text-white font-semibold'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
+              )}
+            >
+              {React.cloneElement(tab.icon as React.ReactElement, {
+                className: cn('h-3.5 w-3.5', isActive ? 'text-blue-400' : 'text-slate-500'),
+              })}
+              <span>{tab.label}</span>
+              {tab.id === 'versioning' && pendingRulesCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  {pendingRulesCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       {/* ── TAB 1: RAG SEARCH ────────────────────────────────────────── */}
       {activeTab === 'search' && (
@@ -252,14 +278,19 @@ export const RegulatoryRAGPortal: React.FC = () => {
           </Card>
 
           {/* RAG Telemetry Trace Bar */}
-          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 text-xs text-blue-900 font-mono">
-            <div className="flex items-center gap-2">
-              <Cpu className="h-4 w-4 text-blue-600" />
-              <span>
-                RAG Pipeline: Hybrid Vector Search + Knowledge Graph Filtered ({searchResults.matchedChunks.length} chunks retrieved)
-              </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 text-xs font-mono text-slate-400">
+            <div className="flex items-center gap-2 min-w-0">
+              <Cpu className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+              <div className="truncate">
+                <span className="text-slate-500 font-medium">RAG Pipeline:</span>{' '}
+                <span className="text-slate-200">Hybrid Vector Search + Knowledge Graph Filtered</span>{' '}
+                <span className="text-blue-400 font-semibold">({searchResults.matchedChunks.length} chunks retrieved)</span>
+              </div>
             </div>
-            <span className="font-bold">{searchResults.graphTrace.nodesTraversed} Graph Nodes Traversed</span>
+            <div className="flex items-center gap-1.5 shrink-0 text-slate-300">
+              <span className="text-emerald-400 font-bold">{searchResults.graphTrace.nodesTraversed}</span>
+              <span className="text-slate-400">Graph Nodes Traversed</span>
+            </div>
           </div>
 
           {/* Search Results List */}
@@ -362,199 +393,364 @@ export const RegulatoryRAGPortal: React.FC = () => {
       {/* ── TAB 2: KNOWLEDGE GRAPH ───────────────────────────────────── */}
       {activeTab === 'graph' && (
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <GitBranch className="h-4 w-4 text-blue-600" />
-                <span>Regulatory Knowledge Graph Topology</span>
-              </CardTitle>
-              <CardDescription>
-                Relationships between Authorities, Statutory Documents, Sections, Active Rules, Versions, and Product Categories.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-5 space-y-6">
-              {/* Nodes Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="text-xs font-bold text-slate-600 uppercase">Authorities (4)</div>
-                  <div className="space-y-1">
+          <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden text-white shadow-xs">
+            {/* Header: Title + Subtitle on same row on desktop, NO ICON */}
+            <div className="px-5 py-3.5 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-1.5 sm:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-3">
+                <h2 className="text-base font-bold text-white tracking-tight">
+                  Regulatory Knowledge Graph Topology
+                </h2>
+                <span className="text-xs text-slate-400">
+                  Relationships between Authorities, Statutory Documents, Sections, Active Rules, Versions, and Product Categories.
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5 space-y-5">
+              {/* Three-Column Information Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+                {/* Column 1: AUTHORITIES */}
+                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Authorities ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'authority').length})
+                  </div>
+                  <div className="space-y-1.5">
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'authority').map((n) => (
-                      <div key={n.id} className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-100 flex justify-between">
-                        <span>{n.label}</span>
-                        <span className="font-mono text-[10px] text-slate-400">ISSUES →</span>
+                      <div
+                        key={n.id}
+                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-blue-400 hover:border-slate-700 transition-colors"
+                      >
+                        <span className="truncate pr-2">{n.label}</span>
+                        <span className="font-mono text-[10px] text-slate-400 shrink-0">ISSUES →</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="text-xs font-bold text-slate-600 uppercase">Active Rules (4)</div>
-                  <div className="space-y-1">
+                {/* Column 2: ACTIVE RULES */}
+                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Active Rules ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'rule').length})
+                  </div>
+                  <div className="space-y-1.5 max-h-80 overflow-y-auto pr-0.5 scrollbar-thin">
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'rule').map((n) => (
-                      <div key={n.id} className="text-xs font-semibold text-slate-800 bg-white px-2 py-1 rounded border border-slate-200 flex justify-between">
-                        <span>{n.label}</span>
-                        <span className="font-mono text-[10px] text-emerald-600">ACTIVE</span>
+                      <div
+                        key={n.id}
+                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-slate-200 hover:border-slate-700 transition-colors"
+                      >
+                        <span className="truncate pr-2">{n.label}</span>
+                        <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60 shrink-0">
+                          ACTIVE
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="text-xs font-bold text-slate-600 uppercase">Product Categories (3)</div>
-                  <div className="space-y-1">
+                {/* Column 3: PRODUCT CATEGORIES */}
+                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Product Categories ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'category').length})
+                  </div>
+                  <div className="space-y-1.5">
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'category').map((n) => (
-                      <div key={n.id} className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-1 rounded border border-purple-100 flex justify-between">
-                        <span>{n.label}</span>
-                        <span className="font-mono text-[10px] text-purple-500">APPLIES_TO</span>
+                      <div
+                        key={n.id}
+                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-purple-300 hover:border-slate-700 transition-colors"
+                      >
+                        <span className="truncate pr-2">{n.label}</span>
+                        <span className="font-mono text-[10px] text-purple-400 shrink-0">APPLIES_TO →</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Edge Relationships Diagram */}
-              <div className="border border-slate-200 rounded-xl p-4 bg-slate-900 text-white space-y-3 font-mono text-xs">
-                <div className="text-slate-400 text-[11px] uppercase font-sans font-bold">
-                  Active Knowledge Graph Edge Traversals ({KNOWLEDGE_GRAPH_EDGES.length})
+              {/* Active Knowledge Graph Edge Traversals Table */}
+              <div className="rounded-lg border border-slate-800 bg-slate-950/60 overflow-hidden text-white">
+                {/* Section Header */}
+                <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60">
+                  <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                    Active Knowledge Graph Edge Traversals ({KNOWLEDGE_GRAPH_EDGES.length})
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Relationships traversed across authorities, documents, rules and regulatory entities.
+                  </p>
                 </div>
-                <div className="divide-y divide-slate-800 max-h-64 overflow-y-auto space-y-2 pt-1">
+
+                {/* Table Column Headers (Fixed) */}
+                <div className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 bg-slate-900/40">
+                  <span>Source</span>
+                  <span>Relationship</span>
+                  <span>Target</span>
+                </div>
+
+                {/* Scrollable Table Body */}
+                <div className="divide-y divide-slate-800/80 max-h-[320px] overflow-y-auto scrollbar-thin">
                   {KNOWLEDGE_GRAPH_EDGES.map((edge, idx) => (
-                    <div key={idx} className="pt-2 flex items-center justify-between text-slate-300">
-                      <span className="text-blue-400">{edge.source}</span>
-                      <span className="text-emerald-400 text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-                        ── {edge.relationship} ──►
+                    <div
+                      key={idx}
+                      className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2.5 text-xs transition-colors hover:bg-slate-900/40"
+                    >
+                      {/* Source Column */}
+                      <span
+                        className="font-mono text-blue-400 truncate pr-3"
+                        title={edge.source}
+                      >
+                        {edge.source}
                       </span>
-                      <span className="text-purple-300">{edge.target}</span>
+
+                      {/* Relationship Column */}
+                      <div>
+                        <span className="text-[10px] font-mono font-semibold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/50 inline-block uppercase tracking-wider">
+                          {edge.relationship}
+                        </span>
+                      </div>
+
+                      {/* Target Column */}
+                      <span
+                        className="font-mono text-slate-300 truncate pr-2"
+                        title={edge.target}
+                      >
+                        {edge.target}
+                      </span>
                     </div>
                   ))}
                 </div>
+
+                {/* Subtle Table Footer */}
+                <div className="px-4 py-2 border-t border-slate-800 bg-slate-900/40 text-[11px] font-mono text-slate-500 flex items-center justify-between">
+                  <span>
+                    Showing {KNOWLEDGE_GRAPH_EDGES.length} of {KNOWLEDGE_GRAPH_EDGES.length} traversals
+                  </span>
+                  <span className="text-[10px] text-slate-600">Active Graph Mesh</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 
       {/* ── TAB 3: RULE VERSIONING & APPROVALS ──────────────────────── */}
       {activeTab === 'versioning' && (
-        <div className="space-y-5">
+        <div className="space-y-4">
+          {/* Human Review Action Alert */}
           {pendingRulesCount > 0 && (
-            <div className="p-4 bg-amber-50 border border-amber-300 text-amber-900 rounded-xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider">Human Review Action Required</h4>
-                  <p className="text-xs text-amber-800">
-                    {pendingRulesCount} proposed rule version(s) pending human officer review. Unapproved rules will NOT reach the Compliance Engine.
-                  </p>
+            <div className="p-4 rounded-xl border border-amber-500/40 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-xs">
+              <div>
+                <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                  Human Review Action Required
                 </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  {pendingRulesCount} proposed rule version(s) pending human officer review. Unapproved rules will NOT reach the Compliance Engine.
+                </p>
               </div>
-              <Badge variant="warning" size="sm" className="font-mono">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-semibold text-amber-300 bg-amber-950/60 border border-amber-800/60 shrink-0 self-start sm:self-center">
                 {pendingRulesCount} Pending Approval
-              </Badge>
+              </span>
             </div>
           )}
 
+          {/* Rules List */}
           <div className="space-y-4">
             {ruleRegistry.map((rule) => (
-              <Card key={rule.ruleId} className="border-slate-200">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-blue-700 font-bold text-xs bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                          {rule.code}
-                        </span>
-                        <Badge variant="primary" size="sm">
-                          {rule.authority}
-                        </Badge>
-                        <Badge variant={rule.status === 'ACTIVE' ? 'success' : 'warning'} size="sm">
-                          {rule.status}
-                        </Badge>
-                      </div>
-                      <CardTitle className="mt-1.5">{rule.title}</CardTitle>
+              <div
+                key={rule.ruleId}
+                className="rounded-xl border border-slate-800 bg-slate-900 text-white overflow-hidden shadow-xs"
+              >
+                {/* Rule Header */}
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-blue-400 font-bold text-xs bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60">
+                        {rule.code}
+                      </span>
+                      <span className="text-xs font-medium text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                        {rule.authority}
+                      </span>
+                      <span
+                        className={cn(
+                          'text-xs font-semibold px-2 py-0.5 rounded border',
+                          rule.status === 'ACTIVE'
+                            ? 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/60'
+                            : rule.status === 'PENDING_APPROVAL'
+                            ? 'text-amber-400 bg-amber-950/60 border border-amber-800/60'
+                            : 'text-slate-400 bg-slate-800/80 border border-slate-700/80'
+                        )}
+                      >
+                        {rule.status.replace(/_/g, ' ')}
+                      </span>
                     </div>
 
-                    <span className="text-xs font-mono text-slate-500">
-                      Active Version: <span className="font-bold text-slate-900">v{rule.activeVersion}</span>
+                    <span className="text-xs font-mono text-slate-400">
+                      Active Version: <span className="font-bold text-slate-200">v{rule.activeVersion}.0</span>
                     </span>
                   </div>
-                </CardHeader>
 
-                <CardContent className="p-5 space-y-4">
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Rule Version History & Human Approvals Timeline
-                  </div>
+                  <h3 className="text-base font-bold text-white tracking-tight mt-2">
+                    {rule.title}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                    {rule.act} • {rule.sourceSection}
+                  </p>
+                </div>
 
-                  <div className="space-y-3">
-                    {rule.versions.map((ver) => (
-                      <div
-                        key={ver.versionId}
-                        className={`p-4 rounded-xl border transition-all ${
-                          ver.status === 'ACTIVE'
-                            ? 'border-emerald-300 bg-emerald-50/30'
-                            : ver.status === 'PENDING_APPROVAL'
-                            ? 'border-amber-300 bg-amber-50/30'
-                            : 'border-slate-200 bg-slate-50 opacity-75'
-                        }`}
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-slate-900 text-xs">
-                                Version {ver.versionNumber}.0
-                              </span>
-                              <Badge
-                                variant={
-                                  ver.status === 'ACTIVE'
-                                    ? 'success'
-                                    : ver.status === 'PENDING_APPROVAL'
-                                    ? 'warning'
-                                    : 'neutral'
-                                }
-                                size="sm"
-                              >
-                                {ver.status}
-                              </Badge>
-                              <span className="text-[11px] font-mono text-slate-500">
-                                Effective From: {ver.effectiveFrom}
-                              </span>
-                            </div>
-                            <p className="text-xs text-slate-700 mt-1.5 leading-relaxed">{ver.changeSummary}</p>
-                            <div className="text-[10px] font-mono text-slate-500 mt-1">
-                              Proposed By: {ver.proposedBy}{' '}
-                              {ver.approvedBy && `• Approved By: ${ver.approvedBy} (${ver.approvedAt})`}
-                            </div>
-                          </div>
+                {/* Sub-Header */}
+                <div className="px-4 sm:px-5 py-2 bg-slate-950/60 border-t border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  Rule Version History &amp; Human Approvals
+                </div>
 
-                          {/* Approval Actions */}
-                          {ver.status === 'PENDING_APPROVAL' && (
-                            <div className="flex items-center gap-2 shrink-0">
-                              <Button
-                                variant="outline"
-                                size="sm"
+                {/* Table Header (Desktop) */}
+                <div className="hidden lg:grid grid-cols-[80px_130px_110px_1fr_180px_170px] items-center px-4 sm:px-5 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/30 border-b border-slate-800">
+                  <span>Version</span>
+                  <span>Status</span>
+                  <span>Effective</span>
+                  <span>Summary</span>
+                  <span>Proposed By</span>
+                  <span>Approved By / Action</span>
+                </div>
+
+                {/* Version Rows */}
+                <div className="divide-y divide-slate-800/80">
+                  {rule.versions.map((ver) => (
+                    <div
+                      key={ver.versionId}
+                      className={cn(
+                        'px-4 sm:px-5 py-3 transition-colors',
+                        ver.status === 'PENDING_APPROVAL'
+                          ? 'bg-amber-950/20 border-l-2 border-l-amber-500'
+                          : 'hover:bg-slate-950/30'
+                      )}
+                    >
+                      {/* Desktop Grid Row */}
+                      <div className="hidden lg:grid grid-cols-[80px_130px_110px_1fr_180px_170px] items-start gap-3">
+                        {/* Version */}
+                        <span className="font-mono text-xs font-bold text-white pt-0.5">
+                          v{ver.versionNumber}.0
+                        </span>
+
+                        {/* Status */}
+                        <div>
+                          <span
+                            className={cn(
+                              'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider',
+                              ver.status === 'ACTIVE'
+                                ? 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/60'
+                                : ver.status === 'PENDING_APPROVAL'
+                                ? 'text-amber-400 bg-amber-950/60 border border-amber-800/60'
+                                : 'text-slate-400 bg-slate-800/80 border border-slate-700/80'
+                            )}
+                          >
+                            {ver.status.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+
+                        {/* Effective */}
+                        <span className="text-xs font-mono text-slate-300 pt-0.5">
+                          {ver.effectiveFrom}
+                        </span>
+
+                        {/* Summary */}
+                        <p className="text-xs text-slate-300 leading-relaxed pr-2">
+                          {ver.changeSummary}
+                        </p>
+
+                        {/* Proposed By */}
+                        <span className="text-[11px] font-mono text-slate-400 leading-tight">
+                          {ver.proposedBy}
+                        </span>
+
+                        {/* Approved By / Action */}
+                        <div className="text-[11px] font-mono text-slate-400">
+                          {ver.status === 'PENDING_APPROVAL' ? (
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
                                 onClick={() => handleRejectPendingRule(rule.ruleId, ver.versionId)}
-                                className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50 h-8 gap-1"
+                                className="text-[11px] font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/50 border border-rose-800/60 px-2 py-1 rounded transition-colors"
                               >
-                                <XCircle className="h-3.5 w-3.5" />
-                                <span>Reject</span>
-                              </Button>
-                              <Button
-                                variant="primary"
-                                size="sm"
+                                Reject
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => handleApprovePendingRule(rule.ruleId, ver.versionId)}
-                                className="text-xs bg-emerald-600 hover:bg-emerald-700 h-8 gap-1"
+                                className="text-[11px] font-semibold text-white bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1 rounded transition-colors shadow-2xs whitespace-nowrap"
                               >
-                                <ThumbsUp className="h-3.5 w-3.5" />
-                                <span>Approve & Promote to Active</span>
-                              </Button>
+                                Approve
+                              </button>
                             </div>
+                          ) : ver.approvedBy ? (
+                            <div className="leading-tight">
+                              <span className="text-slate-300">{ver.approvedBy}</span>
+                              {ver.approvedAt && (
+                                <span className="block text-[10px] text-slate-500 mt-0.5">
+                                  {ver.approvedAt}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-600">—</span>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+
+                      {/* Mobile/Tablet Stacked View */}
+                      <div className="lg:hidden space-y-2 text-xs">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-white">
+                              v{ver.versionNumber}.0
+                            </span>
+                            <span
+                              className={cn(
+                                'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase',
+                                ver.status === 'ACTIVE'
+                                  ? 'text-emerald-400 bg-emerald-950/60 border border-emerald-800/60'
+                                  : ver.status === 'PENDING_APPROVAL'
+                                  ? 'text-amber-400 bg-amber-950/60 border border-amber-800/60'
+                                  : 'text-slate-400 bg-slate-800/80 border border-slate-700/80'
+                              )}
+                            >
+                              {ver.status.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                          <span className="text-xs font-mono text-slate-400">
+                            Effective: {ver.effectiveFrom}
+                          </span>
+                        </div>
+
+                        <p className="text-slate-300 leading-relaxed">{ver.changeSummary}</p>
+
+                        <div className="text-[11px] font-mono text-slate-400 space-y-0.5 pt-1 border-t border-slate-800/60">
+                          <div>Proposed: {ver.proposedBy}</div>
+                          {ver.approvedBy && (
+                            <div>Approved: {ver.approvedBy} ({ver.approvedAt})</div>
+                          )}
+                        </div>
+
+                        {ver.status === 'PENDING_APPROVAL' && (
+                          <div className="flex items-center gap-2 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => handleRejectPendingRule(rule.ruleId, ver.versionId)}
+                              className="text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/50 border border-rose-800/60 px-3 py-1 rounded transition-colors"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleApprovePendingRule(rule.ruleId, ver.versionId)}
+                              className="text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-600 px-3 py-1 rounded transition-colors shadow-2xs"
+                            >
+                              Approve &amp; Promote to Active
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -562,37 +758,77 @@ export const RegulatoryRAGPortal: React.FC = () => {
 
       {/* ── TAB 4: OFFICIAL GOVT SOURCES ────────────────────────────── */}
       {activeTab === 'sources' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {OFFICIAL_REGULATORY_SOURCES.map((src) => (
-            <Card key={src.id} className="border-slate-200 hover:border-slate-300 transition-all">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <Badge variant="primary" size="sm" className="font-mono">
-                    {src.authority}
-                  </Badge>
-                  <span className="text-xs font-mono text-slate-500">{src.jurisdiction}</span>
-                </div>
-                <CardTitle className="mt-1.5">{src.name}</CardTitle>
-                <CardDescription>{src.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="p-5 pt-0 space-y-3 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1 font-mono text-[11px]">
-                  <div className="text-slate-500">Gazette Ref: {src.gazetteRef}</div>
-                  <div className="text-slate-500">Document Types: {src.documentTypes.join(', ')}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {OFFICIAL_REGULATORY_SOURCES.map((src) => {
+            const abbrMap: Record<string, string> = {
+              'Legal Metrology': 'LM',
+              FSSAI: 'FSSAI',
+              BIS: 'BIS',
+              CCPA: 'CCPA',
+            };
+            const abbr = abbrMap[src.authority] || src.authority;
+
+            return (
+              <div
+                key={src.id}
+                className="rounded-xl border border-slate-800 bg-slate-900 text-white p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-700 transition-colors"
+              >
+                {/* Header: Abbreviation Badge + Authority Name + Description */}
+                <div className="space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <span className="font-mono text-xs font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60 shrink-0 mt-0.5">
+                      {abbr}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                        {src.name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {src.description}
+                  </p>
                 </div>
 
-                <a
-                  href={src.baseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-bold"
-                >
-                  <span>Visit Official Government Portal</span>
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </CardContent>
-            </Card>
-          ))}
+                {/* Compact Metadata Block */}
+                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5 text-xs font-mono">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <span className="text-slate-500 font-medium sm:w-32 shrink-0">
+                      Gazette Reference:
+                    </span>
+                    <span className="text-slate-300 truncate" title={src.gazetteRef}>
+                      {src.gazetteRef}
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <span className="text-slate-500 font-medium sm:w-32 shrink-0">
+                      Document Types:
+                    </span>
+                    <span className="text-slate-300 truncate" title={src.documentTypes.join(', ')}>
+                      {src.documentTypes.join(', ')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Official Portal Link Footer */}
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                  <a
+                    href={src.baseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors group"
+                  >
+                    <span>Visit Official Government Portal</span>
+                    <ExternalLink className="h-3.5 w-3.5 text-slate-500 group-hover:text-blue-300 transition-colors" />
+                  </a>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    {src.jurisdiction}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
