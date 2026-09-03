@@ -10,6 +10,8 @@ import type {
   ReviewDocument,
   AIAnalysisResult,
   ReviewMessage,
+  SourceViolationContext,
+  ViolationLegalAssessment,
 } from '../types/legalReview';
 import type { HygieneViolation } from '../types/hygiene';
 import {
@@ -19,6 +21,7 @@ import {
 } from '../data/mockLegalReviewData';
 import {
   createAnalysisForHygieneViolation,
+  createViolationAssessment,
 } from '../lib/legalReviewIntegration';
 
 interface LegalReviewState {
@@ -27,6 +30,10 @@ interface LegalReviewState {
   selectedDocument: ReviewDocument | null;
   analysisResult: AIAnalysisResult | null;
   messages: ReviewMessage[];
+
+  // PRD workflow state
+  sourceViolation: SourceViolationContext | null;
+  violationAssessment: ViolationLegalAssessment | null;
 
   // UI state
   isAnalyzing: boolean;
@@ -41,6 +48,12 @@ interface LegalReviewState {
   markFindingResolved: (findingId: string) => void;
   resetSession: () => void;
   loadExternalDocument: (document: ReviewDocument, sourceViolation?: HygieneViolation, factoryName?: string) => void;
+
+  // PRD workflow actions
+  verifyReview: () => void;
+  rejectReview: () => void;
+  approveForPublication: () => void;
+  setReviewerNotes: (notes: string) => void;
 }
 
 let analyzeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -55,6 +68,10 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
   selectedDocument: null,
   analysisResult: null,
   messages: [],
+
+  // PRD workflow defaults
+  sourceViolation: null,
+  violationAssessment: null,
 
   // UI defaults
   isAnalyzing: false,
@@ -71,9 +88,15 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       analyzeTimer = null;
     }
 
+    // Clear hygiene violation context when switching to a sample document
+    _pendingHygieneViolation = null;
+    _pendingFactoryName = undefined;
+
     set({
       selectedDocument: doc,
       analysisResult: null,
+      sourceViolation: null,
+      violationAssessment: null,
       messages: doc
         ? [
             {
@@ -122,15 +145,23 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
           analyzedAt: new Date().toISOString(),
         };
 
+        // Generate PRD-aligned legal assessment for hygiene violations
+        const assessment = _pendingHygieneViolation
+          ? createViolationAssessment(_pendingHygieneViolation, _pendingFactoryName)
+          : null;
+
         set((state) => ({
           isAnalyzing: false,
           analysisResult: clonedResult,
+          violationAssessment: assessment,
           messages: [
             ...state.messages,
             {
               id: `msg-sys-${Date.now()}`,
               role: 'system' as const,
-              message: `Analysis complete. ${clonedResult.findings.length} finding(s) identified. Overall risk: ${clonedResult.overallRisk}. You may now review each finding or ask questions.`,
+              message: assessment
+                ? `AI Legal Review complete. ${clonedResult.findings.length} finding(s) identified. Overall risk: ${clonedResult.overallRisk}. Evidence assessment: ${assessment.evidenceSufficiency}. False accusation risk: ${assessment.falseAccusationRisk}. Human verification is required before publication.`
+                : `Analysis complete. ${clonedResult.findings.length} finding(s) identified. Overall risk: ${clonedResult.overallRisk}. You may now review each finding or ask questions.`,
               timestamp: new Date().toISOString(),
             },
           ],
@@ -138,6 +169,7 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       } else {
         set((state) => ({
           isAnalyzing: false,
+          violationAssessment: null,
           messages: [
             ...state.messages,
             {
@@ -235,6 +267,8 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
     set({
       selectedDocument: null,
       analysisResult: null,
+      sourceViolation: null,
+      violationAssessment: null,
       messages: [],
       isAnalyzing: false,
       expandedFindingId: null,
@@ -252,19 +286,109 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
     _pendingHygieneViolation = sourceViolation || null;
     _pendingFactoryName = factoryName;
 
+    // Build SourceViolationContext for the UI
+    const srcCtx: SourceViolationContext | null = sourceViolation
+      ? {
+          violationId: sourceViolation.id,
+          factoryId: sourceViolation.factoryId,
+          factoryName: factoryName || `Factory ${sourceViolation.factoryId}`,
+          violationTitle: sourceViolation.title,
+          zone: sourceViolation.zoneName,
+          severity: sourceViolation.severity,
+          description: sourceViolation.description,
+          evidence: sourceViolation.evidence
+            ? {
+                type: sourceViolation.evidence.type,
+                title: sourceViolation.evidence.title,
+                description: sourceViolation.evidence.description,
+                capturedAt: sourceViolation.evidence.capturedAt,
+              }
+            : undefined,
+          status: sourceViolation.status,
+          parameter: sourceViolation.parameter,
+          actualValue: sourceViolation.actualValue,
+          threshold: sourceViolation.threshold,
+        }
+      : null;
+
     set({
       selectedDocument: document,
       analysisResult: null,
+      sourceViolation: srcCtx,
+      violationAssessment: null,
       messages: [
         {
           id: `msg-sys-${Date.now()}`,
           role: 'system',
-          message: `Document loaded from Factory Hygiene Monitoring: "${document.title}". This hygiene violation has been sent to the AI Legal Review module for analysis. Click "Analyze Document" to start the simulated AI review.`,
+          message: `Document loaded from Factory Hygiene Monitoring: "${document.title}". This hygiene violation has been sent to the AI Legal Review module for analysis. Click "Analyze Document" to start the AI legal review.`,
           timestamp: new Date().toISOString(),
         },
       ],
       isAnalyzing: false,
       expandedFindingId: null,
+    });
+  },
+
+  // ── PRD Workflow Actions ────────────────────────────────────────────────
+
+  verifyReview: () => {
+    set((state) => {
+      if (!state.violationAssessment || state.violationAssessment.humanVerificationStatus !== 'pending') {
+        return state;
+      }
+      return {
+        violationAssessment: {
+          ...state.violationAssessment,
+          humanVerificationStatus: 'verified' as const,
+          publicationStatus: 'not-ready' as const,
+        },
+      };
+    });
+  },
+
+  rejectReview: () => {
+    set((state) => {
+      if (!state.violationAssessment || state.violationAssessment.humanVerificationStatus !== 'pending') {
+        return state;
+      }
+      return {
+        violationAssessment: {
+          ...state.violationAssessment,
+          humanVerificationStatus: 'rejected' as const,
+          publicationStatus: 'not-ready' as const,
+        },
+      };
+    });
+  },
+
+  approveForPublication: () => {
+    set((state) => {
+      // Guard: can only approve if human verification passed
+      if (
+        !state.violationAssessment ||
+        state.violationAssessment.humanVerificationStatus !== 'verified' ||
+        state.violationAssessment.publicationStatus !== 'not-ready'
+      ) {
+        return state;
+      }
+      return {
+        violationAssessment: {
+          ...state.violationAssessment,
+          publicationStatus: 'approved' as const,
+        },
+      };
+    });
+  },
+
+  setReviewerNotes: (notes) => {
+    set((state) => {
+      if (!state.violationAssessment) return state;
+      return {
+        violationAssessment: {
+          ...state.violationAssessment,
+          reviewerNotes: notes,
+        },
+      };
     });
   },
 }));

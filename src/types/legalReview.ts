@@ -75,3 +75,60 @@ export interface LegalReviewSession {
   messages: ReviewMessage[];
   startedAt: string;
 }
+
+// ─── PRD Workflow Types (Violation → AI Review → Human Verification → Publication) ──
+
+export type HumanVerificationStatus = 'pending' | 'verified' | 'rejected';
+
+/** Final prototype state is 'approved' — no automatic publishing */
+export type PublicationStatus = 'not-ready' | 'approved';
+
+export type EvidenceSufficiency = 'sufficient' | 'insufficient' | 'requires-verification';
+
+export type FalseAccusationRisk = 'low' | 'medium' | 'high';
+
+export type AIRecommendation =
+  | 'proceed-to-verification'
+  | 'request-additional-evidence'
+  | 'do-not-proceed';
+
+/** Complete source violation context for the Legal Review page. */
+export interface SourceViolationContext {
+  violationId: string;
+  factoryId: string;
+  factoryName: string;
+  violationTitle: string;
+  zone: string;
+  severity: string;
+  description: string;
+  evidence?: {
+    type: string;
+    title: string;
+    description: string;
+    capturedAt: string;
+  };
+  status: string;
+  parameter: string;
+  actualValue: string;
+  threshold: string;
+}
+
+/**
+ * Combined AI assessment output + workflow state for a violation-based review.
+ * Created during AI analysis; updated during human verification and publication.
+ */
+export interface ViolationLegalAssessment {
+  // AI analysis output
+  evidenceSufficiency: EvidenceSufficiency;
+  evidenceSufficiencyExplanation: string;
+  falseAccusationRisk: FalseAccusationRisk;
+  falseAccusationRiskExplanation: string;
+  applicableRule: string;
+  legalReasoning: string;
+  aiRecommendation: AIRecommendation;
+  aiConfidence: number;
+  // Workflow state
+  humanVerificationStatus: HumanVerificationStatus;
+  reviewerNotes: string;
+  publicationStatus: PublicationStatus;
+}
