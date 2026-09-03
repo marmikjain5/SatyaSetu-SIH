@@ -14,13 +14,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
 
-  const isDirectoryActive = location.pathname === '/' || location.pathname === '/directory';
-  const isAboutActive = location.pathname === '/about' && (!location.hash || location.hash === '#about');
-  const isCapabilitiesActive = location.pathname === '/about' && location.hash === '#capabilities';
-  const isWorkflowActive = location.pathname === '/about' && location.hash === '#workflow';
+  const isDirectoryActive = location.pathname === '/directory';
+  const isAboutActive = (location.pathname === '/' || location.pathname === '/about') && (!location.hash || location.hash === '#about');
+  const isCapabilitiesActive = location.hash === '#capabilities';
+  const isWorkflowActive = location.hash === '#workflow';
 
   const handleNavClick = (targetId: string) => {
-    if (location.pathname === '/about') {
+    if (location.pathname === '/' || location.pathname === '/about') {
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -30,23 +30,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-      {/* Official Top Tier Notification Strip */}
-      <div className="bg-[#0F172A] text-slate-300 text-[11px] py-1.5 px-4 sm:px-8 flex items-center justify-between border-b border-slate-800">
-        <div className="flex items-center gap-2 font-mono">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-emerald-400 font-semibold">ENGINE ONLINE</span>
-          <span className="text-slate-500">|</span>
-          <span className="hidden sm:inline text-slate-300">National Compliance Intelligence Network v4.8</span>
-          <span className="text-slate-400">● 48K+ Violations Monitored</span>
-        </div>
-        <div className="flex items-center gap-4 text-slate-400">
-          <span className="hidden md:inline font-mono">Legal Metrology & CCPA AI Engine</span>
-          <span className="text-slate-300 font-medium bg-slate-800 px-2 py-0.5 rounded text-[10px]">
-            Govt. of India Standard
-          </span>
-        </div>
-      </div>
-
       {/* Main Nav */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
@@ -72,19 +55,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
         {/* Center Nav Links */}
         <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 text-sm font-medium">
           <Link
-            to="/"
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              isDirectoryActive
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Product Directory</span>
-          </Link>
-
-          <Link
-            to="/about#about"
+            to="/#about"
             onClick={() => handleNavClick('about')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isAboutActive
@@ -96,7 +67,19 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
           </Link>
 
           <Link
-            to="/about#capabilities"
+            to="/directory"
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isDirectoryActive
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Product Directory</span>
+          </Link>
+
+          <Link
+            to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isCapabilitiesActive
@@ -108,7 +91,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
           </Link>
 
           <Link
-            to="/about#workflow"
+            to="/#workflow"
             onClick={() => handleNavClick('workflow')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isWorkflowActive

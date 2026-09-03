@@ -88,7 +88,7 @@ export const LandingFooter: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link to="/" className="hover:text-white transition-colors text-blue-400">
+                <Link to="/directory" className="hover:text-white transition-colors text-blue-400">
                   Public Citizen Product Directory
                 </Link>
               </li>
