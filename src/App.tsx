@@ -30,7 +30,7 @@ export function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/directory" element={<PublicDirectoryPage />} />
         <Route path="/verify" element={<PublicDirectoryPage />} />
-        <Route path="/public-directory" element={<Navigate to="/" replace />} />
+        <Route path="/public-directory" element={<Navigate to="/directory" replace />} />
 
         {/* Authenticated Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>

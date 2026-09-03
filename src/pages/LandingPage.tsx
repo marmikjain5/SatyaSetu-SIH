@@ -1,8 +1,8 @@
 import React from 'react';
-import { PublicDirectoryPage } from './PublicDirectoryPage';
+import { AboutPage } from './AboutPage';
 
 export const LandingPage: React.FC = () => {
-  return <PublicDirectoryPage />;
+  return <AboutPage />;
 };
 
 export default LandingPage;
