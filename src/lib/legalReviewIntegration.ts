@@ -14,6 +14,10 @@ import type {
   AIAnalysisResult,
   AIFinding,
   FindingSeverity,
+  ViolationLegalAssessment,
+  EvidenceSufficiency,
+  FalseAccusationRisk,
+  AIRecommendation,
 } from '../types/legalReview';
 
 /**
@@ -173,5 +177,126 @@ export function createAnalysisForHygieneViolation(
     averageConfidence: avgConfidence,
     analyzedAt: new Date().toISOString(),
     status: 'complete',
+  };
+}
+
+/**
+ * Generate a deterministic PRD-aligned legal assessment for a hygiene violation.
+ *
+ * This is SEPARATE from the existing finding-generation logic.
+ * It produces the evidence sufficiency, false-accusation risk, legal reasoning,
+ * and AI recommendation required by the PRD workflow.
+ *
+ * All legal references are clearly labelled as prototype / requiring verification.
+ */
+export function createViolationAssessment(
+  violation: HygieneViolation,
+  factoryName?: string
+): ViolationLegalAssessment {
+  const factory = factoryName || `Factory ${violation.factoryId}`;
+  const hasEvidence = !!violation.evidence;
+
+  // ── Evidence Sufficiency ──────────────────────────────────────────────
+  let evidenceSufficiency: EvidenceSufficiency;
+  let evidenceSufficiencyExplanation: string;
+
+  if (hasEvidence && (violation.severity === 'critical' || violation.severity === 'high')) {
+    evidenceSufficiency = 'sufficient';
+    evidenceSufficiencyExplanation =
+      `Evidence has been captured for this ${violation.severity}-severity violation at ${factory}. ` +
+      `The evidence directly documents the observed condition in ${violation.zoneName}. ` +
+      `Evidence appears sufficient to support the observed hygiene concern, subject to human verification.`;
+  } else if (hasEvidence) {
+    evidenceSufficiency = 'requires-verification';
+    evidenceSufficiencyExplanation =
+      `Evidence has been captured (${violation.evidence!.type}: "${violation.evidence!.title}"), ` +
+      `but the ${violation.severity}-severity classification requires human review to confirm ` +
+      `the evidence sufficiently supports the finding before proceeding.`;
+  } else {
+    evidenceSufficiency = 'insufficient';
+    evidenceSufficiencyExplanation =
+      `No photographic or documentary evidence is attached to this violation record. ` +
+      `Evidence is insufficient to conclusively establish the alleged violation. ` +
+      `Additional evidence collection is recommended before this finding can be substantiated.`;
+  }
+
+  // ── AI Confidence (computed first — used by false accusation risk) ───
+  const baseConfidence =
+    violation.severity === 'critical' ? 92
+    : violation.severity === 'high' ? 85
+    : violation.severity === 'medium' ? 78
+    : 70;
+  const evidenceBonus = hasEvidence ? 5 : -8;
+  const aiConfidence = Math.min(99, Math.max(40, baseConfidence + evidenceBonus));
+
+  // ── False Accusation Risk (derived from evidence + severity + confidence) ──
+  let falseAccusationRisk: FalseAccusationRisk;
+  let falseAccusationRiskExplanation: string;
+
+  if (!hasEvidence || aiConfidence < 70) {
+    // HIGH: no evidence at all, or confidence too low to substantiate
+    falseAccusationRisk = 'high';
+    falseAccusationRiskExplanation =
+      !hasEvidence
+        ? `Available evidence is insufficient to confidently establish the alleged violation. ` +
+          `Publishing this finding without additional substantiation carries a significant risk ` +
+          `of false accusation (AI confidence: ${aiConfidence}%). Human verification required.`
+        : `AI confidence is below the safety threshold (${aiConfidence}%). Even though evidence ` +
+          `has been captured, the low confidence level indicates a significant risk of false ` +
+          `accusation. Additional verification and evidence are required.`;
+  } else if (
+    hasEvidence &&
+    (violation.severity === 'critical' || violation.severity === 'high') &&
+    aiConfidence >= 85
+  ) {
+    // LOW: strong evidence + high/critical severity + high confidence
+    falseAccusationRisk = 'low';
+    falseAccusationRiskExplanation =
+      `Evidence directly supports the observed condition. The ${violation.parameter} reading of ` +
+      `${violation.actualValue} exceeds the compliance threshold of ${violation.threshold} ` +
+      `(AI confidence: ${aiConfidence}%). Human verification is still required before publication.`;
+  } else {
+    // MEDIUM: evidence exists but confidence is moderate, or severity is medium/low
+    falseAccusationRisk = 'medium';
+    falseAccusationRiskExplanation =
+      `The evidence indicates a possible violation but additional verification is recommended. ` +
+      `The observed ${violation.parameter} value should be confirmed through independent ` +
+      `measurement or inspection (AI confidence: ${aiConfidence}%). ` +
+      `Human verification is required before publication.`;
+  }
+
+  // ── AI Recommendation ─────────────────────────────────────────────────
+  let aiRecommendation: AIRecommendation;
+  if (evidenceSufficiency === 'sufficient' && falseAccusationRisk === 'low') {
+    aiRecommendation = 'proceed-to-verification';
+  } else if (evidenceSufficiency === 'insufficient' || falseAccusationRisk === 'high') {
+    aiRecommendation = 'do-not-proceed';
+  } else {
+    aiRecommendation = 'request-additional-evidence';
+  }
+
+  // ── Legal Reasoning (prototype) ───────────────────────────────────────
+  const applicableRule =
+    `Prototype Rule Reference — Hygiene Compliance Standard for ${violation.parameter} (requires verification)`;
+
+  const legalReasoning =
+    `The ${violation.parameter.toLowerCase()} reading of ${violation.actualValue} in the ` +
+    `${violation.zoneName} zone at ${factory} exceeds the compliance threshold of ` +
+    `${violation.threshold}. ${violation.description} ` +
+    `This assessment is a prototype demonstration. The applicable regulatory rule reference ` +
+    `requires verification against actual legal provisions before any enforcement action.`;
+
+  return {
+    evidenceSufficiency,
+    evidenceSufficiencyExplanation,
+    falseAccusationRisk,
+    falseAccusationRiskExplanation,
+    applicableRule,
+    legalReasoning,
+    aiRecommendation,
+    aiConfidence,
+    humanVerificationStatus: 'pending',
+    reviewerNotes: '',
+    publicationStatus: 'not-ready',
   };
 }
