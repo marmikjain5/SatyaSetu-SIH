@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Package,
   Search,
@@ -12,6 +13,7 @@ import {
   Sparkles,
   Download,
   Plus,
+  ScanLine,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Product, PlatformType, ComplianceStatus } from '../../types/compliance';
@@ -78,7 +80,13 @@ export const ProductsIntelligence: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Link to="/dashboard/scanner">
+            <Button variant="primary" size="sm" className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+              <ScanLine className="h-3.5 w-3.5" />
+              <span>Scan New Packaging (OCR)</span>
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" className="text-xs gap-1.5">
             <Download className="h-3.5 w-3.5 text-slate-600" />
             <span>Export CSV</span>

@@ -7,6 +7,9 @@ import {
   RegulatoryRule,
   OfficerActionType,
   OfficerDecisionRecord,
+  ComplianceStatus,
+  PlatformType,
+  ViolationSeverity,
 } from '../types/compliance';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 import { MOCK_VIOLATIONS } from '../data/mockViolations';
@@ -25,6 +28,13 @@ interface ComplianceState {
   searchQuery: string;
 
   // Actions
+  addProduct: (product: Product) => void;
+  addScannedProduct: (
+    scanData: any,
+    imageUrl?: string,
+    confidence?: number,
+    validationResult?: any
+  ) => Product;
   setSelectedProduct: (product: Product | null) => void;
   setSelectedViolation: (violation: Violation | null) => void;
   setSearchQuery: (query: string) => void;
@@ -52,6 +62,105 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
   selectedProduct: null,
   selectedViolation: null,
   searchQuery: '',
+
+  addProduct: (product) => {
+    set((state) => ({
+      products: [product, ...state.products],
+    }));
+  },
+
+  addScannedProduct: (scanData, imageUrl, confidence, validationResult) => {
+    const productId = `PROD-${Date.now()}`;
+    const violationsList: Violation[] = [];
+
+    const violationsCount = validationResult?.violations?.length || 0;
+    const warningsCount = validationResult?.warnings?.length || 0;
+    let status: ComplianceStatus = 'compliant';
+    if (violationsCount > 0) {
+      status = 'non-compliant';
+    } else if (warningsCount > 0) {
+      status = 'under-review';
+    }
+
+    const mrpValue = typeof scanData?.mrp === 'number' 
+      ? scanData.mrp 
+      : (parseFloat(String(scanData?.mrp || '').replace(/[^0-9.]/g, '')) || 499);
+
+    const listedPriceValue = typeof scanData?.unitSalePrice === 'number'
+      ? scanData.unitSalePrice
+      : (parseFloat(String(scanData?.unitSalePrice || '').replace(/[^0-9.]/g, '')) || Math.round(mrpValue * 0.9));
+
+    const newProduct: Product = {
+      id: productId,
+      sku: scanData?.fssaiLicenseNumber ? `SKU-FSSAI-${scanData.fssaiLicenseNumber.slice(-4)}` : `SKU-SCAN-${Math.floor(100 + Math.random() * 900)}`,
+      title: scanData?.productName || 'Scanned Packaged Commodity',
+      brand: scanData?.brandName || 'Brand (Extracted from OCR)',
+      manufacturer: scanData?.manufacturerName || scanData?.packerName || 'Manufacturer Extracted via OCR',
+      category: scanData?.category || 'Nutritional Supplements & Health Foods',
+      platform: (scanData?.platform as PlatformType) || 'Direct',
+      productUrl: '#',
+      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+      mrp: mrpValue,
+      listedPrice: listedPriceValue,
+      netWeight: scanData?.netQuantity || scanData?.netWeight || 'Declared on package',
+      mfgDate: scanData?.manufacturingDate || new Date().toISOString().split('T')[0],
+      expiryDate: scanData?.expiryDate || scanData?.bestBeforeDate,
+      countryOfOrigin: scanData?.countryOfOrigin || 'India',
+      customerCareContact: scanData?.consumerCareEmail || scanData?.consumerCarePhone || scanData?.consumerCareDetails || 'Declared on package',
+      customerCarePhone: scanData?.consumerCarePhone,
+      customerCareEmail: scanData?.consumerCareEmail,
+      fssaiLicenseNumber: scanData?.fssaiLicenseNumber,
+      manufacturerAddress: scanData?.manufacturerAddress,
+      packerAddress: scanData?.packerAddress,
+      unitSalePrice: typeof scanData?.unitSalePrice === 'string' ? scanData.unitSalePrice : undefined,
+      dietaryType: 'Vegetarian',
+      complianceScore: validationResult ? validationResult.score : Math.round(confidence || 92),
+      status,
+      violationsCount,
+      ocrConfidence: Math.round(confidence || 96),
+      lastScanned: 'Just now',
+      missingMandatoryFields: validationResult?.missingDeclarations || [],
+      claims: scanData?.claims?.map((c: string) => ({ text: c, isMisleading: false, confidence: 90 })) || [],
+      regulatoryActs: ['Legal Metrology Act, 2009', 'Legal Metrology (Packaged Commodities) Rules, 2011'],
+    };
+
+    if (validationResult?.violations && validationResult.violations.length > 0) {
+      validationResult.violations.forEach((v: any, idx: number) => {
+        const violationId = `VIO-${Date.now()}-${idx}`;
+        const newViolation: Violation = {
+          id: violationId,
+          caseNumber: `CASE-2025-${Math.floor(1000 + Math.random() * 9000)}`,
+          productId: newProduct.id,
+          productName: newProduct.title,
+          brand: newProduct.brand,
+          manufacturer: newProduct.manufacturer,
+          platform: newProduct.platform,
+          ruleCode: v.ruleCode || 'LM-R6-01',
+          actName: v.actReference || 'Legal Metrology Act, 2009',
+          section: 'Section 36 / Rule 6(1)',
+          description: v.description || 'Statutory packaging non-compliance detected via automated scan.',
+          severity: (v.severity as ViolationSeverity) || 'high',
+          status: 'Open',
+          detectedAt: 'Just now',
+          evidence: {
+            type: 'OCR Label',
+            extractedValue: v.extractedValue || 'Non-compliant declaration',
+            expectedStandard: v.expectedValue || 'As per Packaged Commodities Rules, 2011',
+          },
+          penaltyEstimate: v.penaltyAmount || 25000,
+          assignedOfficer: 'Central Metrology Review Cell',
+        };
+        violationsList.push(newViolation);
+      });
+    }
+
+    set((state) => ({
+      products: [newProduct, ...state.products],
+      violations: [...violationsList, ...state.violations],
+    }));
+
+    return newProduct;
+  },
 
   setSelectedProduct: (product) => set({ selectedProduct: product }),
   setSelectedViolation: (violation) => set({ selectedViolation: violation }),
