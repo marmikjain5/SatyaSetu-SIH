@@ -383,19 +383,65 @@ function validateFSSAI(
     };
   }
 
-  if (!/^\d{14}$/.test(value)) {
+  // FSSAI-2020-Reg5(1): exactly 14 digits, starting with 1 (registration) or 2 (license)
+  if (!/^[12]\d{13}$/.test(value)) {
     return {
       status: 'fail',
       evidence: value,
-      expectedStandard: 'FSSAI License must be exactly 14 numeric digits.',
-      recommendation: rule.recommendations[2],
+      expectedStandard:
+        'FSSAI License must be exactly 14 numeric digits, starting with 1 (registration) or 2 (license).',
+      recommendation: rule.recommendations[0],
     };
   }
 
   return {
     status: 'pass',
     evidence: value,
-    expectedStandard: 'Valid 14-digit FSSAI License Number.',
+    expectedStandard: 'Valid 14-digit FSSAI License Number (format: 1XXXXXXXXXXXXX or 2XXXXXXXXXXXXX).',
+    recommendation: '',
+  };
+}
+
+/**
+ * Validates Unit Sale Price (USP) per g or per ml.
+ * Rule: PCR-2022-R6(1)(aa) — G.S.R. 779(E), effective 1 Jan 2023
+ * USP = MRP ÷ Net Quantity (in base unit), rounded to 2 decimal places.
+ * Format must be: "₹ X.XX per g" or "₹ X.XX per ml".
+ * Font height must be ≥50% of MRP font height.
+ * Exemption: USP NOT required if USP equals MRP.
+ */
+function validateUnitSalePrice(
+  field: DeclarationField | undefined,
+  rule: LegalMetrologyRule
+): ValidationOutcome {
+  const value = field?.value?.trim() || '';
+
+  if (!value) {
+    return {
+      status: 'fail',
+      evidence: '(Not detected)',
+      expectedStandard:
+        'Unit Sale Price (USP) in format "₹ X.XX per g" or "₹ X.XX per ml" adjacent to MRP (G.S.R. 779(E), Rule 6(1)(aa)).',
+      recommendation: rule.recommendations[0],
+    };
+  }
+
+  // Check for valid USP format: numeric value + "per" + unit
+  const uspPattern = /[₹Rs.]+?\s*\d+(\.\d{1,2})?\s*per\s*(g|ml|kg|l)/i;
+  if (!uspPattern.test(value)) {
+    return {
+      status: 'warning',
+      evidence: value,
+      expectedStandard:
+        'USP must follow format "₹ X.XX per g" or "₹ X.XX per ml" with currency symbol and unit.',
+      recommendation: rule.recommendations[1],
+    };
+  }
+
+  return {
+    status: 'pass',
+    evidence: value,
+    expectedStandard: 'Unit Sale Price in format "₹ X.XX per g" or "₹ X.XX per ml" (Rule 6(1)(aa)).',
     recommendation: '',
   };
 }
@@ -425,6 +471,7 @@ const VALIDATOR_MAP: Record<string, ValidatorFn> = {
   validateBatchNumber: (field, rule) => validateBatchNumber(field, rule),
   validateImporter: (field, rule, ctx) => validateImporter(field, rule, ctx.countryOfOrigin),
   validateFSSAI: (field, rule) => validateFSSAI(field, rule),
+  validateUnitSalePrice: (field, rule) => validateUnitSalePrice(field, rule),
 };
 
 // ─── Score Computation ──────────────────────────────────────────

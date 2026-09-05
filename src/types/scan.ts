@@ -26,6 +26,7 @@ export type DeclarationFieldCategory =
 export type DeclarationFieldKey =
   | 'productName'
   | 'mrp'
+  | 'unitSalePrice'
   | 'netQuantity'
   | 'manufacturer'
   | 'address'
@@ -111,6 +112,7 @@ export interface ExtractedProductData {
   // Legacy / Direct access fields for backward compatibility
   productName: string;
   mrp: string;
+  unitSalePrice: string;
   netQuantity: string;
   manufacturer: string;
   address: string;

@@ -62,6 +62,12 @@ export const STATUTORY_RULES: Record<DeclarationFieldKey, StatutoryRuleDefinitio
     isMandatory: true,
     category: 'pricing',
   },
+  unitSalePrice: {
+    ruleCode: 'PCR-2022-R6(1)(aa)',
+    ruleDescription: 'Unit Sale Price per g or per ml adjacent to MRP (G.S.R. 779(E), effective 1 Jan 2023).',
+    isMandatory: true,
+    category: 'pricing',
+  },
   netQuantity: {
     ruleCode: 'PCR-2011-R6(1)(b)',
     ruleDescription: 'Net quantity in terms of the standard unit of weight or measure (metric unit).',
@@ -299,6 +305,48 @@ function validateMRP(value: string, rawText: string): { status: ValidationStatus
     status: 'compliant',
     message: `Compliant MRP declaration (${value}) adhering to PCR Rule 6(1)(c).`,
   };
+}
+
+// ─── 1b. Unit Sale Price (USP) Extractor ────────────────────────
+// Rule: PCR-2022-R6(1)(aa) [G.S.R. 779(E), effective 1 Jan 2023]
+// Format: "₹ X.XX per g" or "₹ X.XX per ml"
+
+const USP_REGEXES: RegExp[] = [
+  /(?:usp|unit\s*sale\s*price|unit\s*price)\s*[:;.]?\s*[₹Rs.]*\s*([\d]+(?:[.,]\d{1,2})?)\s*(?:per|\/)\s*(g|ml|kg|l)\b/gi,
+  /[₹Rs.]*\s*([\d]+(?:[.,]\d{1,2})?)\s*(?:per|\/)\s*(g|ml|kg|l)\b/gi,
+];
+
+function extractUSPCandidates(pass: MultiPassOCRData): CandidateResult[] {
+  const results: CandidateResult[] = [];
+
+  for (const line of pass.lines) {
+    const lineText = line.text;
+    const hasUSPKeyword = /usp|unit\s*(?:sale\s*)?price/i.test(lineText);
+
+    for (const pattern of USP_REGEXES) {
+      pattern.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(lineText)) !== null) {
+        const rawNum = match[1].replace(/,/g, '');
+        const unit = match[2]?.toLowerCase() || 'g';
+        const val = parseFloat(rawNum);
+        if (isNaN(val) || val <= 0) continue;
+
+        const score = hasUSPKeyword ? 0.95 : 0.70;
+        const formatted = `₹${val.toFixed(2)} per ${unit}`;
+
+        results.push({
+          value: formatted,
+          rawValue: match[0],
+          rawMatch: lineText.trim(),
+          score,
+          bbox: line.bbox,
+        });
+      }
+    }
+  }
+
+  return results;
 }
 
 // ─── 2. Net Quantity Extractor & Validator ──────────────────────
@@ -828,6 +876,7 @@ export function extractAllLegalDeclarations(
   const rawFields = {
     productName: selectBestCandidate(passes, imgDimensions, extractProductNameCandidates),
     mrp: selectBestCandidate(passes, imgDimensions, extractMRPCandidates),
+    unitSalePrice: selectBestCandidate(passes, imgDimensions, extractUSPCandidates),
     netQuantity: selectBestCandidate(passes, imgDimensions, extractNetQuantityCandidates),
     manufacturer: selectBestCandidate(passes, imgDimensions, extractManufacturerCandidates),
     address: selectBestCandidate(passes, imgDimensions, extractAddressCandidates),
@@ -860,11 +909,13 @@ export function extractAllLegalDeclarations(
     'customerCare',
     'fssaiLicense',
     'barcode',
+    'unitSalePrice',
   ];
 
   const labels: Record<DeclarationFieldKey, string> = {
     productName: 'Product Name',
     mrp: 'Maximum Retail Price (MRP)',
+    unitSalePrice: 'Unit Sale Price (USP)',
     netQuantity: 'Net Quantity',
     manufacturer: 'Manufacturer Name',
     address: 'Manufacturer Address',

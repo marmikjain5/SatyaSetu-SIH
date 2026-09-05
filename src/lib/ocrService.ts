@@ -197,6 +197,7 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
     const extractedData: ExtractedProductData = {
       productName: declarations.productName.value,
       mrp: declarations.mrp.value,
+      unitSalePrice: declarations.unitSalePrice?.value ?? '',
       netQuantity: declarations.netQuantity.value,
       manufacturer: declarations.manufacturer.value,
       address: declarations.address.value,
