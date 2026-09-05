@@ -6,6 +6,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Violation } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
+import { sendSCNNoticeEmail, SendEmailResult } from '../../services/gmailService';
 import {
   FileCheck2,
   Printer,
@@ -16,6 +17,7 @@ import {
   AlertTriangle,
   Building,
   Loader2,
+  Mail,
 } from 'lucide-react';
 
 interface LegalNoticeModalProps {
@@ -32,7 +34,9 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
   onDispatch,
 }) => {
   const [isDispatched, setIsDispatched] = useState(false);
+  const [isDispatching, setIsDispatching] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [emailResult, setEmailResult] = useState<SendEmailResult | null>(null);
   const noticePaperRef = useRef<HTMLDivElement>(null);
 
   if (!violation) return null;
@@ -190,15 +194,39 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
     }
   };
 
-  const handleDispatchNotice = () => {
-    setIsDispatched(true);
-    setTimeout(() => {
+  const handleDispatchNotice = async () => {
+    setIsDispatching(true);
+    try {
+      const res = await sendSCNNoticeEmail({
+        noticeReference,
+        caseNumber: violation.caseNumber,
+        manufacturer: violation.manufacturer,
+        productName: violation.productName,
+        brand: violation.brand,
+        platform: violation.platform,
+        actName: violation.actName,
+        section: violation.section,
+        description: violation.description,
+        extractedValue: violation.evidence.extractedValue,
+        expectedStandard: violation.evidence.expectedStandard,
+        penaltyEstimate: violation.penaltyEstimate,
+        assignedOfficer: violation.assignedOfficer,
+        recipientEmail: violation.customerCareEmail,
+      });
+
+      setEmailResult(res);
+      setIsDispatched(true);
       onDispatch(violation.id);
-    }, 400);
+    } catch (err: any) {
+      console.error('Failed to dispatch notice email:', err);
+    } finally {
+      setIsDispatching(false);
+    }
   };
 
   const handleReset = () => {
     setIsDispatched(false);
+    setEmailResult(null);
     onClose();
   };
 
@@ -212,14 +240,45 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
     >
       {isDispatched ? (
         <div className="py-8 text-center space-y-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+          <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm">
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <h4 className="text-lg font-bold text-slate-900">Show Cause Notice Officially Dispatched</h4>
           <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
             Statutory Notice Reference <strong className="text-slate-900 font-mono">{noticeReference}</strong> has been transmitted to registered corporate email of{' '}
-            <strong className="text-slate-900">{violation.manufacturer}</strong> and copied to Zonal Metrology Directorate.
+            <strong className="text-slate-900">{violation.manufacturer}</strong> (<span className="text-blue-700 font-mono font-semibold">{emailResult?.recipient}</span>) and copied to Zonal Metrology Directorate.
           </p>
+
+          {emailResult && (
+            <div className="max-w-lg mx-auto p-4 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-2 shadow-inner">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider">Email Dispatch Status:</span>
+                {emailResult.mode === 'LIVE_GMAIL_API' ? (
+                  <Badge variant="success" size="sm" className="font-mono text-[10px] uppercase font-bold">
+                    LIVE GMAIL API
+                  </Badge>
+                ) : (
+                  <Badge variant="warning" size="sm" className="font-mono text-[10px] uppercase font-bold">
+                    SIMULATED DEMO MODE
+                  </Badge>
+                )}
+              </div>
+
+              <div className="text-[11px] text-slate-700 font-mono space-y-1 bg-white p-2.5 rounded-lg border border-slate-200">
+                <div><strong>Recipient:</strong> {emailResult.recipient}</div>
+                {emailResult.messageId && <div><strong>Gmail Message ID:</strong> {emailResult.messageId}</div>}
+                {emailResult.error && <div className="text-red-600"><strong>Dispatch Error:</strong> {emailResult.error}</div>}
+              </div>
+
+              {emailResult.mode === 'SIMULATED_DEMO' && (
+                <div className="text-[10px] text-slate-500 pt-1 space-y-0.5">
+                  <p className="font-semibold text-slate-700">💡 To send live emails to your real inbox via Gmail API:</p>
+                  <p>Open <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">.env</code> and fill in your Google Cloud Console credentials (<code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">VITE_GMAIL_CLIENT_ID</code>, <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">VITE_GMAIL_REFRESH_TOKEN</code>, etc.).</p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="pt-4 flex justify-center gap-3">
             <Button variant="primary" size="md" onClick={handleReset}>
               Return to Ledger
@@ -358,9 +417,11 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
                 size="sm"
                 className="gap-2 font-semibold"
                 onClick={handleDispatchNotice}
+                isLoading={isDispatching}
+                disabled={isDispatching}
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>Authorize & Dispatch SCN</span>
+                <span>{isDispatching ? 'Dispatching via Gmail API...' : 'Authorize & Dispatch SCN'}</span>
               </Button>
             </div>
           </div>
