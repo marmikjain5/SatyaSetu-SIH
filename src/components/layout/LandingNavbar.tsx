@@ -119,16 +119,20 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
           </Button>
 
           {isAuthenticated && user ? (
-            <Link to="/dashboard">
-              <Button variant="primary" size="sm" className="gap-2">
-                <span>Dashboard ({user.role})</span>
+            <Link to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}>
+              <Button
+                variant="primary"
+                size="sm"
+                className={`gap-2 ${user.role === 'consumer' ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white' : ''}`}
+              >
+                <span>{user.role === 'consumer' ? 'Consumer Grievances' : `Dashboard (${user.role})`}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
           ) : (
             <Link to="/login">
-              <Button variant="primary" size="sm" className="gap-2">
-                <Terminal className="h-3.5 w-3.5 text-blue-400" />
+              <Button variant="primary" size="sm" className="gap-2 text-xs font-semibold">
+                <Terminal className="h-3.5 w-3.5 text-blue-300" />
                 <span>Portal Login</span>
               </Button>
             </Link>

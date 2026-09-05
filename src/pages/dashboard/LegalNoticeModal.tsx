@@ -6,6 +6,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Violation } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
+import { sendSCNNoticeEmail, SendEmailResult } from '../../services/gmailService';
 import {
   FileCheck2,
   Printer,
@@ -16,6 +17,7 @@ import {
   AlertTriangle,
   Building,
   Loader2,
+  Mail,
 } from 'lucide-react';
 
 interface LegalNoticeModalProps {
@@ -32,12 +34,133 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
   onDispatch,
 }) => {
   const [isDispatched, setIsDispatched] = useState(false);
+  const [isDispatching, setIsDispatching] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [emailResult, setEmailResult] = useState<SendEmailResult | null>(null);
   const noticePaperRef = useRef<HTMLDivElement>(null);
 
   if (!violation) return null;
 
   const noticeReference = violation.noticeId || `SCN-2025-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  const handlePrintNotice = () => {
+    if (!noticePaperRef.current) return;
+
+    const element = noticePaperRef.current;
+    const content = element.outerHTML;
+
+    const printIframe = document.createElement('iframe');
+    printIframe.style.position = 'fixed';
+    printIframe.style.right = '0';
+    printIframe.style.bottom = '0';
+    printIframe.style.width = '0px';
+    printIframe.style.height = '0px';
+    printIframe.style.border = '0';
+    document.body.appendChild(printIframe);
+
+    const doc = printIframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${noticeReference} - Show Cause Notice</title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 10mm 12mm;
+            }
+            * {
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body {
+              font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+              color: #0f172a;
+              background: #ffffff;
+              margin: 0;
+              padding: 12px;
+              font-size: 11px;
+              line-height: 1.5;
+            }
+            .printable-scn-document {
+              background-color: #f8fafc !important;
+              border: 1.5px solid #cbd5e1 !important;
+              border-radius: 12px;
+              padding: 24px;
+              width: 100%;
+              position: relative;
+            }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .pb-4 { padding-bottom: 16px; }
+            .border-b { border-bottom: 1px solid #cbd5e1; }
+            .border-t { border-top: 1px solid #cbd5e1; }
+            .pt-2 { padding-top: 8px; }
+            .pt-3 { padding-top: 12px; }
+            .pt-4 { padding-top: 16px; }
+            .p-3 { padding: 12px; }
+            .p-6 { padding: 24px; }
+            .space-y-4 > * + * { margin-top: 16px; }
+            .space-y-2 > * + * { margin-top: 8px; }
+            .space-y-1 > * + * { margin-top: 4px; }
+            .space-y-0\\.5 > * + * { margin-top: 2px; }
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .uppercase { text-transform: uppercase; }
+            .tracking-wide { letter-spacing: 0.025em; }
+            .tracking-wider { letter-spacing: 0.05em; }
+            .text-sm { font-size: 14px; }
+            .text-xs { font-size: 12px; }
+            .text-\\[11px\\] { font-size: 11px; }
+            .text-\\[10px\\] { font-size: 10px; }
+            .text-slate-900 { color: #0f172a; }
+            .text-slate-800 { color: #1e293b; }
+            .text-slate-600 { color: #475569; }
+            .text-slate-500 { color: #64748b; }
+            .text-red-700 { color: #b91c1c; }
+            .text-emerald-700 { color: #047857; }
+            .bg-emerald-50 { background-color: #ecfdf5 !important; }
+            .border-emerald-200 { border-color: #a7f3d0 !important; }
+            .bg-red-50 { background-color: #fef2f2 !important; }
+            .border-red-200 { border-color: #fecaca !important; }
+            .bg-white { background-color: #ffffff !important; border: 1px solid #cbd5e1 !important; }
+            .rounded-xl { border-radius: 12px; }
+            .rounded-lg { border-radius: 8px; }
+            .rounded { border-radius: 4px; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-start { align-items: flex-start; }
+            .items-end { align-items: flex-end; }
+            .inline-flex { display: inline-flex; }
+            .items-center { align-items: center; }
+            .gap-1 { gap: 4px; }
+            .leading-relaxed { line-height: 1.625; }
+            .mt-1 { margin-top: 4px; }
+            .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
+            svg { display: inline-block; vertical-align: middle; }
+          </style>
+        </head>
+        <body>
+          ${content}
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      printIframe.contentWindow?.focus();
+      printIframe.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(printIframe)) {
+          document.body.removeChild(printIframe);
+        }
+      }, 1000);
+    }, 300);
+  };
 
   const handleDownloadPdf = async () => {
     if (!noticePaperRef.current) return;
@@ -71,15 +194,39 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
     }
   };
 
-  const handleDispatchNotice = () => {
-    setIsDispatched(true);
-    setTimeout(() => {
+  const handleDispatchNotice = async () => {
+    setIsDispatching(true);
+    try {
+      const res = await sendSCNNoticeEmail({
+        noticeReference,
+        caseNumber: violation.caseNumber,
+        manufacturer: violation.manufacturer,
+        productName: violation.productName,
+        brand: violation.brand,
+        platform: violation.platform,
+        actName: violation.actName,
+        section: violation.section,
+        description: violation.description,
+        extractedValue: violation.evidence.extractedValue,
+        expectedStandard: violation.evidence.expectedStandard,
+        penaltyEstimate: violation.penaltyEstimate,
+        assignedOfficer: violation.assignedOfficer,
+        recipientEmail: violation.customerCareEmail,
+      });
+
+      setEmailResult(res);
+      setIsDispatched(true);
       onDispatch(violation.id);
-    }, 400);
+    } catch (err: any) {
+      console.error('Failed to dispatch notice email:', err);
+    } finally {
+      setIsDispatching(false);
+    }
   };
 
   const handleReset = () => {
     setIsDispatched(false);
+    setEmailResult(null);
     onClose();
   };
 
@@ -93,14 +240,45 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
     >
       {isDispatched ? (
         <div className="py-8 text-center space-y-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+          <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm">
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <h4 className="text-lg font-bold text-slate-900">Show Cause Notice Officially Dispatched</h4>
           <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
             Statutory Notice Reference <strong className="text-slate-900 font-mono">{noticeReference}</strong> has been transmitted to registered corporate email of{' '}
-            <strong className="text-slate-900">{violation.manufacturer}</strong> and copied to Zonal Metrology Directorate.
+            <strong className="text-slate-900">{violation.manufacturer}</strong> (<span className="text-blue-700 font-mono font-semibold">{emailResult?.recipient}</span>) and copied to Zonal Metrology Directorate.
           </p>
+
+          {emailResult && (
+            <div className="max-w-lg mx-auto p-4 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-2 shadow-inner">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider">Email Dispatch Status:</span>
+                {emailResult.mode === 'LIVE_GMAIL_API' ? (
+                  <Badge variant="success" size="sm" className="font-mono text-[10px] uppercase font-bold">
+                    LIVE GMAIL API
+                  </Badge>
+                ) : (
+                  <Badge variant="warning" size="sm" className="font-mono text-[10px] uppercase font-bold">
+                    SIMULATED DEMO MODE
+                  </Badge>
+                )}
+              </div>
+
+              <div className="text-[11px] text-slate-700 font-mono space-y-1 bg-white p-2.5 rounded-lg border border-slate-200">
+                <div><strong>Recipient:</strong> {emailResult.recipient}</div>
+                {emailResult.messageId && <div><strong>Gmail Message ID:</strong> {emailResult.messageId}</div>}
+                {emailResult.error && <div className="text-red-600"><strong>Dispatch Error:</strong> {emailResult.error}</div>}
+              </div>
+
+              {emailResult.mode === 'SIMULATED_DEMO' && (
+                <div className="text-[10px] text-slate-500 pt-1 space-y-0.5">
+                  <p className="font-semibold text-slate-700">💡 To send live emails to your real inbox via Gmail API:</p>
+                  <p>Open <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">.env</code> and fill in your Google Cloud Console credentials (<code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">VITE_GMAIL_CLIENT_ID</code>, <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-900">VITE_GMAIL_REFRESH_TOKEN</code>, etc.).</p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="pt-4 flex justify-center gap-3">
             <Button variant="primary" size="md" onClick={handleReset}>
               Return to Ledger
@@ -110,7 +288,11 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
       ) : (
         <div className="space-y-6 text-xs">
           {/* Statutory Formal Notice Preview Paper */}
-          <div ref={noticePaperRef} className="p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner">
+          <div
+            ref={noticePaperRef}
+            id="printable-scn-notice"
+            className="printable-scn-document p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner"
+          >
             {/* Gov Crest Header */}
             <div className="text-center pb-4 border-b border-slate-300 space-y-1">
               <div className="font-bold text-sm tracking-wide uppercase text-slate-900">
@@ -138,7 +320,7 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
                 </div>
               </div>
               <div className="text-right">
-                <Badge variant="danger" size="sm">
+                <Badge variant="danger" size="sm" className="font-mono text-[10px] uppercase font-bold tracking-wider">
                   STATUTORY SUMMONS
                 </Badge>
                 <div className="text-[10px] text-slate-500 mt-1">Reply Mandated in 15 Days</div>
@@ -202,13 +384,13 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2 print-hide">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 className="text-xs gap-1.5"
-                onClick={() => window.print()}
+                onClick={handlePrintNotice}
               >
                 <Printer className="h-3.5 w-3.5" />
                 <span>Print Notice</span>
@@ -235,9 +417,11 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
                 size="sm"
                 className="gap-2 font-semibold"
                 onClick={handleDispatchNotice}
+                isLoading={isDispatching}
+                disabled={isDispatching}
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>Authorize & Dispatch SCN</span>
+                <span>{isDispatching ? 'Dispatching via Gmail API...' : 'Authorize & Dispatch SCN'}</span>
               </Button>
             </div>
           </div>

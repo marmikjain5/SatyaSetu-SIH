@@ -42,9 +42,12 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { buildEvidenceBackedComplaintCase } from '../../lib/complaintCaseCorrelator';
 import { ProcessedEvidenceInput } from '../../lib/complaintOcrPipeline';
+import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
 
 export const ConsumerComplaintsPortal: React.FC = () => {
+  const { user } = useAuthStore();
+  const isConsumer = user?.role === 'consumer';
   const { complaints, addFullComplaint, updateOfficerDecision } = useComplianceStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,8 +67,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
   // New Grievance Form State
   const [newComplaintData, setNewComplaintData] = useState({
-    consumerName: 'Rajesh Khanna',
-    consumerEmail: 'rajesh.khanna@gmail.com',
+    consumerName: user?.name || 'Ananya Verma',
+    consumerEmail: user?.email || 'consumer@demo.gov.in',
     consumerPhone: '+91 98200 12345',
     productName: 'NutriPro Gold 100% Whey 1kg',
     brand: 'NutriPro Labs',
@@ -194,16 +197,26 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
+      <div className={`rounded-xl border p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
+        isConsumer
+          ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border-emerald-800/60'
+          : 'bg-slate-900 border-slate-800'
+      }`}>
         <div className="space-y-2 lg:max-w-[70%]">
-          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-300 bg-slate-800 border border-slate-700 tracking-wide">
-            National Metrology &amp; Consumer Protection Review Engine
+          <div className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium tracking-wide ${
+            isConsumer
+              ? 'text-emerald-300 bg-emerald-950/80 border border-emerald-700/80'
+              : 'text-slate-300 bg-slate-800 border border-slate-700'
+          }`}>
+            {isConsumer ? 'Citizen Grievance Redressal Network • CCPA Section 21/36' : 'National Metrology & Consumer Protection Review Engine'}
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
-            Consumer Complaints &amp; Officer Dossier Portal
+            {isConsumer ? 'Consumer Grievance & Deceptive Packaging Portal' : 'Consumer Complaints & Officer Dossier Portal'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Multi-evidence OCR extraction, deterministic classification, hybrid Regulatory RAG provenance &amp; officer decision workflow.
+            {isConsumer
+              ? 'Official citizen filing gateway for deceptive packaging, overprinted dual MRP, and deceptive volume shortfalls. Lodge grievances and track investigation progress in real time.'
+              : 'Multi-evidence OCR extraction, deterministic classification, hybrid Regulatory RAG provenance & officer decision workflow.'}
           </p>
         </div>
 
@@ -211,11 +224,15 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           <Button
             variant="primary"
             size="sm"
-            className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow-2xs"
+            className={`text-xs gap-1.5 font-semibold px-4 py-2.5 rounded-lg shadow-2xs ${
+              isConsumer
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 ring-2 ring-emerald-500/20'
+                : 'bg-blue-600 hover:bg-blue-500 text-white'
+            }`}
             onClick={() => setIsSubmitModalOpen(true)}
           >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Lodge New Grievance Dossier</span>
+            <Plus className="h-4 w-4" />
+            <span>{isConsumer ? 'Lodge New Grievance / Complaint' : 'Lodge New Grievance Dossier'}</span>
           </Button>
         </div>
       </div>
@@ -224,49 +241,49 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
-            Total Complaints Filed
+            {isConsumer ? 'Total Grievances Registered' : 'Total Complaints Filed'}
           </span>
           <div className="text-2xl font-bold text-white font-mono my-1.5">
             {complaints.length} Cases
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            Auto-Triaged via Deterministic OCR
+            {isConsumer ? 'Active in National Registry' : 'Auto-Triaged via Deterministic OCR'}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
-            Needs Human Review
+            {isConsumer ? 'Under Technical Review' : 'Needs Human Review'}
           </span>
           <div className="text-2xl font-bold text-white font-mono my-1.5">
             {needsReviewCount} Pending
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            Confidence &lt; 60% Triage Threshold
+            {isConsumer ? 'Evidence Under OCR Audit' : 'Confidence < 60% Triage Threshold'}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
-            Under Active Investigation
+            {isConsumer ? 'Notices Issued to Brands' : 'Under Active Investigation'}
           </span>
           <div className="text-2xl font-bold text-white font-mono my-1.5">
             {inInvestigationCount} Docketed
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            Show-Cause Notices Issued
+            {isConsumer ? 'Show Cause Inquiries Active' : 'Show-Cause Notices Issued'}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
-            Resolved &amp; Recovered
+            {isConsumer ? 'Resolved / Redressed' : 'Resolved & Recovered'}
           </span>
           <div className="text-2xl font-bold text-white font-mono my-1.5">
             {resolvedCount} Cases
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            Officer Verified Determinations
+            {isConsumer ? 'Grievances Satisfied' : 'Officer Verified Determinations'}
           </span>
         </div>
       </div>
@@ -519,18 +536,20 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 <span>Regulatory RAG Provenance</span>
               </button>
 
-              <button
-                onClick={() => setDossierTab('actions')}
-                className={cn(
-                  'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
-                  dossierTab === 'actions'
-                    ? 'border-blue-500 text-white font-semibold'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                )}
-              >
-                <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-400' : 'text-slate-500')} />
-                <span>Officer Action &amp; Decision</span>
-              </button>
+              {!isConsumer && (
+                <button
+                  onClick={() => setDossierTab('actions')}
+                  className={cn(
+                    'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
+                    dossierTab === 'actions'
+                      ? 'border-blue-500 text-white font-semibold'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  )}
+                >
+                  <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-400' : 'text-slate-500')} />
+                  <span>Officer Action &amp; Decision</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setDossierTab('audit')}
@@ -542,7 +561,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 )}
               >
                 <Clock className={cn('h-3.5 w-3.5', dossierTab === 'audit' ? 'text-blue-400' : 'text-slate-500')} />
-                <span>Audit Timeline ({selectedComplaint.officerDecisionHistory?.length || 0})</span>
+                <span>{isConsumer ? 'Official Case Timeline' : 'Audit Timeline'} ({selectedComplaint.officerDecisionHistory?.length || 0})</span>
               </button>
             </div>
 

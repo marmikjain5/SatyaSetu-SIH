@@ -81,6 +81,7 @@ export interface Violation {
   penaltyEstimate: number;
   assignedOfficer: string;
   noticeId?: string;
+  customerCareEmail?: string;
 }
 
 export interface Manufacturer {

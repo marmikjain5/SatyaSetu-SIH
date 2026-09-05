@@ -31,6 +31,7 @@ import {
 import { StatCard } from '../../components/ui/StatCard';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -366,18 +367,7 @@ export const OverviewDashboard: React.FC = () => {
                       </div>
                       <div className="text-[10px] text-slate-400">Est. Section 36 Penalty</div>
                     </div>
-                    <Badge
-                      variant={
-                        violation.severity === 'critical'
-                          ? 'danger'
-                          : violation.severity === 'high'
-                          ? 'warning'
-                          : 'neutral'
-                      }
-                      size="sm"
-                    >
-                      {violation.status}
-                    </Badge>
+                    <StatusBadge status={violation.status} />
                     <ChevronRight className="h-4 w-4 text-slate-400" />
                   </div>
                 </div>

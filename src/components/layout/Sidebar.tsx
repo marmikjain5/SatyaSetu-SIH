@@ -18,6 +18,7 @@ import {
   BookOpen,
   Factory,
   Scale,
+  UserCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -35,25 +36,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
   const openViolationsCount = violations.filter((v) => v.status === 'Open' || v.status === 'Notice Issued').length;
   const newComplaintsCount = complaints.filter((c) => c.status === 'New' || c.status === 'Triaged').length;
+  const userRole = user?.role || 'consumer';
 
-  const navItems = [
+  const allNavItems = [
     {
       to: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
-      badge: undefined,
+      roles: ['admin', 'inspector', 'manufacturer'],
     },
     {
       to: '/dashboard/products',
       label: 'Products',
       icon: Package,
       badge: 'Live',
+      roles: ['admin', 'inspector', 'manufacturer'],
     },
     {
       to: '/dashboard/scanner',
       label: 'Product Scanner',
       icon: ScanLine,
       badge: 'New',
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/violations',
@@ -61,25 +65,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       icon: ShieldAlert,
       badge: openViolationsCount > 0 ? `${openViolationsCount}` : undefined,
       badgeVariant: 'danger' as const,
+      roles: ['admin', 'inspector', 'manufacturer'],
     },
     {
       to: '/dashboard/manufacturers',
       label: 'Manufacturers',
       icon: Building2,
-      badge: manufacturers.length > 0 ? `${manufacturers.length}` : undefined,
+      badge: manufacturers?.length > 0 ? `${manufacturers.length}` : '1.2K',
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/complaints',
-      label: 'Complaints',
+      label: userRole === 'consumer' ? 'File & Track Complaints' : 'Complaints',
       icon: MessageSquareWarning,
       badge: newComplaintsCount > 0 ? `${newComplaintsCount}` : undefined,
       badgeVariant: 'warning' as const,
+      roles: ['admin', 'inspector', 'manufacturer', 'consumer'], // Only this item is available for consumer
     },
     {
       to: '/dashboard/analytics',
       label: 'Analytics',
       icon: LineChart,
-      badge: undefined,
+      roles: ['admin'],
     },
     {
       to: '/dashboard/regulatory-rag',
@@ -87,12 +94,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       icon: BookOpen,
       badge: 'RAG',
       badgeVariant: 'warning' as const,
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/factory-hygiene',
       label: 'Factory Hygiene',
       icon: Factory,
-      badge: undefined,
+      roles: ['admin', 'inspector', 'manufacturer'],
     },
     {
       to: '/dashboard/legal-review',
@@ -100,14 +108,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       icon: Scale,
       badge: 'AI',
       badgeVariant: 'warning' as const,
+      roles: ['admin'],
     },
     {
       to: '/dashboard/settings',
       label: 'Settings',
       icon: Settings,
-      badge: undefined,
+      roles: ['admin'],
     },
   ];
+
+  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
 
   const handleLogout = () => {
     logout();
@@ -125,23 +136,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
         <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-xs">
-                <Shield className="h-5 w-5" />
+              <div className={`h-9 w-9 rounded-lg flex items-center justify-center text-white shadow-xs ${
+                userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
+              }`}>
+                {userRole === 'consumer' ? <UserCheck className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
               </div>
               <div>
                 <div className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
                   <span>SatyaDrishti</span>
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
-                  Compliance Intel
+                  {userRole === 'consumer' ? 'Consumer Portal' : 'Compliance Intel'}
                 </div>
               </div>
             </div>
           )}
 
           {isCollapsed && (
-            <div className="mx-auto h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-              <Shield className="h-5 w-5" />
+            <div className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white ${
+              userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
+            }`}>
+              {userRole === 'consumer' ? <UserCheck className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
             </div>
           )}
 

@@ -17,6 +17,7 @@ import { Violation, ViolationSeverity } from '../../types/compliance';
 import { LegalNoticeModal } from './LegalNoticeModal';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { formatCurrency } from '../../lib/utils';
@@ -213,19 +214,7 @@ export const ViolationsLedger: React.FC = () => {
                   </td>
 
                   <td className="px-3 py-3">
-                    <Badge
-                      variant={
-                        violation.severity === 'critical'
-                          ? 'danger'
-                          : violation.severity === 'high'
-                          ? 'warning'
-                          : 'neutral'
-                      }
-                      size="sm"
-                      className="uppercase font-bold text-[10px]"
-                    >
-                      {violation.severity}
-                    </Badge>
+                    <StatusBadge status={violation.severity} />
                   </td>
 
                   <td className="px-3 py-3 font-mono font-bold text-slate-800">
@@ -233,18 +222,7 @@ export const ViolationsLedger: React.FC = () => {
                   </td>
 
                   <td className="px-3 py-3">
-                    <Badge
-                      variant={
-                        violation.status === 'Resolved'
-                          ? 'success'
-                          : violation.status === 'Notice Issued'
-                          ? 'primary'
-                          : 'warning'
-                      }
-                      size="sm"
-                    >
-                      {violation.status}
-                    </Badge>
+                    <StatusBadge status={violation.status} />
                   </td>
 
                   <td className="px-4 py-3 text-right">

@@ -427,4 +427,84 @@
   transform: translateY(4px);
 }
 
+/* ==========================================================================
+   Print Optimization for Show Cause Notice (SCN)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent parent containers from clipping or restricting height during printing */
+  html, body, #root, div, section, main {
+    overflow: visible !important;
+    max-height: none !important;
+    transform: none !important;
+  }
+
+  /* Hide all app elements on DOM */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Show only the printable SCN notice paper and its children */
+  #printable-scn-notice,
+  #printable-scn-notice * {
+    visibility: visible !important;
+  }
+
+  /* Expand printable SCN paper to fill the page top-left */
+  #printable-scn-notice {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 24px 28px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    z-index: 999999 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Ensure text colors inside printable element stay clear */
+  #printable-scn-notice .text-slate-900,
+  #printable-scn-notice .text-slate-800,
+  #printable-scn-notice .text-slate-700,
+  #printable-scn-notice .text-slate-600,
+  #printable-scn-notice .text-slate-500 {
+    color: #0f172a !important;
+  }
+
+  #printable-scn-notice .text-red-700 {
+    color: #b91c1c !important;
+  }
+
+  #printable-scn-notice .bg-white {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Hide modal backdrop, close buttons & action buttons when printing */
+  .modal-overlay,
+  .print-hide {
+    display: none !important;
+  }
+}
+
+
 

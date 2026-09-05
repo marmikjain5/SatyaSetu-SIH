@@ -20,6 +20,7 @@ import { Product, PlatformType, ComplianceStatus } from '../../types/compliance'
 import { ProductDetailModal } from './ProductDetailModal';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { formatCurrency } from '../../lib/utils';
@@ -219,20 +220,7 @@ export const ProductsIntelligence: React.FC = () => {
                   </td>
 
                   <td className="px-3 py-3">
-                    <Badge
-                      variant={
-                        product.status === 'compliant'
-                          ? 'success'
-                          : product.status === 'notice-issued'
-                          ? 'danger'
-                          : product.status === 'non-compliant'
-                          ? 'danger'
-                          : 'warning'
-                      }
-                      size="sm"
-                    >
-                      {product.status.replace('-', ' ')}
-                    </Badge>
+                    <StatusBadge status={product.status} />
                   </td>
 
                   <td className="px-4 py-3 text-right">
