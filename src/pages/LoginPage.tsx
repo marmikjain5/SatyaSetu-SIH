@@ -49,6 +49,8 @@ export const LoginPage: React.FC = () => {
     if (isAuthenticated && user) {
       if (user.role === 'consumer') {
         navigate('/dashboard/complaints');
+      } else if (user.role === 'manufacturer') {
+        navigate('/dashboard/scanner');
       } else {
         navigate('/dashboard');
       }
@@ -117,9 +119,11 @@ export const LoginPage: React.FC = () => {
       login(targetEmail, role);
       setIsLoading(false);
 
-      // Dedicated redirection: Consumers only go to Complaints Portal
+      // Dedicated redirection: Consumers -> Complaints, Manufacturers -> Scanner/Declarations
       if (role === 'consumer') {
         navigate('/dashboard/complaints');
+      } else if (role === 'manufacturer') {
+        navigate('/dashboard/scanner');
       } else {
         navigate('/dashboard');
       }

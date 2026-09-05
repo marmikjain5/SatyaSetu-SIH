@@ -193,6 +193,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const needsReviewCount = complaints.filter((c) => c.needsReview).length;
   const inInvestigationCount = complaints.filter((c) => c.status === 'Investigation' || c.status === 'Notice Dispatched').length;
   const resolvedCount = complaints.filter((c) => c.status === 'Resolved').length;
+  const isInspector = user?.role === 'inspector';
+  const isAdmin = user?.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -200,23 +202,37 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       <div className={`rounded-xl border p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
         isConsumer
           ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border-emerald-800/60'
+          : isInspector
+          ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 border-amber-800/60'
           : 'bg-slate-900 border-slate-800'
       }`}>
         <div className="space-y-2 lg:max-w-[70%]">
           <div className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium tracking-wide ${
             isConsumer
               ? 'text-emerald-300 bg-emerald-950/80 border border-emerald-700/80'
-              : 'text-slate-300 bg-slate-800 border border-slate-700'
+              : isInspector
+              ? 'text-amber-300 bg-amber-950/80 border border-amber-700/80'
+              : 'text-blue-300 bg-blue-950/80 border border-blue-700/80'
           }`}>
-            {isConsumer ? 'Citizen Grievance Redressal Network • CCPA Section 21/36' : 'National Metrology & Consumer Protection Review Engine'}
+            {isConsumer
+              ? 'Citizen Grievance Redressal Network • CCPA Section 21/36'
+              : isInspector
+              ? 'Zonal Metrology Enforcement • Field Investigation Desk'
+              : 'National Metrology & Consumer Protection Review Engine'}
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
-            {isConsumer ? 'Consumer Grievance & Deceptive Packaging Portal' : 'Consumer Complaints & Officer Dossier Portal'}
+            {isConsumer
+              ? 'Consumer Grievance & Deceptive Packaging Portal'
+              : isInspector
+              ? 'Assigned Grievance & Field Investigation Docket'
+              : 'National Grievance Adjudication & Dossier Stream'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
             {isConsumer
               ? 'Official citizen filing gateway for deceptive packaging, overprinted dual MRP, and deceptive volume shortfalls. Lodge grievances and track investigation progress in real time.'
-              : 'Multi-evidence OCR extraction, deterministic classification, hybrid Regulatory RAG provenance & officer decision workflow.'}
+              : isInspector
+              ? 'Review consumer packaging & pricing grievances routed to your jurisdiction for physical retail verification and evidence collection.'
+              : 'Central CCPA Directorate console for triaging consumer complaints, validating evidence-backed OCR correlations, and dispatching statutory Section 36 Show Cause Notices.'}
           </p>
         </div>
 
@@ -227,12 +243,20 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             className={`text-xs gap-1.5 font-semibold px-4 py-2.5 rounded-lg shadow-2xs ${
               isConsumer
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 ring-2 ring-emerald-500/20'
+                : isInspector
+                ? 'bg-amber-600 hover:bg-amber-500 text-white border-amber-500'
                 : 'bg-blue-600 hover:bg-blue-500 text-white'
             }`}
             onClick={() => setIsSubmitModalOpen(true)}
           >
             <Plus className="h-4 w-4" />
-            <span>{isConsumer ? 'Lodge New Grievance / Complaint' : 'Lodge New Grievance Dossier'}</span>
+            <span>
+              {isConsumer
+                ? 'Lodge New Grievance / Complaint'
+                : isInspector
+                ? 'Log Field Inspection Sample'
+                : 'Ingest / Simulate Grievance Case'}
+            </span>
           </Button>
         </div>
       </div>
@@ -320,10 +344,18 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       <div className="rounded-xl border border-slate-800 bg-slate-900 text-white overflow-hidden shadow-xs">
         <div className="px-5 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h2 className="text-base font-bold text-white tracking-tight">
-            Grievance Dossier Stream ({filteredComplaints.length})
+            {isConsumer
+              ? `My Grievance Submissions (${filteredComplaints.length})`
+              : isInspector
+              ? `Assigned Zonal Inquiries (${filteredComplaints.length})`
+              : `Grievance Dossier Stream (${filteredComplaints.length})`}
           </h2>
           <span className="text-xs font-mono text-slate-400">
-            Government Officer Adjudication Queue
+            {isConsumer
+              ? 'Citizen Grievance Status & Resolution Ledger'
+              : isInspector
+              ? 'Zonal Field Inspection & Evidence Queue'
+              : 'Government Officer Adjudication Queue'}
           </span>
         </div>
 

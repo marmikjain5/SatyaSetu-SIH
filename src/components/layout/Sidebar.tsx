@@ -41,21 +41,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       to: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
-      roles: ['admin', 'inspector', 'manufacturer'],
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/products',
       label: 'Products',
       icon: Package,
       badge: 'Live',
-      roles: ['admin', 'inspector', 'manufacturer'],
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/scanner',
-      label: 'Product Scanner',
+      label: userRole === 'manufacturer' ? 'Upload & Verify Declarations' : 'Product Scanner',
       icon: ScanLine,
-      badge: 'New',
-      roles: ['admin', 'inspector'],
+      badge: undefined,
+      roles: ['admin', 'inspector', 'manufacturer'], // Only this item is available for manufacturer
     },
     {
       to: '/dashboard/violations',
@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       icon: ShieldAlert,
       badge: openViolationsCount > 0 ? `${openViolationsCount}` : undefined,
       badgeVariant: 'danger' as const,
-      roles: ['admin', 'inspector', 'manufacturer'],
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/manufacturers',
@@ -74,11 +74,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
     },
     {
       to: '/dashboard/complaints',
-      label: userRole === 'consumer' ? 'File & Track Complaints' : 'Complaints',
+      label:
+        userRole === 'consumer'
+          ? 'File & Track Complaints'
+          : userRole === 'inspector'
+          ? 'Assigned Grievances'
+          : 'Grievance Adjudication',
       icon: MessageSquareWarning,
       badge: newComplaintsCount > 0 ? `${newComplaintsCount}` : undefined,
       badgeVariant: 'warning' as const,
-      roles: ['admin', 'inspector', 'manufacturer', 'consumer'], // Only this item is available for consumer
+      roles: ['admin', 'inspector', 'consumer'], // Exclude manufacturer
     },
     {
       to: '/dashboard/analytics',
@@ -98,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       to: '/dashboard/factory-hygiene',
       label: 'Factory Hygiene',
       icon: Factory,
-      roles: ['admin', 'inspector', 'manufacturer'],
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/legal-review',
@@ -139,7 +144,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                   <span>SatyaDrishti</span>
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
-                  {userRole === 'consumer' ? 'Consumer Portal' : 'Compliance Intel'}
+                  {userRole === 'consumer'
+                    ? 'Consumer Portal'
+                    : userRole === 'manufacturer'
+                    ? 'Brand Compliance'
+                    : 'Compliance Intel'}
                 </div>
               </div>
             </div>
@@ -147,7 +156,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
           {isCollapsed && (
             <div className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-              userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
+              userRole === 'consumer'
+                ? 'bg-emerald-600'
+                : userRole === 'manufacturer'
+                ? 'bg-indigo-600'
+                : 'bg-blue-600'
             }`}>
               S
             </div>

@@ -110,7 +110,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-/* No code here - keep Marmik's version */
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 
