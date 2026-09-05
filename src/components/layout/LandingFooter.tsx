@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Lock, FileText, Globe, CheckCircle2 } from 'lucide-react';
+import { Lock, FileText, Globe, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const LandingFooter: React.FC = () => {
@@ -10,9 +10,6 @@ export const LandingFooter: React.FC = () => {
           {/* Col 1: Platform identity */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400">
-                <Shield className="h-5 w-5" />
-              </div>
               <span className="text-lg font-bold text-white tracking-tight">
                 Satya<span className="text-blue-500">Drishti</span>
               </span>

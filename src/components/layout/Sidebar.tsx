@@ -9,7 +9,6 @@ import {
   MessageSquareWarning,
   LineChart,
   Settings,
-  Shield,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -18,7 +17,6 @@ import {
   BookOpen,
   Factory,
   Scale,
-  UserCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -136,11 +134,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
         <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
-              <div className={`h-9 w-9 rounded-lg flex items-center justify-center text-white shadow-xs ${
-                userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
-              }`}>
-                {userRole === 'consumer' ? <UserCheck className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
-              </div>
               <div>
                 <div className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
                   <span>SatyaDrishti</span>
@@ -153,10 +146,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
           )}
 
           {isCollapsed && (
-            <div className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white ${
+            <div className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
               userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
             }`}>
-              {userRole === 'consumer' ? <UserCheck className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
+              S
             </div>
           )}
 

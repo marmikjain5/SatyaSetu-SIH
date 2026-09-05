@@ -1,15 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ArrowRight, ExternalLink } from 'lucide-react';
+import { Shield, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { GridPattern } from '../ui/GridPattern';
 import { cn } from '../../lib/utils';
 
-interface CtaBannerSectionProps {
-  onRequestDemo: () => void;
-}
-
-export const CtaBannerSection: React.FC<CtaBannerSectionProps> = ({ onRequestDemo }) => {
+export const CtaBannerSection: React.FC = () => {
   return (
     <section className="py-16 bg-[#F8FAFC]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,15 +50,7 @@ export const CtaBannerSection: React.FC<CtaBannerSectionProps> = ({ onRequestDem
 
             {/* Action Buttons */}
             <div className="pt-4 flex flex-wrap items-center justify-center gap-3.5">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={onRequestDemo}
-                className="shadow-sm font-semibold gap-2"
-              >
-                <span>Request a Demo</span>
-                <ArrowRight className="h-4 w-4 text-blue-200" />
-              </Button>
+
 
               <Link to="/login">
                 <Button
