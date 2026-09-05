@@ -88,26 +88,30 @@ export const LandingFooter: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
+                <Link to="/login?portal=consumer" className="hover:text-white transition-colors text-emerald-400 font-semibold">
+                  Consumer Grievance Portal
+                </Link>
+              </li>
+              <li>
                 <Link to="/directory" className="hover:text-white transition-colors text-blue-400">
-                  Public Citizen Product Directory
+                  Public Product Directory (No Login)
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-white transition-colors">
-                  About Platform & AI Engine
+                <Link to="/login?portal=inspector" className="hover:text-white transition-colors text-amber-400">
+                  Legal Metrology Inspector Portal
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="hover:text-white transition-colors text-blue-400">
-                  Directorate General Dashboard
+                <Link to="/login?portal=manufacturer" className="hover:text-white transition-colors text-indigo-400">
+                  Manufacturer &amp; Brand Portal
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="hover:text-white transition-colors text-blue-400">
-                  Zonal Inspector Workstation
+                <Link to="/login?portal=admin" className="hover:text-white transition-colors text-blue-400">
+                  CCPA Central Directorate Portal
                 </Link>
               </li>
-              <li className="hover:text-white transition-colors">National Consumer Helpline (1915)</li>
             </ul>
           </div>
         </div>

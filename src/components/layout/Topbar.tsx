@@ -29,7 +29,9 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const notifications = [
+  const isConsumer = user?.role === 'consumer';
+
+  const officerNotifications = [
     {
       id: 1,
       title: 'Critical Disparity Detected',
@@ -53,6 +55,32 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
     },
   ];
 
+  const consumerNotifications = [
+    {
+      id: 1,
+      title: 'Grievance Under Investigation',
+      message: 'Your deceptive packaging complaint #GRV-2025-001 was assigned to Zonal Legal Metrology Inspector.',
+      time: '15m ago',
+      type: 'info',
+    },
+    {
+      id: 2,
+      title: 'Packaging Evidence Verified',
+      message: 'AI OCR verified 18% overprinted MRP violation on invoice #INV-9921.',
+      time: '1h ago',
+      type: 'info',
+    },
+    {
+      id: 3,
+      title: 'Statutory Notice Dispatched',
+      message: 'CCPA has served statutory inquiry notice to manufacturer with 14-day compliance window.',
+      time: '3h ago',
+      type: 'warning',
+    },
+  ];
+
+  const notifications = isConsumer ? consumerNotifications : officerNotifications;
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -69,7 +97,9 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-slate-400 group-hover:text-slate-600" />
             <span className="text-slate-500 group-hover:text-slate-800">
-              Quick Search (Products, Violations, Entities, Rules)...
+              {isConsumer
+                ? 'Search Grievances, Products, or Brands...'
+                : 'Quick Search (Products, Violations, Entities, Rules)...'}
             </span>
           </div>
           <kbd className="hidden sm:inline-flex items-center gap-0.5 font-mono text-[10px] bg-white border border-slate-300 px-1.5 py-0.5 rounded text-slate-500 font-semibold shadow-xs">
@@ -81,9 +111,15 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
       {/* Right Controls */}
       <div className="flex items-center gap-3">
         {/* Live System Status Pill */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-[11px] font-mono">
-          <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
-          <span>Rules Active: v4.2</span>
+        <div className={`hidden lg:flex items-center gap-2 px-2.5 py-1 border rounded-md text-[11px] font-mono ${
+          isConsumer
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : 'bg-blue-50 text-blue-800 border-blue-200'
+        }`}>
+          <span className={`h-2 w-2 rounded-full animate-pulse ${
+            isConsumer ? 'bg-emerald-600' : 'bg-blue-600'
+          }`} />
+          <span>{isConsumer ? 'Consumer Portal: Online' : 'Rules Active: v4.2'}</span>
         </div>
 
         {/* Animated Theme Toggler */}
@@ -107,9 +143,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
             <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-modal border border-slate-200 py-2 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Live Compliance Alerts ({notifications.length})
+                  {isConsumer ? 'Grievance Progress Alerts' : 'Live Compliance Alerts'} ({notifications.length})
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">Real-Time Ingestion</span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  {isConsumer ? 'Consumer Desk' : 'Real-Time Ingestion'}
+                </span>
               </div>
               <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
                 {notifications.map((n) => (
@@ -126,11 +164,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                 <button
                   onClick={() => {
                     setIsNotificationsOpen(false);
-                    navigate('/dashboard/violations');
+                    navigate(isConsumer ? '/dashboard/complaints' : '/dashboard/violations');
                   }}
                   className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  View All Active Violations →
+                  {isConsumer ? 'Track All My Grievances →' : 'View All Active Violations →'}
                 </button>
               </div>
             </div>
@@ -146,7 +184,9 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
             }}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors"
           >
-            <div className="h-8 w-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center text-xs font-bold font-mono">
+            <div className={`h-8 w-8 rounded-lg text-white flex items-center justify-center text-xs font-bold font-mono ${
+              isConsumer ? 'bg-emerald-700' : 'bg-[#0F172A]'
+            }`}>
               {user?.name.charAt(0) || 'U'}
             </div>
             <div className="hidden md:block text-left text-xs">
@@ -162,7 +202,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                 <div className="font-bold text-slate-900">{user?.name}</div>
                 <div className="text-[11px] text-slate-500 font-mono">{user?.email}</div>
                 <div className="mt-1.5">
-                  <Badge variant="primary" size="sm" className="font-mono text-[9px] uppercase font-bold">
+                  <Badge variant={isConsumer ? 'success' : 'primary'} size="sm" className="font-mono text-[9px] uppercase font-bold">
                     {user?.department}
                   </Badge>
                 </div>
@@ -170,18 +210,32 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
 
               <div className="py-1">
                 <div className="px-4 py-2 text-[11px] text-slate-500 font-mono">
-                  Badge: <strong className="text-slate-800">{user?.badgeNumber}</strong>
+                  {isConsumer ? 'Citizen ID' : 'Badge'}: <strong className="text-slate-800">{user?.badgeNumber}</strong>
                 </div>
-                <button
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    navigate('/dashboard/settings');
-                  }}
-                  className="w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                >
-                  <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500" />
-                  <span>Platform Settings & Rules</span>
-                </button>
+
+                {isConsumer ? (
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate('/dashboard/complaints');
+                    }}
+                    className="w-full px-4 py-2 text-left text-emerald-700 hover:bg-emerald-50 flex items-center gap-2 font-medium"
+                  >
+                    <FileCheck2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>My Lodged Complaints</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate('/dashboard/settings');
+                    }}
+                    className="w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500" />
+                    <span>Platform Settings & Rules</span>
+                  </button>
+                )}
               </div>
 
               <div className="pt-1 border-t border-slate-100">
