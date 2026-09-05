@@ -23,6 +23,11 @@ export const DashboardLayout: React.FC = () => {
     return <Navigate to="/dashboard/complaints" replace />;
   }
 
+  // Manufacturer Portal Restriction: Manufacturers are strictly scoped to the Declaration & Packaging Verification scanner
+  if (user?.role === 'manufacturer' && location.pathname !== '/dashboard/scanner') {
+    return <Navigate to="/dashboard/scanner" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-x-hidden">
       {/* Global Background Grid Texture */}

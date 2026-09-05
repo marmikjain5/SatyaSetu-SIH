@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
 import { useReportStore } from '../../store/reportStore';
+import { useAuthStore } from '../../store/authStore';
 import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
@@ -43,6 +44,8 @@ export const ProductScanner: React.FC = () => {
     readabilityResults,
   } = useScanStore();
 
+  const { user } = useAuthStore();
+  const isManufacturer = user?.role === 'manufacturer';
   const { reports, addReport } = useReportStore();
 
   const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
@@ -82,15 +85,25 @@ export const ProductScanner: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
+          <div className={`flex items-center gap-2 text-xs font-semibold px-2.5 py-0.5 rounded border w-fit ${
+            isManufacturer
+              ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
+              : 'text-blue-700 bg-blue-50 border-blue-200'
+          }`}>
             <ScanLine className="h-3.5 w-3.5" />
-            <span>OCR Label Scanning Engine</span>
+            <span>
+              {isManufacturer
+                ? 'Brand Packaging & Statutory Declaration Self-Audit'
+                : 'OCR Label Scanning Engine'}
+            </span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-            Product Scanner
+            {isManufacturer ? 'Product Packaging & Declaration Upload' : 'Product Scanner'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Scan product packaging &amp; labels using optical character recognition for Legal Metrology compliance verification.
+            {isManufacturer
+              ? 'Upload product packaging front & back label images to verify that all mandatory declarations (MRP, Net Quantity, Best Before, Consumer Care, Manufacturer Address) are present and free of false or misleading claims.'
+              : 'Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.'}
           </p>
         </div>
 
@@ -103,7 +116,7 @@ export const ProductScanner: React.FC = () => {
             className="text-xs gap-1.5 border-slate-200"
           >
             <History className="h-3.5 w-3.5 text-slate-600" />
-            <span>Report Archive</span>
+            <span>{isManufacturer ? 'Self-Audit Archive' : 'Report Archive'}</span>
             {reports.length > 0 && (
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
                 {reports.length}
@@ -116,10 +129,14 @@ export const ProductScanner: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => handleGenerateReport()}
-              className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 shadow-sm"
+              className={`text-xs gap-1.5 shadow-sm ${
+                isManufacturer
+                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
             >
               <FileCheck className="h-3.5 w-3.5" />
-              <span>Generate Compliance Report</span>
+              <span>{isManufacturer ? 'Generate Compliance Self-Certificate' : 'Generate Compliance Report'}</span>
             </Button>
           )}
         </div>
@@ -128,32 +145,32 @@ export const ProductScanner: React.FC = () => {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Scans"
+          title={isManufacturer ? 'Products Audited' : 'Total Scans'}
           value={totalScans}
           icon={BarChart3}
           variant="accent"
-          description="All-time processed"
+          description={isManufacturer ? 'All-time verified products' : 'All-time processed'}
         />
         <StatCard
-          title="Avg Confidence"
+          title={isManufacturer ? 'Declaration Accuracy' : 'Avg Confidence'}
           value={avgConfidence > 0 ? `${avgConfidence}%` : '—'}
           icon={Activity}
           variant={avgConfidence >= 90 ? 'success' : avgConfidence >= 70 ? 'warning' : 'default'}
-          description="Across completed scans"
+          description={isManufacturer ? 'Mandatory declaration score' : 'Across completed scans'}
         />
         <StatCard
-          title="Images Queued"
+          title={isManufacturer ? 'Labels Queued' : 'Images Queued'}
           value={uploadedImages.length}
           icon={Images}
           variant="default"
-          description="Ready for processing"
+          description={isManufacturer ? 'Ready for declaration check' : 'Ready for processing'}
         />
         <StatCard
-          title="Last Scan"
+          title="Last Verification"
           value={lastScanTime === 'Never' ? '—' : lastScanTime.split(',')[0] || '—'}
           icon={Clock}
           variant="default"
-          description={lastScanTime === 'Never' ? 'No scans yet' : lastScanTime}
+          description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
         />
       </div>
 
