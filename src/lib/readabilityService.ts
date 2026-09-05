@@ -119,6 +119,12 @@ const STATUTORY_THRESHOLDS: Record<DeclarationFieldKey, StatutoryThreshold> = {
     statutoryRule: 'GS1 India Specification - Barcode Symbology Quiet Zone & Symbol Height',
     category: 'barcode',
   },
+  unitSalePrice: {
+    minPt: 4.5,
+    minMm: 1.5,
+    statutoryRule: 'Legal Metrology Rule 6(1)(aa) [G.S.R. 779(E)] — USP font height must be ≥50% of MRP font height',
+    category: 'statutory_declaration',
+  },
 };
 
 const DEFAULT_THRESHOLD: StatutoryThreshold = {

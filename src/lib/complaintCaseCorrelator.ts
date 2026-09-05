@@ -80,6 +80,7 @@ export async function buildEvidenceBackedComplaintCase(
   const mockProductData: ExtractedProductData = {
     productName: input.productName,
     mrp: ocrOut.consolidatedSummary.declaredMrp || '',
+    unitSalePrice: '',
     netQuantity: ocrOut.consolidatedSummary.netQuantity || '',
     manufacturer: ocrOut.consolidatedSummary.manufacturer || input.brand || '',
     address: ocrOut.consolidatedSummary.manufacturer || '',

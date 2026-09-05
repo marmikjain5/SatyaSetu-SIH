@@ -181,6 +181,7 @@ export async function processMultiEvidenceImages(
         extractedData: {
           productName: '',
           mrp: '',
+          unitSalePrice: '',
           netQuantity: '',
           manufacturer: '',
           address: '',
