@@ -110,18 +110,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Live System Status Pill */}
-        <div className={`hidden lg:flex items-center gap-2 px-2.5 py-1 border rounded-md text-[11px] font-mono ${
-          isConsumer
-            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-            : 'bg-blue-50 text-blue-800 border-blue-200'
-        }`}>
-          <span className={`h-2 w-2 rounded-full animate-pulse ${
-            isConsumer ? 'bg-emerald-600' : 'bg-blue-600'
-          }`} />
-          <span>{isConsumer ? 'Consumer Portal: Online' : 'Rules Active: v4.2'}</span>
-        </div>
-
+/* No code here - keep Marmik's version */
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 
@@ -148,10 +137,24 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                 <span className="text-[10px] font-mono text-slate-400">
                   {isConsumer ? 'Consumer Desk' : 'Real-Time Ingestion'}
                 </span>
+<span className="text-[10px] font-mono text-slate-400">
+  System Telemetry
+</span>
               </div>
               <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
                 {notifications.map((n) => (
-                  <div key={n.id} className="p-3.5 hover:bg-slate-50 text-xs transition-colors">
+                  <div
+                    key={n.id}
+                    onClick={() => {
+                      setIsNotificationsOpen(false);
+                      if (n.type === 'warning') {
+                        navigate('/dashboard/complaints');
+                      } else {
+                        navigate('/dashboard/violations');
+                      }
+                    }}
+                    className="p-3.5 hover:bg-slate-50 text-xs transition-colors cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-slate-900">{n.title}</span>
                       <span className="text-[10px] text-slate-400 font-mono">{n.time}</span>

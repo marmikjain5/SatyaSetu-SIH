@@ -77,13 +77,6 @@ export const ViolationsLedger: React.FC = () => {
             Cryptographically logged infractions under Legal Metrology Act, 2009 and CCPA 2019.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-xs gap-1.5">
-            <Download className="h-3.5 w-3.5 text-slate-600" />
-            <span>Export Gazette Docket</span>
-          </Button>
-        </div>
       </div>
 
       {/* Summary KPI Strip */}

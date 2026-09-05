@@ -14,13 +14,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
 
-  const isDirectoryActive = location.pathname === '/directory';
-  const isAboutActive = (location.pathname === '/' || location.pathname === '/about') && (!location.hash || location.hash === '#about');
-  const isCapabilitiesActive = location.hash === '#capabilities';
-  const isWorkflowActive = location.hash === '#workflow';
+  const isDirectoryActive = location.pathname === '/' || location.pathname === '/directory' || location.pathname === '/verify';
+  const isAboutActive = location.pathname === '/about' && (!location.hash || location.hash === '#about');
+  const isCapabilitiesActive = location.pathname === '/about' && location.hash === '#capabilities';
+  const isWorkflowActive = location.pathname === '/about' && location.hash === '#workflow';
 
   const handleNavClick = (targetId: string) => {
-    if (location.pathname === '/' || location.pathname === '/about') {
+    if (location.pathname === '/about') {
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -55,19 +55,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
         {/* Center Nav Links */}
         <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 text-sm font-medium">
           <Link
-            to="/#about"
-            onClick={() => handleNavClick('about')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              isAboutActive
-                ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            About Platform
-          </Link>
-
-          <Link
-            to="/directory"
+            to="/"
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
               isDirectoryActive
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -79,7 +67,19 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
           </Link>
 
           <Link
-            to="/#capabilities"
+            to="/about#about"
+            onClick={() => handleNavClick('about')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              isAboutActive
+                ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            About Platform
+          </Link>
+
+          <Link
+            to="/about#capabilities"
             onClick={() => handleNavClick('capabilities')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isCapabilitiesActive
@@ -91,7 +91,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
           </Link>
 
           <Link
-            to="/#workflow"
+            to="/about#workflow"
             onClick={() => handleNavClick('workflow')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isWorkflowActive

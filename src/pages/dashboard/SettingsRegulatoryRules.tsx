@@ -48,10 +48,10 @@ export const SettingsRegulatoryRules: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="primary" size="sm" className="text-xs gap-1.5" onClick={handleSaveAll}>
-            <Save className="h-3.5 w-3.5" />
-            <span>{saveStatus ? 'Configuration Applied!' : 'Save Rule Matrix'}</span>
-          </Button>
+          <Badge variant="success" size="sm" className="font-mono text-xs px-2.5 py-1">
+            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+            <span>Real-Time Engine Sync</span>
+          </Badge>
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export const SettingsRegulatoryRules: React.FC = () => {
               Authenticated Role: {user?.designation || 'CCPA Administrator'}
             </div>
             <div className="text-xs text-slate-400 mt-0.5">
-              Rules updated here take immediate effect across all live web crawlers and OCR pipelines.
+              Rule toggles take immediate effect across all live web crawlers and OCR validation pipelines.
             </div>
           </div>
         </div>
@@ -84,7 +84,7 @@ export const SettingsRegulatoryRules: React.FC = () => {
               <span>Active Statutory Rules & Penalty Schedules ({rules.length})</span>
             </CardTitle>
             <CardDescription>
-              Toggle rules on/off or modify fine parameters without restarting the core ingestion nodes.
+              Toggle rules on/off or modify fine parameters in real-time across the compliance ingestion engine.
             </CardDescription>
           </div>
         </CardHeader>
@@ -138,31 +138,6 @@ export const SettingsRegulatoryRules: React.FC = () => {
             </div>
           ))}
         </div>
-      </Card>
-
-      {/* System Audit Log */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Shield className="h-4 w-4 text-slate-700" />
-            <span>Audit & Compliance System Telemetry</span>
-          </CardTitle>
-          <span className="text-xs font-mono text-slate-500">Immutable Ledger</span>
-        </CardHeader>
-        <CardContent className="p-4 font-mono text-xs space-y-2 text-slate-600">
-          <div className="p-2.5 bg-slate-50 rounded border border-slate-200 flex justify-between">
-            <span>[2025-02-26 10:14:02 IST] Automated SCN #SCN-2025-0441 queued for Apex BioNutra Formulations</span>
-            <span className="text-emerald-600">SUCCESS</span>
-          </div>
-          <div className="p-2.5 bg-slate-50 rounded border border-slate-200 flex justify-between">
-            <span>[2025-02-26 09:45:11 IST] Barcode OCR verified for Flipkart SKU #SKU-FLP-ELEC-442 (Origin PRC)</span>
-            <span className="text-blue-600">VERIFIED</span>
-          </div>
-          <div className="p-2.5 bg-slate-50 rounded border border-slate-200 flex justify-between">
-            <span>[2025-02-26 08:00:00 IST] Daily catalog crawler synchronization initialized across 6 platforms</span>
-            <span className="text-slate-800">SYNC_OK</span>
-          </div>
-        </CardContent>
       </Card>
     </div>
   );

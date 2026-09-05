@@ -46,13 +46,6 @@ export const AnalyticsIntelligence: React.FC = () => {
             Aggregate telemetry, marketplace compliance distribution, and zonal enforcement timelines.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-xs gap-1.5">
-            <Download className="h-3.5 w-3.5 text-slate-600" />
-            <span>Download Annual Report PDF</span>
-          </Button>
-        </div>
       </div>
 
       {/* 4 Summary Stats */}

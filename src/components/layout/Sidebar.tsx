@@ -31,7 +31,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const { user, logout } = useAuthStore();
-  const { violations, complaints } = useComplianceStore();
+  const { violations, complaints, manufacturers } = useComplianceStore();
   const navigate = useNavigate();
 
   const openViolationsCount = violations.filter((v) => v.status === 'Open' || v.status === 'Notice Issued').length;
@@ -71,8 +71,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       to: '/dashboard/manufacturers',
       label: 'Manufacturers',
       icon: Building2,
-      badge: '1.2K',
-      roles: ['admin', 'inspector'],
+{
+  to: '/dashboard/manufacturers',
+  label: 'Manufacturers',
+  icon: Building2,
+  badge: manufacturers.length > 0 ? `${manufacturers.length}` : undefined,
+  roles: ['admin', 'inspector'],
+},
     },
     {
       to: '/dashboard/complaints',

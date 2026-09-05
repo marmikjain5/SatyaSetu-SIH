@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Package,
@@ -46,6 +46,23 @@ export const OverviewDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { products, violations, setSelectedProduct, setSelectedViolation } = useComplianceStore();
   const navigate = useNavigate();
+
+  const [timeRange, setTimeRange] = useState<'3M' | '6M' | 'All'>('6M');
+  const [zoneFilter, setZoneFilter] = useState<string>('All');
+
+  const filteredTrends =
+    timeRange === '3M'
+      ? COMPLIANCE_TRENDS.slice(-3)
+      : timeRange === '6M'
+      ? COMPLIANCE_TRENDS.slice(-6)
+      : COMPLIANCE_TRENDS;
+
+  const filteredStates = STATE_COMPLIANCE_METRICS.filter((s) => {
+    if (zoneFilter === 'High Risk') return s.riskScore >= 60;
+    if (zoneFilter === 'Compliant') return s.compliancePercentage >= 85;
+    if (zoneFilter !== 'All') return s.code === zoneFilter || s.state === zoneFilter;
+    return true;
+  });
 
   const handleInspectProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
@@ -151,24 +168,39 @@ export const OverviewDashboard: React.FC = () => {
         {/* Left: National Compliance Ingestion Area Chart */}
         <div className="lg:col-span-8">
           <Card className="h-full flex flex-col justify-between">
-            <CardHeader>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <CardTitle>
                   <TrendingUp className="h-4 w-4 text-blue-600" />
-                  <span>National Product Compliance & Violation Trajectory</span>
+                  <span>National Product Compliance &amp; Violation Trajectory</span>
                 </CardTitle>
                 <CardDescription>
-                  Monthly telemetry of automated SKU scans vs confirmed Legal Metrology & CCPA violations.
+                  Monthly telemetry of automated SKU scans vs confirmed Legal Metrology &amp; CCPA violations.
                 </CardDescription>
               </div>
-              <Badge variant="primary" size="sm">
-                Last 6 Months
-              </Badge>
+
+              {/* Dynamic Time Range Filter Buttons */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                {(['3M', '6M', 'All'] as const).map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => setTimeRange(range)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold font-mono transition-all ${
+                      timeRange === range
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    }`}
+                  >
+                    {range === 'All' ? 'Full Year' : `Last ${range}`}
+                  </button>
+                ))}
+              </div>
             </CardHeader>
 
             <CardContent className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={COMPLIANCE_TRENDS} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={filteredTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorScanned" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
@@ -357,7 +389,7 @@ export const OverviewDashboard: React.FC = () => {
         {/* State-Wise Enforcement Matrix */}
         <div className="lg:col-span-5">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <CardTitle>
                   <Building2 className="h-4 w-4 text-slate-700" />
@@ -365,9 +397,24 @@ export const OverviewDashboard: React.FC = () => {
                 </CardTitle>
                 <CardDescription>Zonal Legal Metrology inspection performance</CardDescription>
               </div>
-              <Badge variant="secondary" size="sm" className="font-mono text-[10px]">
-                7 Zones Active
-              </Badge>
+
+              {/* Dynamic Zone Filter */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={zoneFilter}
+                  onChange={(e) => setZoneFilter(e.target.value)}
+                  className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] font-mono text-slate-800 focus:border-blue-600 focus:outline-none"
+                >
+                  <option value="All">All Zones ({STATE_COMPLIANCE_METRICS.length})</option>
+                  <option value="High Risk">High Risk (Risk &gt; 60)</option>
+                  <option value="Compliant">High Compliance (&ge; 85%)</option>
+                  {STATE_COMPLIANCE_METRICS.map((st) => (
+                    <option key={st.code} value={st.code}>
+                      {st.state} ({st.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </CardHeader>
 
             <div className="p-0 overflow-x-auto">
@@ -381,7 +428,7 @@ export const OverviewDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {STATE_COMPLIANCE_METRICS.slice(0, 5).map((state) => (
+                  {filteredStates.map((state) => (
                     <tr key={state.code} className="hover:bg-slate-50/80">
                       <td className="px-4 py-3 font-medium text-slate-900 flex items-center gap-2">
                         <span className="w-6 h-4 bg-slate-200 text-slate-700 rounded text-[10px] font-mono flex items-center justify-center font-bold">
@@ -416,6 +463,13 @@ export const OverviewDashboard: React.FC = () => {
                       </td>
                     </tr>
                   ))}
+                  {filteredStates.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                        No states matching the selected filter.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
