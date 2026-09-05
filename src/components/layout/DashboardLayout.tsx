@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
@@ -8,13 +8,19 @@ import { GridPattern } from '../ui/GridPattern';
 import { cn } from '../../lib/utils';
 
 export const DashboardLayout: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // Protected route check
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Consumer Portal Restriction: Consumers are strictly scoped to the Complaints portal
+  if (user?.role === 'consumer' && location.pathname !== '/dashboard/complaints') {
+    return <Navigate to="/dashboard/complaints" replace />;
   }
 
   return (
