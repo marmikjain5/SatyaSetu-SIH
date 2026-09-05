@@ -71,13 +71,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       to: '/dashboard/manufacturers',
       label: 'Manufacturers',
       icon: Building2,
-{
-  to: '/dashboard/manufacturers',
-  label: 'Manufacturers',
-  icon: Building2,
-  badge: manufacturers.length > 0 ? `${manufacturers.length}` : undefined,
-  roles: ['admin', 'inspector'],
-},
+      badge: manufacturers?.length > 0 ? `${manufacturers.length}` : '1.2K',
+      roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/complaints',
