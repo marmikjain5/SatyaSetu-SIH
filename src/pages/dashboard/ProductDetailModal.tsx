@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from '../../components/ui/Modal';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Product } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
@@ -48,18 +49,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
             <span className="text-[10px] font-mono text-slate-400 uppercase">Compliance Status</span>
             <div className="mt-1 flex items-center gap-2">
-              <Badge
-                variant={
-                  product.status === 'compliant'
-                    ? 'success'
-                    : product.status === 'notice-issued'
-                    ? 'danger'
-                    : 'warning'
-                }
-                size="md"
-              >
-                {product.status.toUpperCase()}
-              </Badge>
+              <StatusBadge status={product.status} />
             </div>
             <p className="text-[11px] text-slate-500 mt-2 font-mono">
               Trust Score: <strong className="text-slate-900 font-bold">{product.complianceScore}/100</strong>

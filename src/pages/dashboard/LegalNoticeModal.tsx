@@ -39,6 +39,125 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
 
   const noticeReference = violation.noticeId || `SCN-2025-${Math.floor(1000 + Math.random() * 9000)}`;
 
+  const handlePrintNotice = () => {
+    if (!noticePaperRef.current) return;
+
+    const element = noticePaperRef.current;
+    const content = element.outerHTML;
+
+    const printIframe = document.createElement('iframe');
+    printIframe.style.position = 'fixed';
+    printIframe.style.right = '0';
+    printIframe.style.bottom = '0';
+    printIframe.style.width = '0px';
+    printIframe.style.height = '0px';
+    printIframe.style.border = '0';
+    document.body.appendChild(printIframe);
+
+    const doc = printIframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${noticeReference} - Show Cause Notice</title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 10mm 12mm;
+            }
+            * {
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body {
+              font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+              color: #0f172a;
+              background: #ffffff;
+              margin: 0;
+              padding: 12px;
+              font-size: 11px;
+              line-height: 1.5;
+            }
+            .printable-scn-document {
+              background-color: #f8fafc !important;
+              border: 1.5px solid #cbd5e1 !important;
+              border-radius: 12px;
+              padding: 24px;
+              width: 100%;
+              position: relative;
+            }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .pb-4 { padding-bottom: 16px; }
+            .border-b { border-bottom: 1px solid #cbd5e1; }
+            .border-t { border-top: 1px solid #cbd5e1; }
+            .pt-2 { padding-top: 8px; }
+            .pt-3 { padding-top: 12px; }
+            .pt-4 { padding-top: 16px; }
+            .p-3 { padding: 12px; }
+            .p-6 { padding: 24px; }
+            .space-y-4 > * + * { margin-top: 16px; }
+            .space-y-2 > * + * { margin-top: 8px; }
+            .space-y-1 > * + * { margin-top: 4px; }
+            .space-y-0\\.5 > * + * { margin-top: 2px; }
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .uppercase { text-transform: uppercase; }
+            .tracking-wide { letter-spacing: 0.025em; }
+            .tracking-wider { letter-spacing: 0.05em; }
+            .text-sm { font-size: 14px; }
+            .text-xs { font-size: 12px; }
+            .text-\\[11px\\] { font-size: 11px; }
+            .text-\\[10px\\] { font-size: 10px; }
+            .text-slate-900 { color: #0f172a; }
+            .text-slate-800 { color: #1e293b; }
+            .text-slate-600 { color: #475569; }
+            .text-slate-500 { color: #64748b; }
+            .text-red-700 { color: #b91c1c; }
+            .text-emerald-700 { color: #047857; }
+            .bg-emerald-50 { background-color: #ecfdf5 !important; }
+            .border-emerald-200 { border-color: #a7f3d0 !important; }
+            .bg-red-50 { background-color: #fef2f2 !important; }
+            .border-red-200 { border-color: #fecaca !important; }
+            .bg-white { background-color: #ffffff !important; border: 1px solid #cbd5e1 !important; }
+            .rounded-xl { border-radius: 12px; }
+            .rounded-lg { border-radius: 8px; }
+            .rounded { border-radius: 4px; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-start { align-items: flex-start; }
+            .items-end { align-items: flex-end; }
+            .inline-flex { display: inline-flex; }
+            .items-center { align-items: center; }
+            .gap-1 { gap: 4px; }
+            .leading-relaxed { line-height: 1.625; }
+            .mt-1 { margin-top: 4px; }
+            .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
+            svg { display: inline-block; vertical-align: middle; }
+          </style>
+        </head>
+        <body>
+          ${content}
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      printIframe.contentWindow?.focus();
+      printIframe.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(printIframe)) {
+          document.body.removeChild(printIframe);
+        }
+      }, 1000);
+    }, 300);
+  };
+
   const handleDownloadPdf = async () => {
     if (!noticePaperRef.current) return;
     setIsGeneratingPdf(true);
@@ -110,7 +229,11 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
       ) : (
         <div className="space-y-6 text-xs">
           {/* Statutory Formal Notice Preview Paper */}
-          <div ref={noticePaperRef} className="p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner">
+          <div
+            ref={noticePaperRef}
+            id="printable-scn-notice"
+            className="printable-scn-document p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner"
+          >
             {/* Gov Crest Header */}
             <div className="text-center pb-4 border-b border-slate-300 space-y-1">
               <div className="font-bold text-sm tracking-wide uppercase text-slate-900">
@@ -138,7 +261,7 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
                 </div>
               </div>
               <div className="text-right">
-                <Badge variant="danger" size="sm">
+                <Badge variant="danger" size="sm" className="font-mono text-[10px] uppercase font-bold tracking-wider">
                   STATUTORY SUMMONS
                 </Badge>
                 <div className="text-[10px] text-slate-500 mt-1">Reply Mandated in 15 Days</div>
@@ -202,13 +325,13 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2 print-hide">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 className="text-xs gap-1.5"
-                onClick={() => window.print()}
+                onClick={handlePrintNotice}
               >
                 <Printer className="h-3.5 w-3.5" />
                 <span>Print Notice</span>
