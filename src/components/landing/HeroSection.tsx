@@ -2,11 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import loopVideo from '../ui/loop.mp4';
 
-interface HeroSectionProps {
-  onRequestDemo?: () => void;
-}
 
-export const HeroSection: React.FC<HeroSectionProps> = () => {
+export const HeroSection: React.FC = () => {
   const highlights = [
     {
       title: 'Precision OCR & Vision',

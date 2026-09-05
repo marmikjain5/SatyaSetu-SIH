@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LandingNavbar } from '../components/layout/LandingNavbar';
 import { LandingFooter } from '../components/layout/LandingFooter';
 import { HeroSection } from '../components/landing/HeroSection';
@@ -8,29 +8,23 @@ import { CoreCapabilitiesSection } from '../components/landing/CoreCapabilitiesS
 import { WorkflowTimelineSection } from '../components/landing/WorkflowTimelineSection';
 import { BentoFeaturesGrid } from '../components/landing/BentoFeaturesGrid';
 import { CtaBannerSection } from '../components/landing/CtaBannerSection';
-import { RequestDemoModal } from '../components/landing/RequestDemoModal';
 
 export const AboutPage: React.FC = () => {
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
-      <LandingNavbar onRequestDemo={() => setIsDemoModalOpen(true)} />
+      <LandingNavbar />
       <main className="flex-1">
-        <HeroSection onRequestDemo={() => setIsDemoModalOpen(true)} />
+        <HeroSection />
         <TrustedByRegulators />
         <StatsCounterSection />
         <CoreCapabilitiesSection />
         <WorkflowTimelineSection />
         <BentoFeaturesGrid />
-        <CtaBannerSection onRequestDemo={() => setIsDemoModalOpen(true)} />
+        <CtaBannerSection />
       </main>
       <LandingFooter />
 
-      <RequestDemoModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-      />
     </div>
   );
 };

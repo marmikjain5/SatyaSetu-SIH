@@ -1,16 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShieldCheck, ArrowRight, Activity, Terminal } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Terminal } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
 import { useAuthStore } from '../../store/authStore';
 
-interface LandingNavbarProps {
-  onRequestDemo: () => void;
-}
-
-export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) => {
+export const LandingNavbar: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
 
@@ -34,9 +30,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-10 w-10 rounded-lg bg-[#0F172A] border border-slate-800 flex items-center justify-center text-blue-500 shadow-sm group-hover:border-blue-600 transition-colors">
-            <ShieldCheck className="h-6 w-6 text-blue-500" />
-          </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">
@@ -113,10 +106,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onRequestDemo }) =
 
           <AnimatedThemeToggler />
 
-          <Button variant="outline" size="sm" onClick={onRequestDemo} className="hidden sm:inline-flex gap-1.5">
-            <Activity className="h-3.5 w-3.5 text-blue-600" />
-            <span>Request Demo</span>
-          </Button>
+
 
           {isAuthenticated && user ? (
             <Link to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}>

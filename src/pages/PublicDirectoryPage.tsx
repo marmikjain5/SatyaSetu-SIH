@@ -9,23 +9,14 @@ import { CitizenAuthModal } from '../components/citizen/CitizenAuthModal';
 import { PublicComplaintModal } from '../components/citizen/PublicComplaintModal';
 import { LandingNavbar } from '../components/layout/LandingNavbar';
 import { LandingFooter } from '../components/layout/LandingFooter';
-import { RequestDemoModal } from '../components/landing/RequestDemoModal';
+
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import {
   Search,
   ShieldCheck,
-  Building2,
-  Filter,
-  FileCheck2,
-  AlertTriangle,
   ArrowRight,
-  Sparkles,
-  PhoneCall,
-  Terminal,
-  Activity,
-  Layers,
 } from 'lucide-react';
 
 export const PublicDirectoryPage: React.FC = () => {
@@ -42,7 +33,7 @@ export const PublicDirectoryPage: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [pendingComplaintProduct, setPendingComplaintProduct] = useState<Product | null>(null);
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
 
   const categories = [
     'All',
@@ -94,46 +85,11 @@ export const PublicDirectoryPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       {/* Top Navbar */}
-      <LandingNavbar onRequestDemo={() => setIsDemoModalOpen(true)} />
+      <LandingNavbar />
 
       {/* Main Public Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Page Hero Header */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] p-8 sm:p-12 text-white overflow-hidden shadow-card border border-slate-800">
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-mono">
-              <ShieldCheck className="h-3.5 w-3.5 text-blue-400" />
-              <span>Public Citizen Transparency Hub • No Login Required</span>
-            </div>
 
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-sans">
-              Statutory Product Declarations & FSSAI Registry
-            </h1>
-
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Direct access to manufacturer declarations, certified ingredient lists, standardized nutritional tables, statutory MRP, and verified FSSAI licenses under the Legal Metrology (Packaged Commodities) Rules 2011.
-            </p>
-
-            {/* Quick Metrics */}
-            <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-slate-300 font-mono">
-              <div>
-                <span className="text-white font-bold text-base block">{products.length} Products</span>
-                <span className="text-slate-400 text-[11px]">Monitored Repository</span>
-              </div>
-              <div className="h-8 w-px bg-slate-700 hidden sm:block" />
-              <div>
-                <span className="text-emerald-400 font-bold text-base block">100% Free Access</span>
-                <span className="text-slate-400 text-[11px]">Open Citizen Transparency</span>
-              </div>
-              <div className="h-8 w-px bg-slate-700 hidden sm:block" />
-              <div>
-                <span className="text-blue-400 font-bold text-base block">NCH 1915 Bridge</span>
-                <span className="text-slate-400 text-[11px]">Direct Grievance Intake</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Search and Filters Strip */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -287,11 +243,7 @@ export const PublicDirectoryPage: React.FC = () => {
         onClose={() => setIsComplaintModalOpen(false)}
       />
 
-      {/* Demo Modal */}
-      <RequestDemoModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-      />
+
     </div>
   );
 };

@@ -16,7 +16,7 @@ import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonito
 import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
-import { AnimatedThemeToggler } from './components/ui/AnimatedThemeToggler';
+
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
 export function App() {
@@ -51,12 +51,7 @@ export function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Floating Corner Theme Toggler Dock */}
-      <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 group print:hidden">
-        <div className="flex items-center p-1 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-modal hover:shadow-lg transition-all duration-300">
-          <AnimatedThemeToggler className="h-10 w-10 rounded-xl shadow-xs" />
-        </div>
-      </div>
+
     </BrowserRouter>
   );
 }
