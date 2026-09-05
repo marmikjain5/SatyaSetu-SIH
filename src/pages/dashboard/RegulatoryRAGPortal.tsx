@@ -42,6 +42,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
   const [ruleRegistry, setRuleRegistry] = useState<RegulatoryRuleItem[]>(INITIAL_RULE_REGISTRY);
   const [isCrawling, setIsCrawling] = useState(false);
   const [crawledAlert, setCrawledAlert] = useState<string | null>(null);
+  const [evaluationDate, setEvaluationDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
 
   const handleTriggerGazetteCrawler = () => {
     setIsCrawling(true);
@@ -89,11 +90,11 @@ export const RegulatoryRAGPortal: React.FC = () => {
     }, 1500);
   };
 
-  // Execute RAG Query
+  // Execute RAG Query with Dynamic Evaluation Date
   const searchResults = queryRegulatoryRAG({
     queryText: searchQuery,
     authorityFilter: selectedAuthority === 'all' ? undefined : selectedAuthority,
-    evaluationDate: '2026-08-27',
+    evaluationDate,
   });
 
   const handleApprovePendingRule = (ruleId: string, versionId: string) => {
@@ -270,8 +271,16 @@ export const RegulatoryRAGPortal: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="text-[11px] font-mono text-slate-400">
-                  Evaluation Date: <span className="text-blue-400 font-bold">2026-08-27 (Active Rules Only)</span>
+                <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                  <Calendar className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Evaluation Date:</span>
+                  <input
+                    type="date"
+                    value={evaluationDate}
+                    onChange={(e) => setEvaluationDate(e.target.value)}
+                    className="bg-slate-800 text-blue-300 font-bold border border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                  <span className="text-emerald-400 font-semibold hidden sm:inline">(Active Rules)</span>
                 </div>
               </div>
             </CardContent>

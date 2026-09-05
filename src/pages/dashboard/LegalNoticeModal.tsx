@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { Modal } from '../../components/ui/Modal';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -13,6 +15,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Building,
+  Loader2,
 } from 'lucide-react';
 
 interface LegalNoticeModalProps {
@@ -29,10 +32,44 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
   onDispatch,
 }) => {
   const [isDispatched, setIsDispatched] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const noticePaperRef = useRef<HTMLDivElement>(null);
 
   if (!violation) return null;
 
   const noticeReference = violation.noticeId || `SCN-2025-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  const handleDownloadPdf = async () => {
+    if (!noticePaperRef.current) return;
+    setIsGeneratingPdf(true);
+
+    try {
+      const element = noticePaperRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // A4 dimensions: 210mm x 297mm
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'JPEG', 10, 15, imgWidth, Math.min(imgHeight, 267));
+      pdf.save(`${noticeReference}_Show_Cause_Notice.pdf`);
+    } catch (err) {
+      console.error('Error generating Notice PDF:', err);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const handleDispatchNotice = () => {
     setIsDispatched(true);
@@ -73,7 +110,7 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
       ) : (
         <div className="space-y-6 text-xs">
           {/* Statutory Formal Notice Preview Paper */}
-          <div className="p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner">
+          <div ref={noticePaperRef} className="p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner">
             {/* Gov Crest Header */}
             <div className="text-center pb-4 border-b border-slate-300 space-y-1">
               <div className="font-bold text-sm tracking-wide uppercase text-slate-900">
@@ -176,9 +213,16 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
                 <Printer className="h-3.5 w-3.5" />
                 <span>Print Notice</span>
               </Button>
-              <Button variant="outline" size="sm" className="text-xs gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5"
+                onClick={handleDownloadPdf}
+                isLoading={isGeneratingPdf}
+                disabled={isGeneratingPdf}
+              >
                 <Download className="h-3.5 w-3.5" />
-                <span>Download PDF</span>
+                <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download PDF'}</span>
               </Button>
             </div>
 

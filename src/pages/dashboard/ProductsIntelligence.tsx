@@ -87,10 +87,6 @@ export const ProductsIntelligence: React.FC = () => {
               <span>Scan New Packaging (OCR)</span>
             </Button>
           </Link>
-          <Button variant="outline" size="sm" className="text-xs gap-1.5">
-            <Download className="h-3.5 w-3.5 text-slate-600" />
-            <span>Export CSV</span>
-          </Button>
         </div>
       </div>
 
@@ -149,7 +145,6 @@ export const ProductsIntelligence: React.FC = () => {
             <Package className="h-4 w-4 text-slate-700" />
             <span>Scanned Product Repository ({filteredProducts.length})</span>
           </CardTitle>
-          <span className="text-xs font-mono text-slate-500">Auto-Refreshed 4 mins ago</span>
         </CardHeader>
 
         <div className="overflow-x-auto">

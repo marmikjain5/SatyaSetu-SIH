@@ -51,13 +51,6 @@ export const ManufacturerRiskRanking: React.FC = () => {
             Automated corporate graphing to unmask multi-brand shell networks and assign algorithmic risk ratings.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-xs gap-1.5">
-            <Download className="h-3.5 w-3.5 text-slate-600" />
-            <span>Export Risk Dossier</span>
-          </Button>
-        </div>
       </div>
 
       {/* Top Tiers Breakdown Strip */}

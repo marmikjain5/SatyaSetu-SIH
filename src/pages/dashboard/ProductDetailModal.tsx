@@ -100,18 +100,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <img
                 src={product.imageUrl}
                 alt={product.title}
-                className="w-full h-full object-cover opacity-80"
+                className="w-full h-full object-cover"
               />
-              {/* Simulated OCR Bounding Boxes */}
-              <div className="absolute top-4 left-4 border-2 border-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[9px] font-mono text-white font-bold">
-                [OCR: Weight 1.84kg]
-              </div>
-              <div className="absolute bottom-6 right-6 border-2 border-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-[9px] font-mono text-white font-bold">
-                [OCR: MRP ₹4,999]
-              </div>
             </div>
             <p className="text-[11px] text-slate-400 font-mono">
-              Scanned via Legal Metrology High-Resolution Crawler • {product.lastScanned}
+              Scanned via Legal Metrology Ingestion Engine • {product.lastScanned}
             </p>
           </div>
 

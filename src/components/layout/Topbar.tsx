@@ -80,12 +80,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Live System Status Pill */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-[11px] font-mono">
-          <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
-          <span>Rules Active: v4.2</span>
-        </div>
-
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 
@@ -109,11 +103,22 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                   Live Compliance Alerts ({notifications.length})
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">Real-Time Ingestion</span>
+                <span className="text-[10px] font-mono text-slate-400">System Telemetry</span>
               </div>
               <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
                 {notifications.map((n) => (
-                  <div key={n.id} className="p-3.5 hover:bg-slate-50 text-xs transition-colors">
+                  <div
+                    key={n.id}
+                    onClick={() => {
+                      setIsNotificationsOpen(false);
+                      if (n.type === 'warning') {
+                        navigate('/dashboard/complaints');
+                      } else {
+                        navigate('/dashboard/violations');
+                      }
+                    }}
+                    className="p-3.5 hover:bg-slate-50 text-xs transition-colors cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-slate-900">{n.title}</span>
                       <span className="text-[10px] text-slate-400 font-mono">{n.time}</span>
