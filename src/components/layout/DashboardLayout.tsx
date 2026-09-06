@@ -64,7 +64,7 @@ export const DashboardLayout: React.FC = () => {
       {/* Main Content Area */}
       <div
         className={`transition-all duration-300 flex flex-col min-h-screen relative z-10 ${
-          isSidebarCollapsed ? 'pl-18' : 'pl-64'
+          isSidebarCollapsed ? 'pl-20' : 'pl-64'
         }`}
       >
         {/* Topbar */}
