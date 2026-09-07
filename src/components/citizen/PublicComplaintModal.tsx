@@ -3,23 +3,22 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
-import { Product, PlatformType, EvidenceTag, Complaint } from '../../types/compliance';
+import { Product, PlatformType, EvidenceTag, Complaint, SupportedLanguage } from '../../types/compliance';
 import { useComplianceStore } from '../../store/complianceStore';
 import { useAuthStore } from '../../store/authStore';
+import { useLanguageStore } from '../../store/languageStore';
+import { transliterateText } from '../../lib/indicTransliteration';
 import { buildEvidenceBackedComplaintCase } from '../../lib/complaintCaseCorrelator';
 import { ProcessedEvidenceInput } from '../../lib/complaintOcrPipeline';
 import {
-  AlertTriangle,
   Send,
   Upload,
-  Image as ImageIcon,
   CheckCircle2,
-  FileCheck2,
-  Loader2,
   Sparkles,
-  Shield,
   Trash2,
   Link2,
+  Languages,
+  Wand2,
 } from 'lucide-react';
 
 interface PublicComplaintModalProps {
@@ -35,6 +34,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
 }) => {
   const { user } = useAuthStore();
   const { addFullComplaint } = useComplianceStore();
+  const { language, setLanguage, t } = useLanguageStore();
 
   const [formData, setFormData] = useState({
     consumerName: user?.name || 'Ananya Verma',
@@ -71,7 +71,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
         brand: product.brand,
         platform: product.platform,
         productUrl: product.productUrl || '',
-        description: `Discrepancy noticed on ${product.title} (MRP: ₹${product.mrp}, Net Qty: ${product.netWeight}, FSSAI: ${product.fssaiLicenseNumber || 'N/A'}): The packaged unit received did not comply with statutory declaration standards. Printed MRP on packaging vs billed store amount discrepancy noticed.`,
+        description: `Discrepancy noticed on ${product.title} (MRP: ₹${product.mrp}, Net Qty: ${product.netWeight}, FSSAI: ${product.fssaiLicenseNumber || 'N/A'}): Printed MRP vs store invoice discrepancy.`,
       }));
     }
   }, [product, user]);
@@ -110,11 +110,17 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
     );
   };
 
+  const handleTransliterate = () => {
+    if (!formData.description) return;
+    const converted = transliterateText(formData.description, language);
+    setFormData((prev) => ({ ...prev, description: converted }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     setProcessingProgress(5);
-    setProcessingStatusText('Initializing Multi-Evidence Processing Pipeline...');
+    setProcessingStatusText(t('submittingBtn'));
 
     try {
       const evidenceInputs: ProcessedEvidenceInput[] = uploadedEvidence.map((item) => ({
@@ -134,6 +140,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
 
       const complaintDossier = await buildEvidenceBackedComplaintCase(
         {
+          language,
           consumerName: formData.consumerName,
           consumerEmail: formData.consumerEmail,
           consumerPhone: formData.consumerPhone,
@@ -172,10 +179,39 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Citizen Vigilance: File Product Discrepancy Grievance"
-      subtitle="Multi-Evidence Packaging Inspection, Deterministic Classification & Regulatory RAG Pipeline"
+      title={t('newGrievanceTitle')}
+      subtitle={t('newGrievanceSubtitle')}
       maxWidth="2xl"
     >
+      {/* Language Selector Toolbar */}
+      <div className="flex items-center justify-between p-2.5 mb-3 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="flex items-center gap-2">
+          <Languages className="h-4 w-4 text-blue-600" />
+          <span className="text-xs font-semibold text-slate-700">{t('selectLanguage')}:</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'hi', label: 'हिन्दी' },
+            { code: 'kn', label: 'ಕನ್ನಡ' },
+            { code: 'ta', label: 'தமிழ்' },
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => setLanguage(lang.code as SupportedLanguage)}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-all ${
+                language === lang.code
+                  ? 'bg-blue-600 text-white shadow-sm font-bold'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {isProcessing ? (
         <div className="py-12 px-4 text-center space-y-6">
           <div className="relative w-20 h-20 mx-auto">
@@ -187,7 +223,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
 
           <div className="space-y-2">
             <h3 className="text-base font-bold text-slate-900">
-              Processing Multi-Evidence Complaint Dossier...
+              {t('submittingBtn')}
             </h3>
             <p className="text-xs text-slate-500 font-mono max-w-md mx-auto">
               {processingStatusText}
@@ -200,13 +236,6 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
               style={{ width: `${processingProgress}%` }}
             />
           </div>
-
-          <div className="grid grid-cols-4 gap-2 max-w-md mx-auto text-[10px] font-mono text-slate-400">
-            <div className={processingProgress >= 20 ? 'text-blue-700 font-bold' : ''}>1. Multi-OCR</div>
-            <div className={processingProgress >= 50 ? 'text-blue-700 font-bold' : ''}>2. Extraction</div>
-            <div className={processingProgress >= 75 ? 'text-blue-700 font-bold' : ''}>3. Deterministic Class</div>
-            <div className={processingProgress >= 90 ? 'text-blue-700 font-bold' : ''}>4. Regulatory RAG</div>
-          </div>
         </div>
       ) : isSuccess && createdComplaint ? (
         <div className="py-6 px-2 text-center space-y-5">
@@ -215,9 +244,9 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Evidence-Backed Grievance Lodged Successfully!</h3>
+            <h3 className="text-lg font-bold text-slate-900">{t('consumerVerdictSubmitted')}</h3>
             <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              Your complaint dossier has been assembled with multi-evidence OCR, deterministic issue classification, and active Regulatory RAG context, and dispatched to the officer review queue.
+              {t('consumerVerdictPotentialIssue')}
             </p>
           </div>
 
@@ -230,8 +259,8 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div>
-                <span className="text-slate-400 block text-[10px]">Deterministic Issue</span>
-                <span className="font-semibold text-slate-900">{createdComplaint.category}</span>
+                <span className="text-slate-400 block text-[10px]">Submitted Language</span>
+                <span className="font-bold text-slate-900 uppercase">{createdComplaint.language || language}</span>
               </div>
               <div>
                 <span className="text-slate-400 block text-[10px]">Classification Confidence</span>
@@ -242,16 +271,16 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
             </div>
 
             <div className="pt-2 border-t border-slate-200">
-              <span className="text-slate-400 block text-[10px]">Mapped Regulatory Reference</span>
-              <span className="font-medium text-slate-800 line-clamp-1">
-                {createdComplaint.aiMatchedRule}
+              <span className="text-slate-400 block text-[10px]">Deterministic Category</span>
+              <span className="font-medium text-slate-800">
+                {createdComplaint.category}
               </span>
             </div>
           </div>
 
           <div className="pt-3 flex justify-center gap-3">
             <Button variant="primary" size="md" onClick={handleClose} className="px-6">
-              Done & Return to Directory
+              Done & Return
             </Button>
           </div>
         </div>
@@ -274,20 +303,20 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
           {/* Complainant Details */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input
-              label="Complainant Name"
+              label={t('consumerNameLabel')}
               value={formData.consumerName}
               onChange={(e) => setFormData({ ...formData, consumerName: e.target.value })}
               required
             />
             <Input
-              label="Contact Email"
+              label={t('emailLabel')}
               type="email"
               value={formData.consumerEmail}
               onChange={(e) => setFormData({ ...formData, consumerEmail: e.target.value })}
               required
             />
             <Input
-              label="Mobile Number"
+              label={t('phoneLabel')}
               value={formData.consumerPhone}
               onChange={(e) => setFormData({ ...formData, consumerPhone: e.target.value })}
               required
@@ -297,40 +326,55 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
           {/* Product URL & Order Number */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              label="Product Listing URL (Optional)"
+              label={t('productUrlLabel')}
               placeholder="https://ecommerce.com/product/..."
               value={formData.productUrl}
               onChange={(e) => setFormData({ ...formData, productUrl: e.target.value })}
               icon={<Link2 className="h-3.5 w-3.5 text-slate-400" />}
             />
             <Input
-              label="Order / Invoice Number (Optional)"
+              label={t('orderNumberLabel')}
               placeholder="e.g. OD-9921-4412"
               value={formData.orderNumber}
               onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
             />
           </div>
 
-          {/* Grievance Statement */}
+          {/* Grievance Statement with Transliteration Action */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Free-Text Complaint Description & Discrepancy Statement
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                {t('descriptionLabel')}
+              </label>
+              {language !== 'en' && (
+                <button
+                  type="button"
+                  onClick={handleTransliterate}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  <span>{t('transliterateBtn')}</span>
+                </button>
+              )}
+            </div>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe the issue in your own words (e.g. 'The packet says ₹50 but shop charged me ₹60 on bill', 'MRP is missing', 'Net weight is short')..."
+              placeholder={t('descriptionPlaceholder')}
               className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none leading-relaxed"
               required
             />
+            <div className="mt-1 text-[10px] text-slate-500 font-mono">
+              {t('transliterationHelp')}
+            </div>
           </div>
 
           {/* Multi-Evidence Upload Section */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                Evidence Images (Packaging, Label, Invoice, Receipt, PDP Screenshot)
+                {t('evidenceHeader')}
               </label>
               <span className="text-[10px] text-slate-400">Multiple files supported</span>
             </div>
@@ -347,10 +391,10 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
               <label htmlFor="evidence-file-input" className="cursor-pointer space-y-1 block">
                 <Upload className="h-5 w-5 text-blue-600 mx-auto" />
                 <span className="text-xs font-semibold text-blue-700 block">
-                  Click to select evidence images or drop files here
+                  {t('selectFiles')}
                 </span>
                 <span className="text-[10px] text-slate-400 block">
-                  Original images will be preserved untouched for officer review
+                  {t('evidenceUploadInstructions')}
                 </span>
               </label>
             </div>
@@ -405,7 +449,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
 
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" type="button" onClick={handleClose}>
-                Cancel
+                {t('cancelBtn')}
               </Button>
               <Button
                 variant="primary"
@@ -414,7 +458,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
                 className="gap-1.5 bg-red-600 hover:bg-red-700 text-white border-red-700"
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>Submit Grievance to CCPA Queue</span>
+                <span>{t('submitComplaintBtn')}</span>
               </Button>
             </div>
           </div>

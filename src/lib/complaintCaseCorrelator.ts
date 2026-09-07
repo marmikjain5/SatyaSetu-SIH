@@ -28,9 +28,11 @@ import type {
   PlatformType,
   ScannerDiscrepancyItem,
   RegulatoryMappingItem,
+  SupportedLanguage,
 } from '../types/compliance';
 
 export interface ComplaintSubmissionInput {
+  language?: SupportedLanguage;
   consumerName: string;
   consumerEmail: string;
   consumerPhone: string;
@@ -233,6 +235,7 @@ export async function buildEvidenceBackedComplaintCase(
   const complaint: Complaint = {
     id: `CMP-${Date.now()}`,
     ticketId,
+    language: input.language || 'en',
     consumerName: input.consumerName,
     consumerEmail: input.consumerEmail,
     consumerPhone: input.consumerPhone,
