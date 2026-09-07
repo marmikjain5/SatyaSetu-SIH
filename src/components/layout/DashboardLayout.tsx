@@ -23,8 +23,9 @@ export const DashboardLayout: React.FC = () => {
     return <Navigate to="/dashboard/complaints" replace />;
   }
 
-  // Manufacturer Portal Restriction: Manufacturers are strictly scoped to the Declaration & Packaging Verification scanner
-  if (user?.role === 'manufacturer' && location.pathname !== '/dashboard/scanner') {
+  // Manufacturer Portal Restriction: Manufacturers can access Packaging Declaration Scanner and Factory Hygiene Certification
+  const allowedManufacturerRoutes = ['/dashboard/scanner', '/dashboard/factory-certification'];
+  if (user?.role === 'manufacturer' && !allowedManufacturerRoutes.includes(location.pathname)) {
     return <Navigate to="/dashboard/scanner" replace />;
   }
 

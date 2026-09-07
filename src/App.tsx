@@ -16,6 +16,7 @@ import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonito
 import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
 import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
+import { ManufacturerHygieneCertification } from './pages/dashboard/ManufacturerHygieneCertification';
 
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
@@ -44,6 +45,7 @@ export function App() {
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
           <Route path="factory-hygiene" element={<FactoryHygieneMonitoring />} />
           <Route path="legal-review" element={<AILegalReviewAgent />} />
+          <Route path="factory-certification" element={<ManufacturerHygieneCertification />} />
           <Route path="settings" element={<SettingsRegulatoryRules />} />
         </Route>
 
