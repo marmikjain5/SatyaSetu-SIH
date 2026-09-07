@@ -16,8 +16,7 @@ import {
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { Download, Sparkles, TrendingUp, ShieldCheck, Scale, AlertOctagon } from 'lucide-react';
+import { Download, Sparkles, ShieldCheck, Scale, AlertOctagon } from 'lucide-react';
 import {
   COMPLIANCE_TRENDS,
   CATEGORY_RISK_METRICS,
@@ -35,11 +34,7 @@ export const AnalyticsIntelligence: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
-            <TrendingUp className="h-3.5 w-3.5" />
-            <span>National Regulatory Analytics Engine</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Compliance & Enforcement Analytics
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">

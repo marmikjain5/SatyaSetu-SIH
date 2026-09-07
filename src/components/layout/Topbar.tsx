@@ -5,11 +5,9 @@ import {
   Bell,
   User as UserIcon,
   LogOut,
-  ShieldCheck,
   ChevronDown,
   AlertTriangle,
   FileCheck2,
-  SlidersHorizontal,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -113,14 +111,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 
-        {/* Bengaluru Inspector Jurisdiction Badge */}
-        {user?.role === 'inspector' && (
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-mono text-amber-800 font-semibold">
-            <ShieldCheck className="h-3 w-3 text-amber-600" />
-            <span>LM-BLR-4001 · Bengaluru City Circle</span>
-          </div>
-        )}
-
         {/* Notifications Dropdown */}
         <div className="relative">
           <button
@@ -223,7 +213,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                   {isConsumer ? 'Citizen ID' : 'Badge'}: <strong className="text-slate-800 dark:text-slate-200">{user?.badgeNumber}</strong>
                 </div>
 
-                {isConsumer ? (
+                {isConsumer && (
                   <button
                     onClick={() => {
                       setIsProfileOpen(false);
@@ -233,17 +223,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                   >
                     <FileCheck2 className="h-3.5 w-3.5 text-emerald-600" />
                     <span>My Lodged Complaints</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setIsProfileOpen(false);
-                      navigate('/dashboard/settings');
-                    }}
-                    className="w-full px-4 py-2 text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2"
-                  >
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500" />
-                    <span>Platform Settings & Rules</span>
                   </button>
                 )}
               </div>

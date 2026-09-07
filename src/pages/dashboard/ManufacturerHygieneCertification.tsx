@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import {
-  Factory,
-  Camera,
   UploadCloud,
   Loader2,
-  ShieldCheck,
+  Sparkles,
   ShieldAlert,
   CheckCircle2,
   AlertTriangle,
@@ -22,24 +20,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { cn } from '../../lib/utils';
-
-const SAMPLE_FACTORY_IMAGES = [
-  {
-    label: 'Clean Bottling Line',
-    url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
-    desc: 'Automated filling & sealing floor',
-  },
-  {
-    label: 'Packaging Facility',
-    url: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&auto=format&fit=crop&q=80',
-    desc: 'Secondary sorting & packaging conveyor',
-  },
-  {
-    label: 'Raw Materials Bay',
-    url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop&q=80',
-    desc: 'Palletized grain & dry ingredient storage',
-  },
-];
 
 export const ManufacturerHygieneCertification: React.FC = () => {
   const { user } = useAuthStore();
@@ -65,13 +45,6 @@ export const ManufacturerHygieneCertification: React.FC = () => {
       setResult(null);
       setIsCertified(false);
     }
-  };
-
-  const handleSelectSampleImage = (url: string) => {
-    setImageFile(null);
-    setImageUrl(url);
-    setResult(null);
-    setIsCertified(false);
   };
 
   const handleAnalyze = async () => {
@@ -125,23 +98,13 @@ export const ManufacturerHygieneCertification: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-purple-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 dark:border-indigo-800/60 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
-        <div className="space-y-2 lg:max-w-[70%]">
-          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium tracking-wide text-indigo-700 bg-indigo-100 border border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/80 dark:border-indigo-700/80">
-            <Factory className="h-3 w-3 mr-1.5" />
-            Manufacturer Self-Certification • FSSAI Hygiene Compliance
-          </div>
+        <div className="space-y-2">
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             Factory Hygiene Self-Certification Portal
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             Upload factory floor images to run AI-powered hygiene assessment. Passing assessments generate a self-certification proof that can be submitted to regulators for compliance verification.
           </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Badge variant="secondary" size="sm" className="text-[10px] font-bold uppercase px-2 py-1">
-            <ShieldCheck className="h-3 w-3 mr-1" />
-            {user?.name || 'Manufacturer'}
-          </Badge>
         </div>
       </div>
 
@@ -187,13 +150,9 @@ export const ManufacturerHygieneCertification: React.FC = () => {
       {/* Upload & Analysis Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle>
-              <Camera className="h-5 w-5 text-indigo-600" />
-              AI Factory Hygiene Assessment
-            </CardTitle>
-            <Badge variant="primary" size="sm" dot>AI VISION</Badge>
-          </div>
+          <CardTitle>
+            AI Factory Hygiene Assessment
+          </CardTitle>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Upload a clear photograph of your factory floor, production area, or storage zone. Our AI will analyze it for hygiene compliance.
           </p>
@@ -215,40 +174,6 @@ export const ManufacturerHygieneCertification: React.FC = () => {
                 <Button variant="outline" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
                   Browse Files
                 </Button>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-left">
-                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2.5 uppercase tracking-wider">
-                  Or test with sample factory photos:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  {SAMPLE_FACTORY_IMAGES.map((sample, idx) => (
-                    <div
-                      key={idx}
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectSampleImage(sample.url);
-                      }}
-                      className="flex items-center gap-2.5 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 transition-all text-left cursor-pointer group bg-white dark:bg-slate-900"
-                    >
-                      <img
-                        src={sample.url}
-                        alt={sample.label}
-                        className="h-10 w-10 rounded object-cover shrink-0 border border-slate-200 dark:border-slate-700"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate">
-                          {sample.label}
-                        </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                          {sample.desc}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
               <input
                 ref={fileInputRef}
@@ -289,7 +214,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Camera className="h-4 w-4 mr-2" />
+                        <Sparkles className="h-4 w-4 mr-2" />
                         Run AI Hygiene Assessment
                       </>
                     )}
