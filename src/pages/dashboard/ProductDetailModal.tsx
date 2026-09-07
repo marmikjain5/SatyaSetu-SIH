@@ -86,11 +86,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </span>
               <span className="font-mono text-blue-600 text-[10px]">99.1% Confidence</span>
             </div>
-            <div className="relative rounded-xl border border-slate-300 bg-slate-900 overflow-hidden h-64 flex items-center justify-center">
+            <div className="relative rounded-xl border border-slate-200 bg-slate-50 overflow-hidden h-64 flex items-center justify-center p-2">
               <img
                 src={product.imageUrl}
                 alt={product.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <p className="text-[11px] text-slate-400 font-mono">

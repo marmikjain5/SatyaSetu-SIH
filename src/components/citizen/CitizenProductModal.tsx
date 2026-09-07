@@ -145,14 +145,14 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Left: Product Visual & Verification Badges */}
           <div className="md:col-span-5 space-y-4">
-            <div className="h-64 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 relative">
+            <div className="h-64 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center relative p-3">
               <img
                 src={product.imageUrl}
                 alt={product.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
-              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-800">
-                {product.platform} Marketplace
+              <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-800 border border-slate-200 shadow-xs">
+                {product.brand} Official Pack
               </div>
             </div>
 

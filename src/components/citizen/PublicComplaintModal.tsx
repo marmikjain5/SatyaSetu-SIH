@@ -263,7 +263,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Product</span>
               <span className="font-bold text-slate-900 block text-xs">{product.title}</span>
               <span className="text-[11px] text-slate-500 font-mono">
-                {product.brand} • FSSAI: {product.fssaiLicenseNumber || 'N/A'} • Platform: {product.platform}
+                {product.brand} • FSSAI: {product.fssaiLicenseNumber || 'Registered Business'}
               </span>
             </div>
             <Badge variant="primary" size="sm" className="font-mono text-[10px]">

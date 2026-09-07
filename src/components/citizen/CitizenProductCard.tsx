@@ -32,18 +32,17 @@ export const CitizenProductCard: React.FC<CitizenProductCardProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between group">
       {/* Top Banner / Image & Badges */}
       <div>
-        <div className="relative h-48 bg-slate-100 overflow-hidden">
+        <div className="relative h-56 bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
           <img
             src={product.imageUrl}
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           {/* Top Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-            <span className="bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-800 shadow-xs">
-              {product.platform}
+            <span className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-800 shadow-xs border border-slate-200/80">
+              {product.brand}
             </span>
             <Badge
               variant={
@@ -58,22 +57,6 @@ export const CitizenProductCard: React.FC<CitizenProductCardProps> = ({
             >
               {product.status === 'compliant' ? 'Compliant' : 'Audit Flagged'}
             </Badge>
-          </div>
-
-          {/* Bottom Overlay Info */}
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-slate-200">
-                {product.brand}
-              </div>
-              <div className="text-xs font-semibold">{product.category}</div>
-            </div>
-            {product.fssaiLicenseNumber && (
-              <div className="bg-emerald-950/80 border border-emerald-500/40 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-emerald-300 flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                <span>FSSAI / License Verified</span>
-              </div>
-            )}
           </div>
         </div>
 
