@@ -15,6 +15,20 @@ import {
   MOCK_INSPECTIONS,
   MOCK_HYGIENE_TRENDS,
 } from '../data/mockHygieneData';
+import { VisionFinding } from '../lib/hygieneVisionService';
+
+export interface ManufacturerAssessment {
+  id: string;
+  manufacturerId: string;
+  manufacturerName: string;
+  imageUrl: string;
+  riskScore: number;
+  riskLevel: 'Low Risk' | 'Medium Risk' | 'High Risk';
+  findingsCount: number;
+  findings: VisionFinding[];
+  status: 'certified' | 'needs-remediation' | 'pending-verification';
+  submittedAt: string;
+}
 
 interface HygieneState {
   // Data
@@ -23,6 +37,7 @@ interface HygieneState {
   violations: HygieneViolation[];
   inspections: HygieneInspection[];
   trends: HygieneTrendPoint[];
+  manufacturerAssessments: ManufacturerAssessment[];
 
   // UI state
   selectedFactory: Factory | null;
@@ -44,6 +59,8 @@ interface HygieneState {
   getFactoryViolations: (factoryId: string) => HygieneViolation[];
   getFactoryInspections: (factoryId: string) => HygieneInspection[];
   addViolation: (violation: HygieneViolation) => void;
+  addManufacturerAssessment: (assessment: ManufacturerAssessment) => void;
+  getManufacturerAssessments: (manufacturerId: string) => ManufacturerAssessment[];
 }
 
 export const useHygieneStore = create<HygieneState>((set, get) => ({
@@ -53,6 +70,52 @@ export const useHygieneStore = create<HygieneState>((set, get) => ({
   violations: MOCK_HYGIENE_VIOLATIONS,
   inspections: MOCK_INSPECTIONS,
   trends: MOCK_HYGIENE_TRENDS,
+  manufacturerAssessments: [
+    {
+      id: 'MFG-CERT-20260904-01',
+      manufacturerId: 'USR-MFG-501',
+      manufacturerName: 'Apex FMCG Enterprises',
+      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
+      riskScore: 22,
+      riskLevel: 'Low Risk',
+      findingsCount: 1,
+      findings: [
+        {
+          id: 'vis-find-init-1',
+          category: 'Improper Storage',
+          title: 'Improper Storage Detected',
+          description: 'Empty packaging crates placed near secondary entrance.',
+          severity: 'low',
+          confidence: 88,
+          recommendation: 'Relocate empty containers to the designated rear bay.',
+        },
+      ],
+      status: 'certified',
+      submittedAt: '2026-09-04T10:30:00.000Z',
+    },
+    {
+      id: 'MFG-CERT-20260828-02',
+      manufacturerId: 'USR-MFG-501',
+      manufacturerName: 'Apex FMCG Enterprises',
+      imageUrl: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&auto=format&fit=crop&q=80',
+      riskScore: 35,
+      riskLevel: 'Medium Risk',
+      findingsCount: 2,
+      findings: [
+        {
+          id: 'vis-find-init-2',
+          category: 'Dirty Floors',
+          title: 'Dirty Floors Detected',
+          description: 'Minor moisture staining along packaging line belt.',
+          severity: 'medium',
+          confidence: 82,
+          recommendation: 'Schedule intermediate dry-wipe during shift changeovers.',
+        },
+      ],
+      status: 'certified',
+      submittedAt: '2026-08-28T14:15:00.000Z',
+    },
+  ],
 
   // UI defaults
   selectedFactory: null,
@@ -109,4 +172,12 @@ export const useHygieneStore = create<HygieneState>((set, get) => ({
 
   getFactoryInspections: (factoryId) =>
     get().inspections.filter((i) => i.factoryId === factoryId),
+
+  addManufacturerAssessment: (assessment) =>
+    set((state) => ({
+      manufacturerAssessments: [assessment, ...state.manufacturerAssessments],
+    })),
+
+  getManufacturerAssessments: (manufacturerId) =>
+    get().manufacturerAssessments.filter((a) => a.manufacturerId === manufacturerId),
 }));

@@ -55,7 +55,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       label: userRole === 'manufacturer' ? 'Upload & Verify Declarations' : 'Product Scanner',
       icon: ScanLine,
       badge: undefined,
-      roles: ['admin', 'inspector', 'manufacturer'], // Only this item is available for manufacturer
+      roles: ['admin', 'inspector', 'manufacturer'],
+    },
+    {
+      to: '/dashboard/factory-certification',
+      label: 'Factory Hygiene Proof',
+      icon: Factory,
+      roles: ['manufacturer', 'admin'],
     },
     {
       to: '/dashboard/violations',
