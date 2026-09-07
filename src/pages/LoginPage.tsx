@@ -246,7 +246,7 @@ export const LoginPage: React.FC = () => {
                 'text-[10px] font-normal leading-none',
                 activePortal === 'inspector' ? 'text-amber-100 font-medium' : 'text-slate-400'
               )}>
-                Field Metrology
+                Bengaluru City
               </span>
             </button>
 

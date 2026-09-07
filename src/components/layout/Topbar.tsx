@@ -113,6 +113,14 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 
+        {/* Bengaluru Inspector Jurisdiction Badge */}
+        {user?.role === 'inspector' && (
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-mono text-amber-800 font-semibold">
+            <ShieldCheck className="h-3 w-3 text-amber-600" />
+            <span>LM-BLR-4001 · Bengaluru City Circle</span>
+          </div>
+        )}
+
         {/* Notifications Dropdown */}
         <div className="relative">
           <button

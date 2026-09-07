@@ -1,6 +1,22 @@
 export type ViolationSeverity = 'critical' | 'high' | 'medium' | 'low';
 export type ComplianceStatus = 'compliant' | 'non-compliant' | 'under-review' | 'notice-issued';
-export type PlatformType = 'Amazon' | 'Flipkart' | 'Blinkit' | 'Zepto' | 'Meesho' | 'Nykaa' | 'Direct';
+export type PlatformType =
+  | 'Amazon'
+  | 'Amazon India / Own Website'
+  | 'Flipkart'
+  | 'Blinkit'
+  | 'Zepto'
+  | 'Meesho'
+  | 'Nykaa'
+  | 'Direct'
+  | 'Retail Trade (Kerala)'
+  | 'Retail (Karnataka)'
+  | 'Retail & Wholesale (Karnataka)'
+  | 'Pan-India Retail & E-Commerce'
+  | 'Pan-India Retail & Pharmacy'
+  | 'E-Commerce Dark Store (Bengaluru)'
+  | 'Amazon / BigBasket / Offline Retail'
+  | string; // Allow any future platform string
 
 export interface Product {
   id: string;
@@ -73,7 +89,21 @@ export interface Violation {
   status: 'Open' | 'Notice Issued' | 'Hearing Scheduled' | 'Resolved' | 'Escalated';
   detectedAt: string;
   evidence: {
-    type: 'OCR Label' | 'Pricing Disparity' | 'Prohibited Claim' | 'Origin Obfuscation' | 'Weight Discrepancy';
+    type:
+      | 'OCR Label'
+      | 'Pricing Disparity'
+      | 'Prohibited Claim'
+      | 'Origin Obfuscation'
+      | 'Weight Discrepancy'
+      | 'Weight Verification'
+      | 'Label Claim Review'
+      | 'Factory Inspection + OCR Measurement'
+      | 'Criminal Investigation Evidence'
+      | 'Regulatory Inspection + Lab Analysis'
+      | 'NABL Lab Report + Import Records'
+      | 'Lab Analysis + OCR Label Audit'
+      | 'Regulatory Advisory + Court Record'
+      | string; // Allow future evidence types
     extractedValue: string;
     expectedStandard: string;
     snippetUrl?: string;
@@ -82,6 +112,8 @@ export interface Violation {
   assignedOfficer: string;
   noticeId?: string;
   customerCareEmail?: string;
+  /** The brand/marketer that sold or advertised the product (may differ from manufacturer) */
+  marketedBy?: string;
 }
 
 export interface Manufacturer {
@@ -100,6 +132,11 @@ export interface Manufacturer {
   primaryCategory: string;
   topOffenseTypes: string[];
   lastAuditDate: string;
+  // Geo-spatial fields for satellite map
+  coordinates: { lat: number; lng: number };
+  facilityType: 'Processing & Packaging Plant' | 'E-Commerce Fulfillment Hub' | 'Import Warehouse' | 'Registered Headquarters' | 'R&D & Manufacturing Campus';
+  zone: string;
+  fssaiLicenseNo?: string;
 }
 
 /** Standardized Complaint Categories for Deterministic Classification */
