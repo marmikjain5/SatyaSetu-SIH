@@ -22,7 +22,9 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = '2xl',
   className,
-  theme = 'light',
+  // theme prop is kept for API compatibility but no longer drives styling —
+  // the Modal now follows the system dark class on <html> via Tailwind `dark:` variants.
+  theme: _theme,
 }) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -49,8 +51,6 @@ export const Modal: React.FC<ModalProps> = ({
     '5xl': 'max-w-5xl',
   };
 
-  const isDark = theme === 'dark';
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -73,9 +73,8 @@ export const Modal: React.FC<ModalProps> = ({
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className={cn(
               'relative w-full rounded-xl overflow-hidden z-10 my-8 shadow-2xl transition-colors',
-              isDark
-                ? 'bg-slate-900 border border-slate-800 text-white'
-                : 'bg-white border border-slate-200 text-slate-900 shadow-modal',
+              'bg-white border border-slate-200 text-slate-900 shadow-modal',
+              'dark:bg-slate-900 dark:border-slate-800 dark:text-white',
               maxWidthClasses[maxWidth],
               className
             )}
@@ -84,16 +83,16 @@ export const Modal: React.FC<ModalProps> = ({
             <div
               className={cn(
                 'px-6 py-4 border-b flex items-center justify-between',
-                isDark
-                  ? 'border-slate-800 bg-slate-950/80'
-                  : 'border-slate-200/80 bg-slate-50/50'
+                'border-slate-200/80 bg-slate-50/50',
+                'dark:border-slate-800 dark:bg-slate-950/80'
               )}
             >
               <div>
                 <h3
                   className={cn(
-                    'text-base font-bold tracking-tight',
-                    isDark ? 'text-white' : 'text-slate-900 font-semibold'
+                    'text-base font-semibold tracking-tight',
+                    'text-slate-900',
+                    'dark:text-white dark:font-bold'
                   )}
                 >
                   {title}
@@ -102,7 +101,8 @@ export const Modal: React.FC<ModalProps> = ({
                   <p
                     className={cn(
                       'text-xs mt-0.5',
-                      isDark ? 'text-slate-400' : 'text-slate-500'
+                      'text-slate-500',
+                      'dark:text-slate-400'
                     )}
                   >
                     {subtitle}
@@ -113,9 +113,8 @@ export const Modal: React.FC<ModalProps> = ({
                 onClick={onClose}
                 className={cn(
                   'rounded-lg p-1.5 transition-colors',
-                  isDark
-                    ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                    : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
+                  'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60',
+                  'dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                 )}
                 aria-label="Close dialog"
               >
@@ -127,7 +126,8 @@ export const Modal: React.FC<ModalProps> = ({
             <div
               className={cn(
                 'max-h-[calc(85vh-8rem)] overflow-y-auto p-5 sm:p-6 scrollbar-thin',
-                isDark ? 'bg-slate-900 text-white' : 'bg-white'
+                'bg-white',
+                'dark:bg-slate-900 dark:text-white'
               )}
             >
               {children}
