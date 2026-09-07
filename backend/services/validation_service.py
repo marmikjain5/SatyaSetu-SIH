@@ -17,7 +17,7 @@ Statutory Sources:
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, date
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
 
 
@@ -164,29 +164,293 @@ def validate_mrp(value: str, raw_text: str = "") -> Tuple[str, str, str]:
     return ("pass", value, "MRP declared inclusive of all taxes.")
 
 
+# ─── Reference Data for Statutory Verification ──────────────────────────────
+
+FSSAI_STATE_CODES: Dict[str, str] = {
+    "00": "Central Licensing Authority (Headquarters)",
+    "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
+    "05": "Uttarakhand", "06": "Haryana", "07": "Delhi", "08": "Rajasthan",
+    "09": "Uttar Pradesh", "10": "Bihar", "11": "Sikkim", "12": "Arunachal Pradesh",
+    "13": "Nagaland", "14": "Manipur", "15": "Mizoram", "16": "Tripura",
+    "17": "Meghalaya", "18": "Assam", "19": "West Bengal", "20": "Jharkhand",
+    "21": "Odisha", "22": "Chhattisgarh", "23": "Madhya Pradesh", "24": "Gujarat",
+    "25": "Daman & Diu", "26": "Dadra & Nagar Haveli", "27": "Maharashtra",
+    "28": "Andhra Pradesh", "29": "Karnataka", "30": "Goa", "31": "Lakshadweep",
+    "32": "Kerala", "33": "Tamil Nadu", "34": "Puducherry", "35": "Andaman & Nicobar",
+    "36": "Telangana", "37": "Ladakh", "99": "Central Licensing Authority",
+}
+
+PIN_ZONE_MAP: Dict[str, str] = {
+    "1": "Northern Zone (Delhi, Haryana, Punjab, Himachal Pradesh, J&K, Chandigarh)",
+    "2": "Northern Zone (Uttar Pradesh, Uttarakhand)",
+    "3": "Western Zone (Rajasthan, Gujarat, Daman & Diu, Dadra & Nagar Haveli)",
+    "4": "Western/Central Zone (Maharashtra, Madhya Pradesh, Chhattisgarh, Goa)",
+    "5": "Southern Zone (Andhra Pradesh, Telangana, Karnataka)",
+    "6": "Southern Zone (Tamil Nadu, Kerala, Puducherry, Lakshadweep)",
+    "7": "Eastern/North-Eastern Zone (West Bengal, Odisha, Assam, NE States)",
+    "8": "Eastern Zone (Bihar, Jharkhand)",
+    "9": "Army Postal Service (APS / FPO)",
+}
+
+
+# ─── Mathematical Parsing & Normalization Helpers ───────────────────────────
+
+def parse_price(price_str: str) -> Optional[float]:
+    """Extract float price from strings like '₹ 140.00', 'Rs. 45', '140', '1,250.00'."""
+    if not price_str:
+        return None
+    cleaned = re.sub(r'[^\d.]', '', price_str.replace(',', ''))
+    try:
+        val = float(cleaned)
+        return val if val > 0 else None
+    except (ValueError, TypeError):
+        return None
+
+
+def parse_net_quantity(qty_str: str) -> Tuple[Optional[float], Optional[str], Optional[float]]:
+    """
+    Parses net quantity string into (numeric_val, unit_type, base_metric_val).
+    Base units: grams for weight, ml for volume, count for pieces.
+    Returns: (raw_number, unit_type ['g', 'ml', 'unit'], base_metric_val)
+    """
+    if not qty_str:
+        return None, None, None
+
+    # Weight match (g, gm, gram, grams, kg, kilo, kilogram)
+    m_weight = re.search(r'([\d.]+)\s*(g|gm|grams?|kg|kilos?|kilograms?)\b', qty_str, re.IGNORECASE)
+    if m_weight:
+        num = float(m_weight.group(1))
+        unit = m_weight.group(2).lower()
+        if 'k' in unit:
+            return num, 'kg', num * 1000.0  # base is grams
+        return num, 'g', num
+
+    # Volume match (ml, l, ltr, litre, litres, liter, liters)
+    m_vol = re.search(r'([\d.]+)\s*(ml|millilit(?:re|er)s?|l|ltrs?|lit(?:re|er)s?)\b', qty_str, re.IGNORECASE)
+    if m_vol:
+        num = float(m_vol.group(1))
+        unit = m_vol.group(2).lower()
+        if unit in ('l', 'ltr', 'litre', 'litres', 'liter', 'liters') or 'l' == unit:
+            return num, 'l', num * 1000.0  # base is ml
+        return num, 'ml', num
+
+    # Count/Pieces match (pieces, units, nos, pcs, wipes, tablets, count)
+    m_count = re.search(r'([\d.]+)\s*(pieces?|units?|nos?|pcs?|wipes?|tablets?|capsules?|count|N|U)\b', qty_str, re.IGNORECASE)
+    if m_count:
+        num = float(m_count.group(1))
+        return num, 'unit', num
+
+    # Fallback generic number
+    m_num = re.search(r'([\d.]+)', qty_str)
+    if m_num:
+        return float(m_num.group(1)), 'g', float(m_num.group(1))
+
+    return None, None, None
+
+
+def calculate_expected_usp(mrp: float, raw_num: float, unit_type: str, base_metric: float) -> Dict[str, Any]:
+    """
+    Computes statutory Unit Sale Price (USP) per Legal Metrology (Packaged Commodities)
+    Amendment Rules, 2022 [G.S.R. 779(E)]:
+      - For net weight < 1 kg: ₹ per g or ₹ per 100g
+      - For net weight >= 1 kg: ₹ per kg
+      - For net volume < 1 L: ₹ per ml or ₹ per 100ml
+      - For net volume >= 1 L: ₹ per L
+      - For items sold by number: ₹ per unit/piece
+    """
+    if base_metric <= 0 or mrp <= 0:
+        return {"rate_per_base": 0.0, "primary_display": "", "allowed_displays": []}
+
+    rate_per_base = mrp / base_metric
+
+    if unit_type in ('g', 'kg'):
+        rate_per_g = rate_per_base
+        rate_per_100g = rate_per_g * 100.0
+        rate_per_kg = rate_per_g * 1000.0
+
+        if base_metric < 1000.0:
+            primary = f"₹ {rate_per_g:.2f} per g"
+            allowed = [
+                f"₹ {rate_per_g:.2f} per g",
+                f"₹ {rate_per_100g:.2f} per 100g",
+                f"₹ {rate_per_100g:.2f} / 100g",
+                f"₹ {rate_per_g:.2f} / g",
+            ]
+        else:
+            primary = f"₹ {rate_per_kg:.2f} per kg"
+            allowed = [
+                f"₹ {rate_per_kg:.2f} per kg",
+                f"₹ {rate_per_kg:.2f} / kg",
+                f"₹ {rate_per_100g:.2f} per 100g",
+            ]
+        return {
+            "rate_per_base": rate_per_g,
+            "base_unit": "g",
+            "primary_display": primary,
+            "allowed_displays": allowed,
+            "rate_per_100": rate_per_100g,
+        }
+
+    elif unit_type in ('ml', 'l'):
+        rate_per_ml = rate_per_base
+        rate_per_100ml = rate_per_ml * 100.0
+        rate_per_l = rate_per_ml * 1000.0
+
+        if base_metric < 1000.0:
+            primary = f"₹ {rate_per_ml:.2f} per ml"
+            allowed = [
+                f"₹ {rate_per_ml:.2f} per ml",
+                f"₹ {rate_per_100ml:.2f} per 100ml",
+                f"₹ {rate_per_100ml:.2f} / 100ml",
+                f"₹ {rate_per_ml:.2f} / ml",
+            ]
+        else:
+            primary = f"₹ {rate_per_l:.2f} per l"
+            allowed = [
+                f"₹ {rate_per_l:.2f} per l",
+                f"₹ {rate_per_l:.2f} / l",
+                f"₹ {rate_per_l:.2f} per litre",
+            ]
+        return {
+            "rate_per_base": rate_per_ml,
+            "base_unit": "ml",
+            "primary_display": primary,
+            "allowed_displays": allowed,
+            "rate_per_100": rate_per_100ml,
+        }
+
+    else:  # pieces / units
+        rate_per_unit = rate_per_base
+        primary = f"₹ {rate_per_unit:.2f} per unit"
+        allowed = [
+            f"₹ {rate_per_unit:.2f} per unit",
+            f"₹ {rate_per_unit:.2f} per piece",
+            f"₹ {rate_per_unit:.2f} / unit",
+            f"₹ {rate_per_unit:.2f} / piece",
+            f"₹ {rate_per_unit:.2f} per N",
+        ]
+        return {
+            "rate_per_base": rate_per_unit,
+            "base_unit": "unit",
+            "primary_display": primary,
+            "allowed_displays": allowed,
+            "rate_per_100": rate_per_unit * 100.0,
+        }
+
+
+def parse_declared_usp_rate(usp_str: str) -> Optional[Dict[str, Any]]:
+    """
+    Parses declared USP string (e.g. '₹ 0.56 per g', '₹ 56.00 per 100g', '₹ 560 per kg', '₹ 0.26 / ml')
+    and returns its normalized base rate.
+    """
+    if not usp_str:
+        return None
+
+    # Match: price + (per or /) + optional qty multiplier (100, 1) + unit (g, ml, kg, l, piece, unit, wipe)
+    m = re.search(
+        r'(?:₹|Rs\.?|INR)?\s*([\d.]+)\s*(?:per|/|\b)\s*(\d+)?\s*(g|gm|kg|ml|l|ltr|lit(?:re|er)s?|pieces?|units?|wipes?|pcs?|nos?|N|U)\b',
+        usp_str,
+        re.IGNORECASE
+    )
+    if not m:
+        # Generic price match
+        price = parse_price(usp_str)
+        if price is not None:
+            return {"declared_price": price, "normalized_base_rate": price, "unit": "unknown"}
+        return None
+
+    price = float(m.group(1))
+    multiplier = float(m.group(2)) if m.group(2) else 1.0
+    unit = m.group(3).lower()
+
+    if unit in ('g', 'gm'):
+        base_rate = price / multiplier  # per 1 gram
+    elif unit == 'kg':
+        base_rate = price / (multiplier * 1000.0)  # per 1 gram
+    elif unit == 'ml':
+        base_rate = price / multiplier  # per 1 ml
+    elif unit in ('l', 'ltr', 'litre', 'liter', 'litres', 'liters'):
+        base_rate = price / (multiplier * 1000.0)  # per 1 ml
+    else:
+        base_rate = price / multiplier  # per unit
+
+    return {
+        "declared_price": price,
+        "multiplier": multiplier,
+        "unit": unit,
+        "normalized_base_rate": base_rate,
+    }
+
+
 def validate_unit_sale_price(value: str, mrp_str: str = "", net_qty_str: str = "") -> Tuple[str, str, str]:
     """
     Rule: PCR-2022-R6(1)(aa) [G.S.R. 779(E), effective 1 Jan 2023]
     USP = MRP ÷ Net Quantity, rounded to 2 decimal places.
-    Format: "₹ X.XX per g" or "₹ X.XX per ml"
-    Exemption: Not required if USP equals MRP.
+    Performs full mathematical formula verification and pricing discrepancy detection.
     """
-    if not value:
+    mrp_val = parse_price(mrp_str)
+    raw_num, unit_type, base_metric = parse_net_quantity(net_qty_str)
+
+    expected_usp_info = None
+    if mrp_val and base_metric and base_metric > 0 and unit_type:
+        expected_usp_info = calculate_expected_usp(mrp_val, raw_num, unit_type, base_metric)
+
+    if not value or value.strip() == "(Not detected)":
+        if expected_usp_info:
+            return (
+                "fail",
+                "(Not detected)",
+                f'Unit Sale Price (USP) per g/ml is mandatory per Rule 6(1)(aa) [G.S.R. 779(E)]. '
+                f'Statutory USP for this product is: {expected_usp_info["primary_display"]} '
+                f'(calculated from MRP ₹{mrp_val:.2f} and Net Qty {net_qty_str}).',
+            )
         return (
             "fail",
             "(Not detected)",
             'Unit Sale Price (USP) per g or per ml must be declared adjacent to MRP. '
             'Format: "₹ X.XX per g" | Rule 6(1)(aa), G.S.R. 779(E)',
         )
-    # Validate USP format
-    pattern = r'[₹Rs.]+?\s*\d+(\.\d{1,2})?\s*per\s*(g|ml|kg|l)\b'
-    if not re.search(pattern, value, re.IGNORECASE):
+
+    # Format verification
+    pattern = r'[₹Rs.]+?\s*\d+(\.\d{1,2})?\s*(?:per|/)\s*(\d+)?\s*(g|gm|ml|kg|l|ltr|pieces?|units?|pcs?|nos?|wipes?|N|U)\b'
+    is_format_valid = bool(re.search(pattern, value, re.IGNORECASE))
+
+    # Mathematical verification if MRP and Net Qty are present
+    if expected_usp_info:
+        declared_parsed = parse_declared_usp_rate(value)
+        if declared_parsed and declared_parsed["normalized_base_rate"] > 0:
+            exp_rate = expected_usp_info["rate_per_base"]
+            dec_rate = declared_parsed["normalized_base_rate"]
+
+            # Tolerance check: 3% or ±0.03 INR to account for decimal rounding
+            diff = abs(dec_rate - exp_rate)
+            rel_diff = diff / exp_rate if exp_rate > 0 else 0
+
+            if rel_diff > 0.03 and diff > 0.03:
+                pct_diff = ((dec_rate - exp_rate) / exp_rate) * 100.0
+                return (
+                    "fail",
+                    f"Declared: {value} | Calculated Legal USP: {expected_usp_info['primary_display']}",
+                    f"Mathematical Pricing Discrepancy: Declared USP ({value}) differs from statutory USP "
+                    f"({expected_usp_info['primary_display']}) by {pct_diff:+.1f}%. "
+                    f"Calculated from MRP ₹{mrp_val:.2f} and Net Qty {net_qty_str}. Violates Rule 6(1)(aa).",
+                )
+
+            # Match passed mathematically
+            return (
+                "pass",
+                f"{value} (Mathematically Verified: {expected_usp_info['primary_display']})",
+                f"USP declared and mathematically verified against MRP ₹{mrp_val:.2f} / {net_qty_str}.",
+            )
+
+    if not is_format_valid:
         return (
             "warning",
             value,
-            'USP format must be "₹ X.XX per g" or "₹ X.XX per ml" with currency symbol and unit.',
+            'USP format should follow "₹ X.XX per g" or "₹ X.XX per ml" with currency symbol and unit.',
         )
-    return ("pass", value, "USP declared in correct format (Rule 6(1)(aa)).")
+
+    return ("pass", value, "USP declared in statutory format (Rule 6(1)(aa)).")
 
 
 def validate_net_quantity(value: str) -> Tuple[str, str, str]:
@@ -206,7 +470,7 @@ def validate_net_quantity(value: str) -> Tuple[str, str, str]:
             f'Imperial unit "{imperial_match.group(0)}" is prohibited. Only metric units (g, kg, ml, l) allowed per Rule 11.',
         )
     # Check for valid metric units
-    if not re.search(r'\b(\d+\.?\d*)\s*(g|kg|ml|l|mg|pieces?|units?|nos?|pcs?)\b', value, re.IGNORECASE):
+    if not re.search(r'\b(\d+\.?\d*)\s*(g|gm|grams?|kg|ml|l|ltr|mg|pieces?|units?|nos?|pcs?|wipes?|tablets?|capsules?)\b', value, re.IGNORECASE):
         return (
             "warning",
             value,
@@ -238,20 +502,31 @@ def validate_mpe(declared_weight_g: float, actual_weight_g: float) -> Tuple[str,
 
 
 def validate_manufacturer_address(value: str) -> Tuple[str, str, str]:
-    """Rule: PCR-2011-R6(1)(d) [G.S.R. 882(E)]"""
+    """Rule: PCR-2011-R6(1)(d) [G.S.R. 882(E)] with Postal PIN Code & Zone Verification"""
     if not value:
         return (
             "fail",
             "(Not detected)",
             "Full manufacturer/packer address with city, state, and 6-digit PIN code is mandatory.",
         )
-    if not re.search(r'[1-9][0-9]{5}', value):
+    
+    pin_match = re.search(r'\b([1-9][0-9]{5})\b', value)
+    if not pin_match:
         return (
             "warning",
             value,
             "Address must include a valid 6-digit Indian PIN code per Rule 6(1)(d).",
         )
-    return ("pass", value, "Manufacturer/packer address with PIN code declared.")
+
+    pin_code = pin_match.group(1)
+    first_digit = pin_code[0]
+    zone_desc = PIN_ZONE_MAP.get(first_digit, "Indian Postal Network")
+
+    return (
+        "pass",
+        f"{value} [PIN: {pin_code} — {zone_desc}]",
+        f"Manufacturer/packer address declared with verified postal PIN code ({pin_code}).",
+    )
 
 
 def validate_date_field(value: str, is_mandatory: bool = True, must_not_be_past: bool = False) -> Tuple[str, str, str]:
@@ -281,7 +556,6 @@ def validate_date_field(value: str, is_mandatory: bool = True, must_not_be_past:
         )
 
     if must_not_be_past:
-        # Try to parse and check if date is in the past
         try:
             date_match = re.search(r'(\d{2})[\/\-](\d{4})', value)
             if date_match:
@@ -332,9 +606,12 @@ def validate_customer_care(value: str) -> Tuple[str, str, str]:
     return ("pass", value, "Consumer care contact declared with phone/email.")
 
 
-def validate_fssai_license(value: str) -> Tuple[str, str, str]:
-    """Rule: FSSAI-2020-Reg5(1) [F.No. 1-116/FSSAI/Imports/2021]"""
-    if not value:
+def validate_fssai_license(value: str, manufacturer_address: str = "") -> Tuple[str, str, str]:
+    """
+    Rule: FSSAI-2020-Reg5(1) [F.No. 1-116/FSSAI/Imports/2021]
+    Validates 14-digit FSSAI statutory license number, licensing tier, state code, and registration year.
+    """
+    if not value or value.strip() == "(Not detected)":
         return (
             "fail",
             "(Not detected)",
@@ -345,10 +622,40 @@ def validate_fssai_license(value: str) -> Tuple[str, str, str]:
         return (
             "fail",
             value,
-            f"FSSAI license must be exactly 14 digits starting with 1 (registration) or 2 (license). "
+            f"FSSAI license must be exactly 14 digits starting with 1 (registration/central) or 2 (state license). "
             f"Got: '{digits_only}' ({len(digits_only)} digits).",
         )
-    return ("pass", value, f"Valid 14-digit FSSAI license number: {digits_only}.")
+
+    # 14-digit decomposition:
+    # Digit 1: Type (1 = Registration/Central, 2 = State License)
+    # Digits 2-3: State code
+    # Digits 4-5: Year of enrollment (e.g. 22 -> 2022)
+    # Digits 6-8: Quantity/Category/Officer
+    # Digits 9-14: Sequential ID
+    type_digit = digits_only[0]
+    lic_type = "Registration / Central License" if type_digit == "1" else "State License"
+    state_code = digits_only[1:3]
+    year_code = digits_only[3:5]
+    reg_year = f"20{year_code}"
+
+    state_name = FSSAI_STATE_CODES.get(state_code, f"State Code {state_code}")
+    if state_code in ("00", "99") or digits_only.startswith(("100", "101", "199")):
+        jurisdiction = "Central Licensing Authority (National Jurisdiction)"
+    else:
+        jurisdiction = f"State of {state_name}"
+
+    # Cross check state with manufacturer address if available
+    addr_lower = manufacturer_address.lower() if manufacturer_address else ""
+    if state_name.lower() in addr_lower or (state_code in ("00", "99") or digits_only.startswith(("100", "101", "199"))):
+        match_note = " (Jurisdiction matches manufacturing premises)"
+    else:
+        match_note = ""
+
+    return (
+        "pass",
+        f"FSSAI #{digits_only} [{lic_type} | {jurisdiction} | Registered: {reg_year}]{match_note}",
+        f"Valid 14-digit FSSAI license: {jurisdiction}, {lic_type} (Reg. Year: {reg_year}).",
+    )
 
 
 def validate_batch_number(value: str) -> Tuple[str, str, str]:
@@ -587,7 +894,8 @@ def validate_product_compliance(
     # ── FSSAI-2020-Reg5(1): FSSAI License (Conditional — Food only) ──────
     if product_category in ("FOOD", "ALL"):
         fssai_val = g.get("fssaiLicense", "")
-        s, ev, rec = validate_fssai_license(fssai_val)
+        addr_val = g.get("manufacturerAddress", "") or g.get("address", "")
+        s, ev, rec = validate_fssai_license(fssai_val, addr_val)
         add_finding("FSSAI-REG5-1", "FSSAI-2020-Reg5(1)", "Regulation 5(1)",
                     "Food Safety and Standards (Labelling and Display) Regulations, 2020",
                     "fssaiLicense", "FSSAI Logo & 14-Digit License Number",

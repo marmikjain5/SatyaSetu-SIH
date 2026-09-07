@@ -22,7 +22,7 @@ Architecture note:
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 
 # ─── Extraction Result Data Classes ────────────────────────────────────────
@@ -379,3 +379,139 @@ def get_extraction_summary(result: ExtractionResult) -> Dict:
             if not result.fields.get(k, ExtractedField("", "", "", 0.0, "", False, "")).value
         ],
     }
+
+
+def extract_from_image_hybrid(
+    image_input: Any,
+    image_id: str = "img-scan",
+    fallback_raw_text: Optional[str] = None
+) -> ExtractionResult:
+    """
+    Production-grade Hybrid Multimodal Vision Extractor.
+    
+    Coordinates:
+      1. Local Vision LLMs (Ollama with Qwen2.5-VL / MiniCPM-V / Llama3.2-Vision)
+      2. Cloud Vision LLM (Gemini Flash Vision)
+      3. Fallback: OCR text pass-through with pattern matching
+    """
+    try:
+        from services.vision_service import vision_service
+    except ImportError:
+        try:
+            from backend.services.vision_service import vision_service
+        except ImportError:
+            vision_service = None
+
+    if vision_service:
+        vision_res = vision_service.extract_from_image(image_input)
+        if vision_res.get("status") == "success":
+            provider = vision_res.get("provider", "Vision-LLM")
+            v_fields = vision_res.get("fields", {})
+            raw_text = vision_res.get("raw_text", "")
+            
+            res = ExtractionResult(
+                image_id=image_id,
+                raw_text=raw_text,
+                cleaned_text=clean_ocr_text(raw_text),
+                extraction_engine=f"SatyaDrishti-HybridVision ({provider})",
+                preprocessing_passes=["multimodal_vision_pass"]
+            )
+            
+            total_conf = 0.0
+            found_count = 0
+            
+            # Map extracted fields into ExtractedField objects
+            all_known_fields = list(MANDATORY_FIELDS) + list(CONDITIONAL_FIELDS)
+            for fkey in all_known_fields:
+                val = str(v_fields.get(fkey) or "").strip()
+                if val and val.lower() not in ("null", "none", "n/a", "not detected"):
+                    # Clean value
+                    norm_val = re.sub(r'\s+', ' ', val).strip()
+                    if fkey == "mrp":
+                        # Extract clean price digits
+                        m_mrp = re.search(r'[\d,]+(?:\.\d{1,2})?', norm_val)
+                        if m_mrp:
+                            norm_val = m_mrp.group(0).replace(',', '')
+
+                    
+                    is_mand = fkey in MANDATORY_FIELDS
+                    res.fields[fkey] = ExtractedField(
+                        key=fkey,
+                        value=norm_val,
+                        raw_match=val,
+                        confidence=0.96, # High confidence for vision LLM extraction
+                        regex_pattern="vision_llm_json_extractor",
+                        is_mandatory=is_mand,
+                        validation_status="compliant"
+                    )
+                    total_conf += 0.96
+                    found_count += 1
+                else:
+                    is_mand = fkey in MANDATORY_FIELDS
+                    res.fields[fkey] = ExtractedField(
+                        key=fkey,
+                        value="",
+                        raw_match="",
+                        confidence=0.0,
+                        regex_pattern="",
+                        is_mandatory=is_mand,
+                        validation_status="non-compliant" if is_mand else "missing"
+                    )
+            
+            res.overall_confidence = (total_conf / found_count) if found_count > 0 else 0.0
+            return res
+
+    # Fallback to standard OCR regex extraction
+    if fallback_raw_text:
+        return extract_from_text(fallback_raw_text, image_id=image_id)
+    
+    return extract_from_text("", image_id=image_id)
+
+
+def aggregate_multi_angle_extractions(
+    extractions: List[ExtractionResult],
+    master_id: str = "product-master"
+) -> ExtractionResult:
+    """
+    Synthesizes and correlates declarations from multiple angles (e.g. Front PDP, Back Panel, Side Stamps)
+    into a unified master product profile.
+    """
+    master_result = ExtractionResult(
+        image_id=master_id,
+        raw_text="\n---\n".join([e.raw_text for e in extractions if e.raw_text]),
+        cleaned_text="\n".join([e.cleaned_text for e in extractions if e.cleaned_text]),
+        extraction_engine="SatyaDrishti-MultiAngle-Aggregator-1.0",
+        preprocessing_passes=[f"angle_{i+1}" for i in range(len(extractions))]
+    )
+    
+    all_keys = list(MANDATORY_FIELDS) + list(CONDITIONAL_FIELDS)
+    total_conf = 0.0
+    found_count = 0
+    
+    for key in all_keys:
+        best_field = None
+        for ext in extractions:
+            f = ext.fields.get(key)
+            if f and f.value:
+                if best_field is None or f.confidence > best_field.confidence:
+                    best_field = f
+        
+        if best_field:
+            master_result.fields[key] = best_field
+            total_conf += best_field.confidence
+            found_count += 1
+        else:
+            is_mand = key in MANDATORY_FIELDS
+            master_result.fields[key] = ExtractedField(
+                key=key,
+                value="",
+                raw_match="",
+                confidence=0.0,
+                regex_pattern="",
+                is_mandatory=is_mand,
+                validation_status="non-compliant" if is_mand else "missing"
+            )
+            
+    master_result.overall_confidence = (total_conf / found_count) if found_count > 0 else 0.0
+    return master_result
+
