@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useComplianceStore } from '../store/complianceStore';
 import { useAuthStore } from '../store/authStore';
 import { Product } from '../types/compliance';
@@ -22,6 +22,7 @@ import {
 export const PublicDirectoryPage: React.FC = () => {
   const { products } = useComplianceStore();
   const { isAuthenticated, user } = useAuthStore();
+  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -37,12 +38,14 @@ export const PublicDirectoryPage: React.FC = () => {
 
   const categories = [
     'All',
-    'Nutritional Supplements & Health Foods',
-    'Edible Oils & FMCG Groceries',
-    'Cosmetics & Personal Care',
-    'Baby Care & Hygiene',
-    'Consumer Electronics & Peripherals',
-    'Fitness & Apparel',
+    'Nutritional Drinks & Packaged Foods',
+    'Beverages & Packaged Foods',
+    'Personal Care & Cosmetics',
+    'Personal Care & Soaps',
+    'Hair Care & Cosmetics',
+    'Edible Oils & Hair Care',
+    'Ayurvedic Oral Care',
+    'Packaged Tea & Beverages',
   ];
 
   const filteredProducts = products.filter((product) => {
@@ -71,8 +74,8 @@ export const PublicDirectoryPage: React.FC = () => {
 
   const handleReportDiscrepancy = (product: Product) => {
     setPendingComplaintProduct(product);
-    if (!isAuthenticated) {
-      setIsAuthModalOpen(true);
+    if (!isAuthenticated || user?.role !== 'consumer') {
+      navigate('/login?portal=consumer');
     } else {
       setIsComplaintModalOpen(true);
     }
@@ -208,9 +211,9 @@ export const PublicDirectoryPage: React.FC = () => {
           </div>
 
           <div className="shrink-0 flex items-center gap-3">
-            <Link to="/login?role=consumer">
+            <Link to="/login?portal=consumer">
               <Button variant="primary" size="md" className="gap-2 text-xs shadow-xs">
-                <span>Citizen Portal Login</span>
+                <span>Customer Portal Login</span>
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

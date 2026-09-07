@@ -167,16 +167,16 @@ export const PlatformPreviewSection: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              OptiMax Whey 2kg - Weight Shortfall (8% Deficiency)
+                              Cadbury Bournvita 500g — High Sugar "Health Drink" Claim Advisory
                             </div>
                             <div className="text-slate-500 text-[11px]">
-                              Apex BioNutra Ltd • Amazon India • Case #CCPA/ENF/2025/NZ-0891
+                              Mondelez India Foods Pvt Ltd • Amazon India • Case #CCPA/ENF/2025/NZ-0891
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="danger" size="sm">Critical</Badge>
-                          <span className="font-mono text-slate-700 font-semibold">₹50,000 Fine</span>
+                          <span className="font-mono text-slate-700 font-semibold">₹25,000 SCN</span>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
                         </div>
                       </div>
@@ -188,16 +188,16 @@ export const PlatformPreviewSection: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              AuraSound ANC Headphones - False Country of Origin Declaration
+                              Patanjali Dant Kanti 200g — Unsubstantiated Therapeutic Claim
                             </div>
                             <div className="text-slate-500 text-[11px]">
-                              AuraTech Electronics Pvt Ltd • Flipkart • Case #CCPA/ENF/2025/HQ-0112
+                              Patanjali Ayurved Ltd • Pan-India Retail • Case #CCPA/ENF/2025/HQ-0112
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="warning" size="sm">High Risk</Badge>
-                          <span className="font-mono text-slate-700 font-semibold">₹1,00,000 Fine</span>
+                          <span className="font-mono text-slate-700 font-semibold">₹20,000 SCN</span>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
                         </div>
                       </div>
