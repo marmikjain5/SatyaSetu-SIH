@@ -76,12 +76,12 @@ export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, on
       </CardHeader>
       <CardContent className="p-0">
         {sorted.length === 0 ? (
-          <div className="p-8 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
+          <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center gap-2">
             <CheckCircle2 className="h-8 w-8 text-emerald-400" />
             <span>No violations recorded. All parameters are within compliance.</span>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {sorted.map((v) => {
               const sevCfg = severityConfig[v.severity];
               const stCfg = statusConfig[v.status];
@@ -92,14 +92,14 @@ export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, on
                 <div key={v.id} className={cn('transition-colors', v.status === 'remediated' && 'opacity-60')}>
                   {/* Row */}
                   <div
-                    className="flex items-center gap-4 px-6 py-3.5 cursor-pointer hover:bg-slate-50/80"
+                    className="flex items-center gap-4 px-6 py-3.5 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
                     onClick={() => setExpandedId(isExpanded ? null : v.id)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-semibold text-slate-900 truncate">{v.title}</span>
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">{v.title}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                      <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           {v.zoneName}
@@ -120,33 +120,33 @@ export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, on
                   {/* Expanded Detail */}
                   {isExpanded && (
                     <div className="px-6 pb-4 space-y-3">
-                      <p className="text-xs text-slate-700 leading-relaxed">{v.description}</p>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{v.description}</p>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="p-2.5 bg-red-50/60 rounded-lg border border-red-200">
-                          <span className="text-[10px] font-semibold text-red-600 uppercase tracking-wider">Actual Value</span>
-                          <p className="text-sm font-bold text-red-800 mt-0.5">{v.actualValue}</p>
+                        <div className="p-2.5 bg-red-50/60 dark:bg-red-950/40 rounded-lg border border-red-200 dark:border-red-900/60">
+                          <span className="text-[10px] font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">Actual Value</span>
+                          <p className="text-sm font-bold text-red-800 dark:text-red-300 mt-0.5">{v.actualValue}</p>
                         </div>
-                        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Threshold</span>
-                          <p className="text-sm font-bold text-slate-800 mt-0.5">{v.threshold}</p>
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Threshold</span>
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">{v.threshold}</p>
                         </div>
                       </div>
 
-                      <div className="p-2.5 bg-blue-50/50 rounded-lg border border-blue-200">
-                        <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Recommendation</span>
-                        <p className="text-xs text-blue-900 mt-0.5">{v.recommendation}</p>
+                      <div className="p-2.5 bg-blue-50/50 dark:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-900/60">
+                        <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Recommendation</span>
+                        <p className="text-xs text-blue-900 dark:text-blue-200 mt-0.5">{v.recommendation}</p>
                       </div>
 
                       {v.evidence && (
-                        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
                           <div className="flex items-center gap-1.5 mb-1">
-                            <EvidenceIcon className="h-3.5 w-3.5 text-slate-500" />
-                            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Evidence</span>
+                            <EvidenceIcon className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
+                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Evidence</span>
                           </div>
-                          <p className="text-xs font-medium text-slate-800">{v.evidence.title}</p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">{v.evidence.description}</p>
-                          <p className="text-[10px] text-slate-400 mt-1">Captured: {v.evidence.capturedAt}</p>
+                          <p className="text-xs font-medium text-slate-800 dark:text-slate-200">{v.evidence.title}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{v.evidence.description}</p>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Captured: {v.evidence.capturedAt}</p>
                         </div>
                       )}
 

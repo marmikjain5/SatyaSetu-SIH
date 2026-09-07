@@ -136,20 +136,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
   return (
     <aside
-      className={`fixed top-0 left-0 bottom-0 z-30 bg-[#0F172A] text-slate-300 border-r border-slate-800 transition-all duration-300 flex flex-col justify-between ${
+      className={`fixed top-0 left-0 bottom-0 z-30 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col justify-between ${
         isCollapsed ? 'w-18' : 'w-64'
       }`}
     >
       {/* Top Header */}
       <div>
-        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80">
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
               <div>
-                <div className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+                <div className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
                   <span>SatyaDrishti</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider">
                   {userRole === 'consumer'
                     ? 'Consumer Portal'
                     : userRole === 'manufacturer'
@@ -174,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -183,9 +183,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
         {/* User Role Card */}
         {!isCollapsed && user && (
-          <div className="p-3.5 m-3 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div className="p-3.5 m-3 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-white truncate">{user.name}</div>
+              <div className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user.name}</div>
               <Badge
                 variant={
                   user.role === 'admin'
@@ -202,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                 {user.role}
               </Badge>
             </div>
-            <p className="text-[11px] text-slate-400 truncate mt-0.5">{user.designation}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.designation}</p>
           </div>
         )}
 
@@ -219,7 +219,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                   `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                     isActive
                       ? 'bg-blue-600 text-white font-semibold shadow-xs'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
                   } ${isCollapsed ? 'justify-center px-2' : ''}`
                 }
                 title={isCollapsed ? item.label : undefined}
@@ -235,7 +235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
                             ? 'bg-red-500/20 text-red-400 border border-red-500/40'
                             : item.badgeVariant === 'warning'
                             ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                            : 'bg-slate-800 text-slate-300'
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                         }`}
                       >
                         {item.badge}
@@ -250,10 +250,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       </div>
 
       {/* Bottom Section */}
-      <div className="p-3 border-t border-slate-800 space-y-2">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
         <NavLink
           to="/"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs ${
             isCollapsed ? 'justify-center px-2' : ''
           }`}
           title="Public Portal"
@@ -264,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
 
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-950/40 hover:text-red-300 text-xs transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 text-xs transition-colors ${
             isCollapsed ? 'justify-center px-2' : ''
           }`}
           title="Logout"
