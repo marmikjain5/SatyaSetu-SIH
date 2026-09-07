@@ -23,6 +23,8 @@ for _p in (str(_backend_dir), str(_backend_dir.parent)):
 try:
     from services.extraction_service import (
         extract_from_text,
+        extract_from_image_hybrid,
+        aggregate_multi_angle_extractions,
         get_extraction_summary,
         ExtractionResult,
     )
@@ -34,10 +36,17 @@ try:
     from database import SessionLocal
     from models.db_models import RegulatoryRuleModel
 except ImportError:
-    from backend.services.extraction_service import extract_from_text, get_extraction_summary, ExtractionResult
+    from backend.services.extraction_service import (
+        extract_from_text,
+        extract_from_image_hybrid,
+        aggregate_multi_angle_extractions,
+        get_extraction_summary,
+        ExtractionResult,
+    )
     from backend.services.validation_service import validate_product_compliance, StatutoryAuditReport, ViolationSeverity
     from backend.database import SessionLocal
     from backend.models.db_models import RegulatoryRuleModel
+
 
 
 # ─── Helper: Extraction Result Serializer ──────────────────────────────────
@@ -179,14 +188,19 @@ class ExtractionAPIHandler:
         POST /api/v1/extract-and-validate
 
         Convenience endpoint: runs extraction + validation in one call.
+        Supports both image inputs (image_base64 / image_path) and raw_text.
         """
-        extract_payload = {
-            "raw_text": payload.get("raw_text", ""),
-            "image_id": payload.get("image_id"),
-            "preprocessing_passes": payload.get("preprocessing_passes", ["raw_pass"]),
-        }
-        extraction_response = self.handle_extract(extract_payload)
-        if "error" in extraction_response:
+        if payload.get("image_base64") or payload.get("image_path"):
+            extraction_response = self.handle_extract_image(payload)
+        else:
+            extract_payload = {
+                "raw_text": payload.get("raw_text", ""),
+                "image_id": payload.get("image_id"),
+                "preprocessing_passes": payload.get("preprocessing_passes", ["raw_pass"]),
+            }
+            extraction_response = self.handle_extract(extract_payload)
+
+        if "error" in extraction_response or extraction_response.get("status") != "success":
             return extraction_response
 
         extraction = extraction_response["extraction"]
@@ -194,6 +208,7 @@ class ExtractionAPIHandler:
             key: field_data["value"]
             for key, field_data in extraction["fields"].items()
         }
+        extracted_fields["rawText"] = extraction.get("raw_text", "")
 
         validate_payload = {
             "extracted_fields": extracted_fields,
@@ -283,6 +298,122 @@ class ExtractionAPIHandler:
                 pass
 
 
+    def handle_extract_image(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        POST /api/v1/extract-image
+
+        Extracts statutory fields from a base64-encoded image or image file path using
+        the Hybrid Vision pipeline (Local Ollama Vision -> Cloud Gemini -> OCR fallback).
+        """
+        image_data = payload.get("image_base64") or payload.get("image_path")
+        if not image_data:
+            return {
+                "error": "image_base64 or image_path is required.",
+                "status": 400,
+            }
+
+        image_id = payload.get("image_id", f"img-{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        fallback_raw_text = payload.get("raw_text")
+
+        # Decode base64 bytes if passed as raw base64 string
+        if payload.get("image_base64"):
+            try:
+                # Remove potential data:image/...;base64, header
+                b64_str = payload["image_base64"]
+                if "," in b64_str:
+                    b64_str = b64_str.split(",", 1)[1]
+                import base64
+                image_input = base64.b64decode(b64_str)
+            except Exception as e:
+                return {"error": f"Invalid base64 image data: {e}", "status": 400}
+        else:
+            image_input = payload["image_path"]
+
+        result = extract_from_image_hybrid(
+            image_input=image_input,
+            image_id=image_id,
+            fallback_raw_text=fallback_raw_text,
+        )
+
+        return {
+            "status": "success",
+            "extraction": _serialize_extraction_result(result),
+        }
+
+    def handle_extract_multi_angle(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        POST /api/v1/extract-multi-angle
+
+        Processes multiple angle views/crops of a product and compiles a consolidated master declaration profile.
+        """
+        angles = payload.get("angles", [])
+        if not angles or not isinstance(angles, list):
+            return {
+                "error": "angles is required and must be a list of image objects (each having image_base64 or image_path or raw_text).",
+                "status": 400,
+            }
+
+        product_id = payload.get("product_id", f"prod-{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        extractions = []
+
+        for idx, angle_obj in enumerate(angles, 1):
+            angle_id = angle_obj.get("angle_id", f"{product_id}-angle-{idx}")
+            if angle_obj.get("image_base64") or angle_obj.get("image_path"):
+                angle_res = self.handle_extract_image({**angle_obj, "image_id": angle_id})
+                # Reconstruct ExtractionResult object for aggregation
+                if angle_res.get("status") == "success":
+                    ext_data = angle_res["extraction"]
+                    from services.extraction_service import ExtractedField, ExtractionResult
+                    res_obj = ExtractionResult(
+                        image_id=angle_id,
+                        raw_text=angle_obj.get("raw_text", ""),
+                        cleaned_text="",
+                        extraction_engine=ext_data.get("extraction_engine", "Vision-LLM")
+                    )
+                    for fk, fv in ext_data.get("fields", {}).items():
+                        res_obj.fields[fk] = ExtractedField(
+                            key=fk,
+                            value=fv.get("value", ""),
+                            raw_match=fv.get("raw_match", ""),
+                            confidence=fv.get("confidence_pct", 0) / 100.0,
+                            regex_pattern="vision",
+                            is_mandatory=fv.get("is_mandatory", False),
+                            validation_status=fv.get("validation_status", "missing")
+                        )
+                    extractions.append(res_obj)
+            elif angle_obj.get("raw_text"):
+                res_obj = extract_from_text(angle_obj["raw_text"], image_id=angle_id)
+                extractions.append(res_obj)
+
+        if not extractions:
+            return {"error": "No valid angle extractions were completed.", "status": 400}
+
+        master_extraction = aggregate_multi_angle_extractions(extractions, master_id=product_id)
+        serialized_extraction = _serialize_extraction_result(master_extraction)
+
+        # Optional immediate statutory validation
+        audit_report = None
+        if payload.get("validate", True):
+            extracted_fields = {
+                k: f["value"] for k, f in serialized_extraction["fields"].items()
+            }
+            val_payload = {
+                "extracted_fields": extracted_fields,
+                "scan_id": product_id,
+                "product_category": payload.get("product_category", "ALL"),
+                "is_repeat_offender": payload.get("is_repeat_offender", False),
+            }
+            val_resp = self.handle_validate(val_payload)
+            audit_report = val_resp.get("audit_report")
+
+        return {
+            "status": "success",
+            "angles_processed": len(extractions),
+            "master_extraction": serialized_extraction,
+            "audit_report": audit_report,
+        }
+
+
 # ─── FastAPI Router Endpoints ───────────────────────────────────────────────
 
 _handler = ExtractionAPIHandler()
@@ -291,6 +422,16 @@ _handler = ExtractionAPIHandler()
 def extract_endpoint(payload: Dict[str, Any] = Body(...)):
     """Extract statutory fields from raw OCR text."""
     return _handler.handle_extract(payload)
+
+@router.post("/extract-image")
+def extract_image_endpoint(payload: Dict[str, Any] = Body(...)):
+    """Extract statutory fields directly from packaging image using Hybrid Vision LLM."""
+    return _handler.handle_extract_image(payload)
+
+@router.post("/extract-multi-angle")
+def extract_multi_angle_endpoint(payload: Dict[str, Any] = Body(...)):
+    """Process multiple product angles and aggregate master statutory declarations."""
+    return _handler.handle_extract_multi_angle(payload)
 
 @router.post("/validate")
 def validate_endpoint(payload: Dict[str, Any] = Body(...)):
@@ -310,4 +451,5 @@ def get_rules_endpoint(
 ):
     """Fetch gazette-verified statutory rules from database."""
     return _handler.handle_get_rules(category=category, active_only=active_only, severity=severity)
+
 

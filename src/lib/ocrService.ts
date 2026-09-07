@@ -240,12 +240,228 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
   }
 }
 
+// ─── Hybrid Vision Backend Provider ──────────────────────────────
+export class HybridVisionBackendProvider implements OCRProvider {
+  private fallbackProvider: TesseractLegalMetrologyProvider;
+  private backendBaseUrl: string;
+
+  constructor(backendBaseUrl?: string) {
+    this.fallbackProvider = new TesseractLegalMetrologyProvider();
+    this.backendBaseUrl = backendBaseUrl || '';
+  }
+
+  async recognize(
+    imageSource: string | File,
+    onProgress?: OCRProgressCallback
+  ): Promise<OCRResult> {
+    let dataUrl: string;
+    if (typeof imageSource === 'string') {
+      dataUrl = imageSource;
+    } else {
+      dataUrl = await this.fileToDataUrl(imageSource);
+    }
+
+    onProgress?.(10, 'Connecting to SatyaDrishti AI Hybrid Vision Engine...');
+
+    try {
+      // Step 1: Preprocess dimensions for accurate coordinates
+      const preprocessed = await preprocessImage(dataUrl);
+      const imgDimensions = preprocessed.dimensions;
+
+      onProgress?.(30, 'Performing Vision LLM extraction (Local Qwen2.5-VL / Gemini)...');
+
+      const endpoints = [
+        `${this.backendBaseUrl}/api/v1/extract-image`,
+        'http://localhost:8000/api/v1/extract-image',
+      ];
+
+      let responseData: any = null;
+
+      for (const endpoint of endpoints) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_base64: dataUrl,
+              product_category: 'ALL',
+            }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'success' && data.extraction) {
+              responseData = data.extraction;
+              break;
+            }
+          }
+        } catch (e) {
+          // continue to next endpoint
+        }
+      }
+
+      if (responseData && responseData.fields) {
+        onProgress?.(85, 'Validating statutory declarations & compliance rules...');
+
+        const backendFields = responseData.fields;
+        const keys: DeclarationFieldKey[] = [
+          'productName', 'mrp', 'unitSalePrice', 'netQuantity', 'manufacturer',
+          'address', 'importer', 'countryOfOrigin', 'packingDate', 'manufacturingDate',
+          'expiryDate', 'batchNumber', 'customerCare', 'fssaiLicense', 'barcode'
+        ];
+
+        const declarations: Record<string, any> = {};
+        const fieldConfidence: Partial<FieldConfidence> = {};
+        let totalMandatory = 0;
+        let compliantCount = 0;
+        let warningCount = 0;
+        let nonCompliantCount = 0;
+        let missingCount = 0;
+
+        for (const key of keys) {
+          const bf = backendFields[key] || {};
+          const val = bf.value && bf.value !== '(Not detected)' ? bf.value : '';
+          const conf = Math.round((bf.confidence_pct || (val ? 90 : 0)));
+          const isMandatory = bf.is_mandatory !== false;
+          const status = !val
+            ? (isMandatory ? 'missing' : 'compliant')
+            : (bf.validation_status || (conf >= 80 ? 'compliant' : 'warning'));
+
+          fieldConfidence[key] = conf;
+          declarations[key] = {
+            key,
+            label: bf.key || key,
+            value: val,
+            confidence: conf,
+            isMandatory,
+            validationStatus: status,
+            boundingBox: { x0: 10, y0: 10, x1: imgDimensions.width - 10, y1: 50 },
+            rawMatch: bf.raw_match || val,
+          };
+
+          if (isMandatory) {
+            totalMandatory++;
+            if (status === 'compliant') compliantCount++;
+            else if (status === 'warning') warningCount++;
+            else if (status === 'non-compliant') nonCompliantCount++;
+            else if (status === 'missing') missingCount++;
+          }
+        }
+
+        const mandatoryComplianceScore =
+          totalMandatory > 0
+            ? Math.round(((compliantCount + warningCount * 0.7) / totalMandatory) * 100)
+            : 0;
+
+        const engineName = responseData.extraction_engine || 'Hybrid Vision AI';
+        const rawOcr = responseData.raw_text || Object.values(backendFields).map((f: any) => f.value).join('\n');
+
+        const compliancePayload: LegalMetrologyCompliancePayload = {
+          schemaVersion: '2.0.0',
+          extractionTimestamp: new Date().toISOString(),
+          engineVersion: 'SatyaDrishti-LM-Extraction-2.0',
+          productMetadata: {
+            imageName: typeof imageSource === 'string' ? 'Scanned Packaging' : imageSource.name,
+            imageDimensions: imgDimensions,
+            overallConfidence: 95,
+            ocrPassesCount: 1,
+          },
+          declarations,
+          mandatorySummary: {
+            totalMandatory,
+            compliantCount,
+            warningCount,
+            nonCompliantCount,
+            missingCount,
+            compliancePercentage: mandatoryComplianceScore,
+          },
+          rawOcrText: rawOcr,
+          ocrPassSummaries: [
+            {
+              name: engineName,
+              description: `Direct Vision LLM Extraction (${engineName})`,
+              confidence: 95,
+              textLength: rawOcr.length,
+            },
+          ],
+        };
+
+        const overallConfidence = 95;
+
+        const extractedData: ExtractedProductData = {
+          productName: declarations.productName?.value || '',
+          mrp: declarations.mrp?.value || '',
+          unitSalePrice: declarations.unitSalePrice?.value || '',
+          netQuantity: declarations.netQuantity?.value || '',
+          manufacturer: declarations.manufacturer?.value || declarations.address?.value || '',
+          address: declarations.address?.value || '',
+          importer: declarations.importer?.value || '',
+          countryOfOrigin: declarations.countryOfOrigin?.value || 'India',
+          packingDate: declarations.packingDate?.value || '',
+          manufacturingDate: declarations.manufacturingDate?.value || '',
+          expiryDate: declarations.expiryDate?.value || '',
+          batchNumber: declarations.batchNumber?.value || '',
+          customerCare: declarations.customerCare?.value || '',
+          fssaiLicense: declarations.fssaiLicense?.value || '',
+          barcode: declarations.barcode?.value || '',
+          rawText: rawOcr,
+          confidence: overallConfidence,
+          fieldConfidence: fieldConfidence as FieldConfidence,
+          declarations,
+          compliancePayload,
+          imageDimensions: imgDimensions,
+          ocrPassResults: [
+            {
+              name: engineName,
+              description: `Direct Vision LLM Extraction (${engineName})`,
+              confidence: 95,
+              textLength: rawOcr.length,
+            },
+          ],
+        };
+
+        onProgress?.(100, `Extraction complete via ${engineName}`);
+
+        return {
+          rawText: rawOcr,
+          confidence: overallConfidence,
+          extractedData,
+        };
+      }
+    } catch (err) {
+      console.warn('Backend Hybrid Vision extraction failed, falling back to local Tesseract OCR:', err);
+    }
+
+    // Graceful fallback to client-side multi-pass Tesseract OCR
+    onProgress?.(20, 'Local Vision engine offline. Engaging browser Tesseract OCR fallback...');
+    return this.fallbackProvider.recognize(imageSource, onProgress);
+  }
+
+  async terminate(): Promise<void> {
+    await this.fallbackProvider.terminate();
+  }
+
+  private fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+}
+
 // ─── Service Singleton ──────────────────────────────────────────
 class OCRService {
   private provider: OCRProvider;
 
   constructor() {
-    this.provider = new TesseractLegalMetrologyProvider();
+    this.provider = new HybridVisionBackendProvider();
   }
 
   /** Swap the OCR provider (e.g. to Google Vision, AWS Textract, or Azure OCR) */
