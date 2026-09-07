@@ -199,20 +199,20 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className={`rounded-xl border p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
+      <div className={`rounded-xl border p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
         isConsumer
-          ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border-emerald-800/60'
+          ? 'bg-gradient-to-r from-emerald-50 via-white to-emerald-50/40 border-emerald-200 text-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/40 dark:border-emerald-800/60 dark:text-white'
           : isInspector
-          ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 border-amber-800/60'
-          : 'bg-slate-900 border-slate-800'
+          ? 'bg-gradient-to-r from-amber-50 via-white to-amber-50/30 border-amber-200 text-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30 dark:border-amber-800/60 dark:text-white'
+          : 'bg-white border-slate-200 text-slate-900 dark:bg-slate-900 dark:border-slate-800 dark:text-white'
       }`}>
         <div className="space-y-2 lg:max-w-[70%]">
           <div className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium tracking-wide ${
             isConsumer
-              ? 'text-emerald-300 bg-emerald-950/80 border border-emerald-700/80'
+              ? 'text-emerald-700 bg-emerald-100 border border-emerald-300 dark:text-emerald-300 dark:bg-emerald-950/80 dark:border-emerald-700/80'
               : isInspector
-              ? 'text-amber-300 bg-amber-950/80 border border-amber-700/80'
-              : 'text-blue-300 bg-blue-950/80 border border-blue-700/80'
+              ? 'text-amber-700 bg-amber-100 border border-amber-300 dark:text-amber-300 dark:bg-amber-950/80 dark:border-amber-700/80'
+              : 'text-blue-700 bg-blue-100 border border-blue-300 dark:text-blue-300 dark:bg-blue-950/80 dark:border-blue-700/80'
           }`}>
             {isConsumer
               ? 'Citizen Grievance Redressal Network • CCPA Section 21/36'
@@ -220,14 +220,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               ? 'Zonal Metrology Enforcement • Field Investigation Desk'
               : 'National Metrology & Consumer Protection Review Engine'}
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {isConsumer
               ? 'Consumer Grievance & Deceptive Packaging Portal'
               : isInspector
               ? 'Assigned Grievance & Field Investigation Docket'
               : 'National Grievance Adjudication & Dossier Stream'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {isConsumer
               ? 'Official citizen filing gateway for deceptive packaging, overprinted dual MRP, and deceptive volume shortfalls. Lodge grievances and track investigation progress in real time.'
               : isInspector
@@ -263,57 +263,57 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
       {/* Metrics Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             {isConsumer ? 'Total Grievances Registered' : 'Total Complaints Filed'}
           </span>
-          <div className="text-2xl font-bold text-white font-mono my-1.5">
+          <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
             {complaints.length} Cases
           </div>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {isConsumer ? 'Active in National Registry' : 'Auto-Triaged via Deterministic OCR'}
           </span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             {isConsumer ? 'Under Technical Review' : 'Needs Human Review'}
           </span>
-          <div className="text-2xl font-bold text-white font-mono my-1.5">
+          <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
             {needsReviewCount} Pending
           </div>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {isConsumer ? 'Evidence Under OCR Audit' : 'Confidence < 60% Triage Threshold'}
           </span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             {isConsumer ? 'Notices Issued to Brands' : 'Under Active Investigation'}
           </span>
-          <div className="text-2xl font-bold text-white font-mono my-1.5">
+          <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
             {inInvestigationCount} Docketed
           </div>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {isConsumer ? 'Show Cause Inquiries Active' : 'Show-Cause Notices Issued'}
           </span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             {isConsumer ? 'Resolved / Redressed' : 'Resolved & Recovered'}
           </span>
-          <div className="text-2xl font-bold text-white font-mono my-1.5">
+          <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
             {resolvedCount} Cases
           </div>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {isConsumer ? 'Grievances Satisfied' : 'Officer Verified Determinations'}
           </span>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-xs">
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-xs">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-8">
             <Input
@@ -321,17 +321,17 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               icon={<Search className="h-4 w-4 text-slate-400" />}
-              className="text-xs bg-slate-950/60 border-slate-800 text-white placeholder:text-slate-500 focus:border-blue-500"
+              className="text-xs bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:bg-slate-950/60 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
           <div className="md:col-span-4">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none font-medium"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 focus:border-blue-500 focus:outline-none font-medium dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-200"
             >
               {statuses.map((st) => (
-                <option key={st} value={st} className="bg-slate-900 text-slate-200">
+                <option key={st} value={st} className="bg-white text-slate-700 dark:bg-slate-900 dark:text-slate-200">
                   Filter Status: {st}
                 </option>
               ))}
@@ -341,16 +341,16 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       </div>
 
       {/* Complaints Ingestion Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 text-white overflow-hidden shadow-xs">
-        <div className="px-5 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h2 className="text-base font-bold text-white tracking-tight">
+      <div className="rounded-xl border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white overflow-hidden shadow-xs">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
             {isConsumer
               ? `My Grievance Submissions (${filteredComplaints.length})`
               : isInspector
               ? `Assigned Zonal Inquiries (${filteredComplaints.length})`
               : `Grievance Dossier Stream (${filteredComplaints.length})`}
           </h2>
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
             {isConsumer
               ? 'Citizen Grievance Status & Resolution Ledger'
               : isInspector
@@ -361,7 +361,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-slate-950/60 text-slate-400 font-semibold border-b border-slate-800 uppercase tracking-wider text-[10px]">
+            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-950/60 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="px-4 py-3">Ticket &amp; Complainant</th>
                 <th className="px-3 py-3">Product &amp; Platform</th>
@@ -372,7 +372,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 <th className="px-4 py-3 text-right">Inspect Dossier</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {filteredComplaints.map((cmp) => {
                 const confScore = cmp.classificationResult?.confidenceScore || Math.round(cmp.sentimentScore * 100);
                 const isOvercharged = cmp.extractedEvidenceSummary?.priceOverchargeAmount;
@@ -384,26 +384,26 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                       setSelectedComplaint(cmp);
                       setDossierTab('correlation');
                     }}
-                    className="hover:bg-slate-800/40 cursor-pointer transition-colors"
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-3.5">
-                      <div className="font-mono text-blue-400 font-bold">{cmp.ticketId}</div>
-                      <div className="font-semibold text-white mt-0.5">{cmp.consumerName}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">{cmp.submittedAt}</div>
+                      <div className="font-mono text-blue-600 dark:text-blue-400 font-bold">{cmp.ticketId}</div>
+                      <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{cmp.consumerName}</div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{cmp.submittedAt}</div>
                     </td>
 
                     <td className="px-3 py-3.5 max-w-xs">
-                      <div className="font-medium text-slate-200 line-clamp-1">{cmp.productName}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">
+                      <div className="font-medium text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.productName}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                         {cmp.brand} • {cmp.platform} {cmp.orderNumber ? `(Order: ${cmp.orderNumber})` : ''}
                       </div>
                     </td>
 
                     <td className="px-3 py-3.5 max-w-xs">
-                      <div className="font-semibold text-slate-200 line-clamp-1">{cmp.category}</div>
+                      <div className="font-semibold text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.category}</div>
                       <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px]">
-                        <span className="text-slate-500">Confidence:</span>
-                        <span className="font-bold text-slate-200">{confScore}%</span>
+                        <span className="text-slate-400 dark:text-slate-500">Confidence:</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{confScore}%</span>
                         {cmp.needsReview && (
                           <span className="text-amber-400 font-medium ml-1">
                             Needs Review
@@ -418,12 +418,12 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                           <div className="text-rose-400 font-semibold text-xs">
                             +₹{isOvercharged} Overcharge
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                             Pkg ₹{cmp.extractedEvidenceSummary?.declaredMrp} vs Bill ₹{cmp.extractedEvidenceSummary?.receiptPrice}
                           </div>
                         </div>
                       ) : (
-                        <div className="font-mono text-slate-400">
+                        <div className="font-mono text-slate-500 dark:text-slate-400">
                           <div className="text-slate-500 text-xs mb-0.5">–</div>
                           <div className="text-[11px]">
                             {cmp.evidenceImages?.length || 1} Evidence Image(s)
@@ -433,10 +433,10 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     </td>
 
                     <td className="px-3 py-3.5 max-w-xs">
-                      <div className="text-[11px] text-slate-300 font-medium line-clamp-1">
+                      <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium line-clamp-1">
                         {cmp.aiMatchedRule}
                       </div>
-                      <span className="text-[10px] text-blue-400 font-mono block mt-0.5">
+                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono block mt-0.5">
                         Active Rule Version Mapped
                       </span>
                     </td>
@@ -446,8 +446,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                         className={cn(
                           'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-transparent',
                           cmp.status === 'New' || cmp.needsReview
-                            ? 'text-amber-400 border border-amber-800/60'
-                            : 'text-slate-300 border border-slate-700/80'
+                            ? 'text-amber-600 border border-amber-300 dark:text-amber-400 dark:border-amber-800/60'
+                            : 'text-slate-600 border border-slate-300 dark:text-slate-300 dark:border-slate-700/80'
                         )}
                       >
                         {cmp.status}
@@ -455,7 +455,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     </td>
 
                     <td className="px-4 py-3.5 text-right">
-                      <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-semibold hover:text-blue-300">
+                      <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300">
                         <span>Inspect Case</span>
                         <span className="text-sm leading-none">›</span>
                       </span>

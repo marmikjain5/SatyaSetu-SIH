@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ScanLine,
   Images,
@@ -11,6 +12,7 @@ import {
   History,
   Download,
   FileCheck,
+  Factory,
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
 import { useReportStore } from '../../store/reportStore';
@@ -109,6 +111,19 @@ export const ProductScanner: React.FC = () => {
 
         {/* Top Header Report Actions */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          {isManufacturer && (
+            <Link to="/dashboard/factory-certification">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-300 dark:hover:bg-indigo-950/40"
+              >
+                <Factory className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span>Factory Hygiene Proof</span>
+              </Button>
+            </Link>
+          )}
+
           <Button
             variant="outline"
             size="sm"
