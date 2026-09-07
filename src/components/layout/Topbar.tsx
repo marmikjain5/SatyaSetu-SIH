@@ -35,7 +35,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
     {
       id: 1,
       title: 'Critical Disparity Detected',
-      message: 'OptiMax Whey 2kg weight shortfall (8% deficit). Section 36 SCN proposed.',
+      message: 'Cadbury Bournvita 500g: "Health Drink" sugar content advisory disparity. Section 36 SCN proposed.',
       time: '12m ago',
       type: 'critical',
     },
