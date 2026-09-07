@@ -13,6 +13,18 @@ export interface Translations {
   selectLanguage: string;
   languageName: string;
 
+  // Directory Page
+  searchDirectoryPlaceholder: string;
+  displayingRecords: string;
+  allCategories: string;
+  allDietary: string;
+  mrpInclTaxes: string;
+  netQtyUsp: string;
+  fssaiLic: string;
+  ingredientsDecl: string;
+  statutoryDetails: string;
+  fileGrievance: string;
+
   // Metrics Bar
   metricsTotalRegistered: string;
   metricsTotalSub: string;
@@ -91,8 +103,19 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     needsReviewCount: 'Needs Review',
     investigationCount: 'Active Investigations',
     resolvedCount: 'Resolved Grievances',
-    selectLanguage: 'Select Portal Language',
+    selectLanguage: 'Select Language',
     languageName: 'English',
+
+    searchDirectoryPlaceholder: 'Search Product Name, Brand, Ingredient (e.g. Whey, Mustard), or FSSAI License...',
+    displayingRecords: 'Displaying Verified Records',
+    allCategories: 'All Categories',
+    allDietary: 'All Dietary Types',
+    mrpInclTaxes: 'MRP (INCL. TAXES)',
+    netQtyUsp: 'NET QTY / USP',
+    fssaiLic: 'FSSAI Lic. No:',
+    ingredientsDecl: 'Ingredients Declared:',
+    statutoryDetails: 'Statutory Details',
+    fileGrievance: 'File Grievance',
 
     metricsTotalRegistered: 'Total Grievances Registered',
     metricsTotalSub: 'Active in National Registry',
@@ -165,8 +188,19 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     needsReviewCount: 'समीक्षा आवश्यक',
     investigationCount: 'सक्रिय जांच',
     resolvedCount: 'समाधान की गई शिकायतें',
-    selectLanguage: 'पोर्टल की भाषा चुनें',
+    selectLanguage: 'भाषा चुनें',
     languageName: 'हिन्दी',
+
+    searchDirectoryPlaceholder: 'उत्पाद का नाम, ब्रांड, सामग्री (जैसे व्हे, सरसों), या FSSAI लाइसेंस खोजें...',
+    displayingRecords: 'सत्यापित रिकॉर्ड प्रदर्शित',
+    allCategories: 'सभी श्रेणियां',
+    allDietary: 'सभी आहार प्रकार',
+    mrpInclTaxes: 'MRP (कर सहित)',
+    netQtyUsp: 'शुद्ध मात्रा / प्रति इकाई मूल्य',
+    fssaiLic: 'FSSAI लाइसेंस संख्या:',
+    ingredientsDecl: 'सामग्री विवरण:',
+    statutoryDetails: 'वैधानिक विवरण',
+    fileGrievance: 'शिकायत दर्ज करें',
 
     metricsTotalRegistered: 'कुल दर्ज शिकायतें',
     metricsTotalSub: 'राष्ट्रीय रजिस्टर में सक्रिय',
@@ -239,8 +273,19 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     needsReviewCount: 'ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿದೆ',
     investigationCount: 'ಸಕ್ರಿಯ ತನಿಖೆ',
     resolvedCount: 'ಪರಿಹರಿಸಲಾದ ದೂರುಗಳು',
-    selectLanguage: 'ಪೋರ್ಟಲ್ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+    selectLanguage: 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
     languageName: 'ಕನ್ನಡ',
+
+    searchDirectoryPlaceholder: 'ಉತ್ಪನ್ನದ ಹೆಸರು, ಬ್ರಾಂಡ್, ಘಟಕಾಂಶ ಅಥವಾ FSSAI ಲೈಸೆನ್ಸ್ ಹುಡುಕಿ...',
+    displayingRecords: 'ಪರಿಶೀಲಿಸಿದ ದಾಖಲೆಗಳು ಪ್ರದರ್ಶನದಲ್ಲಿದೆ',
+    allCategories: 'ಎಲ್ಲಾ ವರ್ಗಗಳು',
+    allDietary: 'ಎಲ್ಲಾ ಆಹಾರ ಪ್ರಕಾರಗಳು',
+    mrpInclTaxes: 'MRP (ತೆರಿಗೆ ಸೇರಿ)',
+    netQtyUsp: 'ನಿವ್ವಳ ಪ್ರಮಾಣ / ಬೆಲೆ',
+    fssaiLic: 'FSSAI ಲೈಸೆನ್ಸ್ ಸಂಖ್ಯೆ:',
+    ingredientsDecl: 'ಘಟಕಾಂಶಗಳ ವಿವರಣೆ:',
+    statutoryDetails: 'ಶಾಸನಬದ್ಧ ವಿವರಗಳು',
+    fileGrievance: 'ದೂರು ಸಲ್ಲಿಸಿ',
 
     metricsTotalRegistered: 'ಒಟ್ಟು ನೋಂದಾಯಿತ ದೂರುಗಳು',
     metricsTotalSub: 'ರಾಷ್ಟ್ರೀಯ ನೋಂದಣಿಯಲ್ಲಿ ಸಕ್ರಿಯವಾಗಿದೆ',
@@ -313,8 +358,19 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     needsReviewCount: 'ஆய்வு தேவைப்படுகிறது',
     investigationCount: 'செயலில் உள்ள விசாரணை',
     resolvedCount: 'தீர்வு காணப்பட்ட புகார்கள்',
-    selectLanguage: 'தளத்தின் மொழியைத் தேர்ந்தெடுக்கவும்',
+    selectLanguage: 'மொழியைத் தேர்ந்தெடுக்கவும்',
     languageName: 'தமிழ்',
+
+    searchDirectoryPlaceholder: 'தயாரிப்பு பெயர், பிராண்ட், மூலப்பொருள் அல்லது FSSAI உரிமத்தைத் தேடவும்...',
+    displayingRecords: 'சரிபார்க்கப்பட்ட பதிவுகள் காட்டப்படுகின்றன',
+    allCategories: 'அனைத்து பிரிவுகளும்',
+    allDietary: 'அனைத்து உணவு வகைகளும்',
+    mrpInclTaxes: 'MRP (வரிகள் உட்பட)',
+    netQtyUsp: 'நிகர அளவு / அலகு விலை',
+    fssaiLic: 'FSSAI உரிம எண்:',
+    ingredientsDecl: 'மூலப்பொருட்கள் விவரம்:',
+    statutoryDetails: 'சட்ட விவரங்கள்',
+    fileGrievance: 'புகார் அளிக்கவும்',
 
     metricsTotalRegistered: 'மொத்தப் பதிவு செய்யப்பட்ட புகார்கள்',
     metricsTotalSub: 'தேசிய பதிவேட்டில் செயலில் உள்ளது',

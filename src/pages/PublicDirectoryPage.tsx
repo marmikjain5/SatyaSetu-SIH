@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useComplianceStore } from '../store/complianceStore';
 import { useAuthStore } from '../store/authStore';
-import { Product } from '../types/compliance';
+import { useLanguageStore } from '../store/languageStore';
+import { Product, SupportedLanguage } from '../types/compliance';
 import { CitizenProductCard } from '../components/citizen/CitizenProductCard';
 import { CitizenProductModal } from '../components/citizen/CitizenProductModal';
 import { CitizenAuthModal } from '../components/citizen/CitizenAuthModal';
@@ -17,11 +18,13 @@ import {
   Search,
   ShieldCheck,
   ArrowRight,
+  Languages,
 } from 'lucide-react';
 
 export const PublicDirectoryPage: React.FC = () => {
   const { products } = useComplianceStore();
   const { isAuthenticated, user } = useAuthStore();
+  const { language, setLanguage, t } = useLanguageStore();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +37,6 @@ export const PublicDirectoryPage: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [pendingComplaintProduct, setPendingComplaintProduct] = useState<Product | null>(null);
-
 
   const categories = [
     'All',
@@ -92,7 +94,34 @@ export const PublicDirectoryPage: React.FC = () => {
 
       {/* Main Public Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
+        {/* Language Selector Toolbar */}
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+            <Languages className="h-4 w-4 text-blue-600" />
+            <span>{t('selectLanguage')}:</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[
+              { code: 'en', label: 'English' },
+              { code: 'hi', label: 'हिन्दी' },
+              { code: 'kn', label: 'ಕನ್ನಡ' },
+              { code: 'ta', label: 'தமிழ்' },
+            ].map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => setLanguage(lang.code as SupportedLanguage)}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                  language === lang.code
+                    ? 'bg-blue-600 text-white shadow-sm font-bold ring-2 ring-blue-500/20'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Search and Filters Strip */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -100,7 +129,7 @@ export const PublicDirectoryPage: React.FC = () => {
             {/* Search Input */}
             <div className="md:col-span-6">
               <Input
-                placeholder="Search Product Name, Brand, Ingredient (e.g. Whey, Mustard), or FSSAI License..."
+                placeholder={t('searchDirectoryPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 icon={<Search className="h-4 w-4 text-slate-400" />}
@@ -117,7 +146,7 @@ export const PublicDirectoryPage: React.FC = () => {
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
-                    Category: {cat}
+                    {cat === 'All' ? t('allCategories') : cat}
                   </option>
                 ))}
               </select>
@@ -130,7 +159,7 @@ export const PublicDirectoryPage: React.FC = () => {
                 onChange={(e) => setSelectedDietary(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:outline-none"
               >
-                <option value="All">All Types</option>
+                <option value="All">{t('allDietary')}</option>
                 <option value="Vegetarian">Vegetarian (Green Dot)</option>
                 <option value="Non-Vegetarian">Non-Vegetarian</option>
               </select>
@@ -140,7 +169,7 @@ export const PublicDirectoryPage: React.FC = () => {
           {/* Quick Active Chips */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 pt-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-700">Displaying:</span>
+              <span className="font-semibold text-slate-700">{t('displayingRecords')}:</span>
               <Badge variant="secondary" size="sm" className="font-mono">
                 {filteredProducts.length} Verified Records
               </Badge>
