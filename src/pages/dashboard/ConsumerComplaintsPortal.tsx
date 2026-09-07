@@ -476,50 +476,49 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           title={`Government Officer Review Dossier: ${selectedComplaint.ticketId}`}
           subtitle={`Case Dossier lodged by ${selectedComplaint.consumerName} (${selectedComplaint.consumerEmail})`}
           maxWidth="4xl"
-          theme="dark"
         >
           <div className="space-y-4 text-xs">
             {/* Top Overview Strip */}
-            <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-              <div className="sm:pr-3 sm:border-r sm:border-slate-800/80">
-                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-3.5 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <div className="sm:pr-3 sm:border-r sm:border-slate-200/80 dark:sm:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
                   Product Title
                 </span>
-                <span className="font-bold text-white line-clamp-1 mt-0.5 text-xs">
+                <span className="font-bold text-slate-900 dark:text-white line-clamp-1 mt-0.5 text-xs">
                   {selectedComplaint.productName}
                 </span>
               </div>
-              <div className="sm:px-3 sm:border-r sm:border-slate-800/80">
-                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+              <div className="sm:px-3 sm:border-r sm:border-slate-200/80 dark:sm:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
                   Brand &amp; Platform
                 </span>
-                <span className="font-bold text-white mt-0.5 text-xs">
+                <span className="font-bold text-slate-900 dark:text-white mt-0.5 text-xs">
                   {selectedComplaint.brand} ({selectedComplaint.platform})
                 </span>
               </div>
-              <div className="sm:px-3 sm:border-r sm:border-slate-800/80">
-                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+              <div className="sm:px-3 sm:border-r sm:border-slate-200/80 dark:sm:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
                   Current Status
                 </span>
                 <span
                   className={cn(
-                    'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider mt-1 bg-transparent',
+                    'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider mt-1',
                     selectedComplaint.status === 'New' || selectedComplaint.needsReview
-                      ? 'text-amber-400 border border-amber-800/60'
+                      ? 'text-amber-700 border border-amber-300 bg-amber-50 dark:bg-transparent dark:text-amber-400 dark:border-amber-800/60'
                       : selectedComplaint.status === 'Resolved'
-                      ? 'text-emerald-400 border border-emerald-800/60'
-                      : 'text-slate-300 border border-slate-700/80'
+                      ? 'text-emerald-700 border border-emerald-300 bg-emerald-50 dark:bg-transparent dark:text-emerald-400 dark:border-emerald-800/60'
+                      : 'text-slate-700 border border-slate-300 bg-slate-100 dark:bg-transparent dark:text-slate-300 dark:border-slate-700/80'
                   )}
                 >
                   {selectedComplaint.status}
                 </span>
               </div>
               <div className="sm:pl-3">
-                <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
+                <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
                   Assigned Officer
                 </span>
                 <span
-                  className="font-bold text-blue-400 mt-0.5 text-xs block truncate"
+                  className="font-bold text-blue-600 dark:text-blue-400 mt-0.5 text-xs block truncate"
                   title={selectedComplaint.assignedOfficer || 'Pending Assignment'}
                 >
                   {selectedComplaint.assignedOfficer || 'Pending Assignment'}
@@ -528,17 +527,17 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="border-b border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
+            <div className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => setDossierTab('correlation')}
                 className={cn(
                   'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'correlation'
-                    ? 'border-blue-500 text-white font-semibold'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                 )}
               >
-                <Scale className={cn('h-3.5 w-3.5', dossierTab === 'correlation' ? 'text-blue-400' : 'text-slate-500')} />
+                <Scale className={cn('h-3.5 w-3.5', dossierTab === 'correlation' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
                 <span>4-Way Case Correlation</span>
               </button>
 
@@ -547,11 +546,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 className={cn(
                   'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'evidence'
-                    ? 'border-blue-500 text-white font-semibold'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                 )}
               >
-                <ImageIcon className={cn('h-3.5 w-3.5', dossierTab === 'evidence' ? 'text-blue-400' : 'text-slate-500')} />
+                <ImageIcon className={cn('h-3.5 w-3.5', dossierTab === 'evidence' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
                 <span>Evidence &amp; OCR Image Inspector ({selectedComplaint.evidenceImages?.length || 1})</span>
               </button>
 
@@ -560,11 +559,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 className={cn(
                   'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'rag'
-                    ? 'border-blue-500 text-white font-semibold'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                 )}
               >
-                <FileSearch className={cn('h-3.5 w-3.5', dossierTab === 'rag' ? 'text-blue-400' : 'text-slate-500')} />
+                <FileSearch className={cn('h-3.5 w-3.5', dossierTab === 'rag' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
                 <span>Regulatory RAG Provenance</span>
               </button>
 
@@ -574,11 +573,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                   className={cn(
                     'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                     dossierTab === 'actions'
-                      ? 'border-blue-500 text-white font-semibold'
-                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                      ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
+                      : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                   )}
                 >
-                  <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-400' : 'text-slate-500')} />
+                  <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
                   <span>Officer Action &amp; Decision</span>
                 </button>
               )}
@@ -588,11 +587,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 className={cn(
                   'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
                   dossierTab === 'audit'
-                    ? 'border-blue-500 text-white font-semibold'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                 )}
               >
-                <Clock className={cn('h-3.5 w-3.5', dossierTab === 'audit' ? 'text-blue-400' : 'text-slate-500')} />
+                <Clock className={cn('h-3.5 w-3.5', dossierTab === 'audit' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
                 <span>{isConsumer ? 'Official Case Timeline' : 'Audit Timeline'} ({selectedComplaint.officerDecisionHistory?.length || 0})</span>
               </button>
             </div>
@@ -602,51 +601,51 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Section 1: Complainant Statement */}
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-amber-400 font-bold uppercase text-[11px] font-mono tracking-wider">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                       <span>1. Complainant Free-Text Allegation</span>
                     </div>
-                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 text-xs leading-relaxed italic">
+                    <div className="p-3 rounded-lg border border-slate-200 bg-white text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 text-xs leading-relaxed italic">
                       "{selectedComplaint.description}"
                     </div>
                   </div>
 
                   {/* Section 2: Deterministic OCR Extraction */}
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
-                      <FileCheck2 className="h-3.5 w-3.5 text-blue-400" />
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <FileCheck2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                       <span>2. OCR &amp; Evidence Extraction Finding</span>
                     </div>
-                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5 font-mono text-xs text-slate-300">
+                    <div className="p-3 rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 space-y-1.5 font-mono text-xs text-slate-700 dark:text-slate-300">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-slate-400">Packaging MRP:</span>
-                        <strong className="text-white">
+                        <span className="text-slate-500 dark:text-slate-400">Packaging MRP:</span>
+                        <strong className="text-slate-900 dark:text-white">
                           {selectedComplaint.extractedEvidenceSummary?.declaredMrp || 'Extracted from OCR'}
                         </strong>
                       </div>
                       {selectedComplaint.extractedEvidenceSummary?.receiptPrice && (
                         <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-slate-400">Receipt Store Price:</span>
-                          <strong className="text-white">
+                          <span className="text-slate-500 dark:text-slate-400">Receipt Store Price:</span>
+                          <strong className="text-slate-900 dark:text-white">
                             {selectedComplaint.extractedEvidenceSummary.receiptPrice}
                           </strong>
                         </div>
                       )}
                       {selectedComplaint.extractedEvidenceSummary?.priceOverchargeAmount && (
-                        <div className="pt-1.5 border-t border-slate-800">
-                          <div className="text-rose-400 font-bold text-xs">
+                        <div className="pt-1.5 border-t border-slate-200 dark:border-slate-800">
+                          <div className="text-rose-600 dark:text-rose-400 font-bold text-xs">
                             +₹{selectedComplaint.extractedEvidenceSummary.priceOverchargeAmount} Overcharge
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                             Pkg ₹{selectedComplaint.extractedEvidenceSummary?.declaredMrp} vs Bill ₹{selectedComplaint.extractedEvidenceSummary?.receiptPrice}
                           </div>
                         </div>
                       )}
-                      <div className="pt-1 border-t border-slate-800/80 flex items-baseline justify-between gap-2 text-[11px]">
-                        <span className="text-slate-400 font-sans">Manufacturer:</span>
+                      <div className="pt-1 border-t border-slate-200/80 dark:border-slate-800/80 flex items-baseline justify-between gap-2 text-[11px]">
+                        <span className="text-slate-500 dark:text-slate-400 font-sans">Manufacturer:</span>
                         <strong
-                          className="text-slate-200 truncate"
+                          className="text-slate-800 dark:text-slate-200 truncate"
                           title={selectedComplaint.extractedEvidenceSummary?.manufacturer || 'Detected on label'}
                         >
                           {selectedComplaint.extractedEvidenceSummary?.manufacturer || 'Detected on label'}
@@ -656,39 +655,39 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                   </div>
 
                   {/* Section 3: Regulatory RAG Context */}
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
-                      <Scale className="h-3.5 w-3.5 text-blue-400" />
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <Scale className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                       <span>3. Regulatory RAG Mapped Context</span>
                     </div>
-                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-2 text-xs">
-                      <div className="font-bold text-white text-xs">
+                    <div className="p-3 rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 space-y-2 text-xs">
+                      <div className="font-bold text-slate-900 dark:text-white text-xs">
                         {selectedComplaint.aiMatchedRule}
                       </div>
-                      <div className="text-[11px] text-slate-300 italic leading-relaxed">
+                      <div className="text-[11px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
                         "{selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.verbatimClause ||
                           'Rule mandates accurate statutory declaration and prohibits selling above MRP.'}"
                       </div>
-                      <span className="text-[10px] text-blue-400 font-mono block pt-1 border-t border-slate-800">
+                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono block pt-1 border-t border-slate-200 dark:border-slate-800">
                         Active Rule Version: #{selectedComplaint.regulatoryMappingResult?.matchedRules?.[0]?.activeVersion || 1}
                       </span>
                     </div>
                   </div>
 
                   {/* Section 4: Verification Status */}
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase text-[11px] font-mono tracking-wider">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>4. Human Officer Verification Status</span>
                     </div>
-                    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5 text-xs">
-                      <div className="font-bold text-emerald-400 text-xs inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    <div className="p-3 rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 space-y-1.5 text-xs">
+                      <div className="font-bold text-emerald-600 dark:text-emerald-400 text-xs inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                         <span>
                           {selectedComplaint.caseCorrelationSummary?.verificationStatus || selectedComplaint.status}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         Automated systems provide OCR evidence &amp; regulatory context. Final legal determination requires officer decision.
                       </p>
                     </div>
@@ -697,27 +696,27 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
                 {/* Additional Packaging Label Discrepancies Discovered by Scanner */}
                 {selectedComplaint.scannerDetectedDiscrepancies && selectedComplaint.scannerDetectedDiscrepancies.length > 0 && (
-                  <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
+                  <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                         Additional Label Discrepancies Discovered by Scanner ({selectedComplaint.scannerDetectedDiscrepancies.length} Unseen Issues)
                       </h4>
-                      <span className="text-[10px] font-mono text-blue-400 border border-blue-800/60 bg-blue-950/60 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-blue-700 border border-blue-200 bg-blue-50 dark:text-blue-400 dark:border-blue-800/60 dark:bg-blue-950/60 px-2 py-0.5 rounded">
                         RAG Mapped
                       </span>
                     </div>
 
                     <div className="space-y-2">
                       {selectedComplaint.scannerDetectedDiscrepancies.map((disc, idx) => (
-                        <div key={idx} className="p-3 rounded-lg border border-slate-800 bg-slate-900 text-xs space-y-1">
+                        <div key={idx} className="p-3 rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-xs space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-white">{disc.ruleName}</span>
-                            <span className="font-mono text-blue-400 text-[10px]">{disc.ruleCode}</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{disc.ruleName}</span>
+                            <span className="font-mono text-blue-600 dark:text-blue-400 text-[10px]">{disc.ruleCode}</span>
                           </div>
-                          <p className="text-slate-400 text-[11px]">{disc.ruleDescription}</p>
-                          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 border-t border-slate-800 font-mono">
-                            <span>OCR Evidence: <strong className="text-slate-300">{disc.evidence}</strong></span>
-                            <span>RAG Section: <strong className="text-slate-300">{disc.ragMapping?.section || 'Legal Metrology Rules'}</strong></span>
+                          <p className="text-slate-600 dark:text-slate-400 text-[11px]">{disc.ruleDescription}</p>
+                          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 border-t border-slate-200 dark:border-slate-800 font-mono">
+                            <span>OCR Evidence: <strong className="text-slate-700 dark:text-slate-300">{disc.evidence}</strong></span>
+                            <span>RAG Section: <strong className="text-slate-700 dark:text-slate-300">{disc.ragMapping?.section || 'Legal Metrology Rules'}</strong></span>
                           </div>
                         </div>
                       ))}
@@ -730,7 +729,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 2: EVIDENCE & OCR IMAGE INSPECTOR */}
             {dossierTab === 'evidence' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   {/* Image Selectors */}
                   <div className="flex gap-2">
                     {(selectedComplaint.evidenceImages || []).map((img, idx) => (
@@ -741,27 +740,27 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                           'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                           selectedEvidenceIndex === idx
                             ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-850 hover:text-white'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 dark:hover:text-white'
                         )}
                       >
                         Evidence #{idx + 1}: {img.tag}
                       </button>
                     ))}
                     {(!selectedComplaint.evidenceImages || selectedComplaint.evidenceImages.length === 0) && (
-                      <span className="text-xs font-semibold text-slate-400">Packaging Evidence Image</span>
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Packaging Evidence Image</span>
                     )}
                   </div>
 
                   {/* Toggle Bounding Box Overlay */}
                   <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-slate-400">View Mode:</span>
+                    <span className="text-slate-500 dark:text-slate-400">View Mode:</span>
                     <button
                       onClick={() => setShowAnnotatedCopy(!showAnnotatedCopy)}
                       className={cn(
                         'px-2.5 py-1 rounded border font-semibold text-[10px] transition-colors',
                         showAnnotatedCopy
-                          ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
-                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60'
+                          : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:text-slate-200'
                       )}
                     >
                       {showAnnotatedCopy ? '✓ Annotated Copy (Bounding Boxes)' : 'Original Clean Image'}
@@ -771,7 +770,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
                 {/* Evidence Image Viewer */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  <div className="md:col-span-7 bg-slate-950 rounded-xl p-3 flex items-center justify-center min-h-[300px] border border-slate-800">
+                  <div className="md:col-span-7 bg-slate-100 dark:bg-slate-950 rounded-xl p-3 flex items-center justify-center min-h-[300px] border border-slate-200 dark:border-slate-800">
                     {selectedComplaint.evidenceImages?.[selectedEvidenceIndex] ? (
                       <img
                         src={
@@ -781,50 +780,50 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                             : selectedComplaint.evidenceImages[selectedEvidenceIndex].originalUrl
                         }
                         alt="Evidence"
-                        className="max-h-[380px] w-auto object-contain rounded border border-slate-800 shadow-lg"
+                        className="max-h-[380px] w-auto object-contain rounded border border-slate-200 dark:border-slate-800 shadow-lg"
                       />
                     ) : (
                       <img
                         src={selectedComplaint.evidenceUrls?.[0] || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600'}
                         alt="Default Evidence"
-                        className="max-h-[380px] w-auto object-contain rounded border border-slate-800"
+                        className="max-h-[380px] w-auto object-contain rounded border border-slate-200 dark:border-slate-800"
                       />
                     )}
                   </div>
 
                   {/* OCR Extractions List */}
-                  <div className="md:col-span-5 space-y-3 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
-                    <h4 className="font-bold text-slate-300 text-xs uppercase tracking-wider font-mono">
+                  <div className="md:col-span-5 space-y-3 bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <h4 className="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider font-mono">
                       Extracted Statutory Parameters
                     </h4>
 
                     <div className="space-y-2 text-[11px] font-mono">
-                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Declared Packaging MRP</span>
-                        <span className="font-bold text-white">
+                      <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Declared Packaging MRP</span>
+                        <span className="font-bold text-slate-900 dark:text-white">
                           {selectedComplaint.extractedEvidenceSummary?.declaredMrp || '₹3,499.00'}
                         </span>
                       </div>
 
                       {selectedComplaint.extractedEvidenceSummary?.receiptPrice && (
-                        <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Receipt Charged Price</span>
-                          <span className="font-bold text-rose-400">
+                        <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Receipt Charged Price</span>
+                          <span className="font-bold text-rose-600 dark:text-rose-400">
                             {selectedComplaint.extractedEvidenceSummary.receiptPrice}
                           </span>
                         </div>
                       )}
 
-                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Net Quantity</span>
-                        <span className="font-bold text-white">
+                      <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Net Quantity</span>
+                        <span className="font-bold text-slate-900 dark:text-white">
                           {selectedComplaint.extractedEvidenceSummary?.netQuantity || '2 kg'}
                         </span>
                       </div>
 
-                      <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Manufacturer Address</span>
-                        <span className="font-medium text-slate-300 text-[10px] leading-tight block mt-0.5">
+                      <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Manufacturer Address</span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300 text-[10px] leading-tight block mt-0.5">
                           {selectedComplaint.extractedEvidenceSummary?.manufacturer || 'NutriPro Labs Pvt Ltd'}
                         </span>
                       </div>
@@ -837,36 +836,36 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 3: REGULATORY RAG PROVENANCE */}
             {dossierTab === 'rag' && (
               <div className="space-y-4">
-                <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800 space-y-1">
-                  <span className="font-bold text-slate-200 uppercase text-[10px] block font-mono">
+                <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-800 dark:text-slate-200 uppercase text-[10px] block font-mono">
                     Regulatory RAG Engine &amp; Rule Versioning Provenance
                   </span>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Active statutory rules retrieved via SatyaDrishti Regulatory RAG. All rule versions are resolved against active gazette notifications.
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   {(selectedComplaint.regulatoryMappingResult?.matchedRules || []).map((rule, idx) => (
-                    <div key={idx} className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 shadow-xs space-y-2">
+                    <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-blue-400 text-xs">{rule.ruleCode}</span>
-                        <span className="font-mono text-[10px] text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60">
+                        <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-xs">{rule.ruleCode}</span>
+                        <span className="font-mono text-[10px] text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/60">
                           Active Rule Version #{rule.activeVersion}
                         </span>
                       </div>
 
-                      <h4 className="font-bold text-white text-xs">{rule.title}</h4>
-                      <div className="text-[11px] font-medium text-slate-400">{rule.section}</div>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-xs">{rule.title}</h4>
+                      <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{rule.section}</div>
 
-                      <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 italic">
+                      <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 italic">
                         "{rule.verbatimClause}"
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-400 pt-1 border-t border-slate-800">
-                        <div>Gazette: <strong className="text-slate-200">{rule.officialGazetteRef}</strong></div>
-                        <div>Effective Date: <strong className="text-slate-200">{rule.effectiveDate}</strong></div>
-                        <div>Max Penalty: <strong className="text-slate-200">₹{rule.penalties.maxFine.toLocaleString()}</strong></div>
+                      <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+                        <div>Gazette: <strong className="text-slate-800 dark:text-slate-200">{rule.officialGazetteRef}</strong></div>
+                        <div>Effective Date: <strong className="text-slate-800 dark:text-slate-200">{rule.effectiveDate}</strong></div>
+                        <div>Max Penalty: <strong className="text-slate-800 dark:text-slate-200">₹{rule.penalties.maxFine.toLocaleString()}</strong></div>
                       </div>
                     </div>
                   ))}
@@ -876,50 +875,50 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
             {/* TAB 4: OFFICER ACTION & DECISION FORM */}
             {dossierTab === 'actions' && (
-              <form onSubmit={handleOfficerDecisionSubmit} className="space-y-4 bg-slate-950/60 p-4 sm:p-5 rounded-xl border border-slate-800 text-white">
+              <form onSubmit={handleOfficerDecisionSubmit} className="space-y-4 bg-slate-50 dark:bg-slate-950/60 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                 <div className="space-y-1">
-                  <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider font-mono">
                     Record Formal Government Officer Determination
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Select the statutory action to take on this complaint case docket.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Statutory Action
                     </label>
                     <select
                       value={officerActionType}
                       onChange={(e) => setOfficerActionType(e.target.value as OfficerActionType)}
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none font-semibold"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none font-semibold"
                     >
-                      <option value="ACCEPT_INVESTIGATION" className="bg-slate-900">Accept for Formal Investigation</option>
-                      <option value="ASSIGN_INSPECTION" className="bg-slate-900">Assign Zonal Officer for On-Site Inspection</option>
-                      <option value="REQUEST_INFO" className="bg-slate-900">Request More Information from Complainant</option>
-                      <option value="INSUFFICIENT_EVIDENCE" className="bg-slate-900">Mark as Insufficient Evidence</option>
-                      <option value="REJECT" className="bg-slate-900">Reject / Dismiss Complaint</option>
-                      <option value="RESOLVE" className="bg-slate-900">Resolve Complaint &amp; Recover Penalty</option>
+                      <option value="ACCEPT_INVESTIGATION" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Accept for Formal Investigation</option>
+                      <option value="ASSIGN_INSPECTION" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Assign Zonal Officer for On-Site Inspection</option>
+                      <option value="REQUEST_INFO" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Request More Information from Complainant</option>
+                      <option value="INSUFFICIENT_EVIDENCE" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Mark as Insufficient Evidence</option>
+                      <option value="REJECT" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Reject / Dismiss Complaint</option>
+                      <option value="RESOLVE" className="bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200">Resolve Complaint &amp; Recover Penalty</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Assigned Inspector / Officer Name
                     </label>
                     <Input
                       value={assignedInspector}
                       onChange={(e) => setAssignedInspector(e.target.value)}
-                      className="text-xs bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+                      className="text-xs bg-white border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:border-blue-500"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Officer Decision Rationale &amp; Investigation Notes
                   </label>
                   <textarea
@@ -927,7 +926,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     value={officerNotes}
                     onChange={(e) => setOfficerNotes(e.target.value)}
                     placeholder="Enter formal justification, instructions for zonal inspection team, or notice details..."
-                    className="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs text-slate-200 focus:border-blue-500 focus:outline-none leading-relaxed placeholder:text-slate-500"
+                    className="w-full rounded-lg border border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900 p-3 text-xs text-slate-900 dark:text-slate-200 focus:border-blue-500 focus:outline-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     required
                   />
                 </div>
@@ -944,19 +943,19 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {/* TAB 5: AUDIT TIMELINE */}
             {dossierTab === 'audit' && (
               <div className="space-y-3">
-                <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider font-mono">
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider font-mono">
                   Timestamped Officer Decision Audit History
                 </h4>
 
                 <div className="space-y-2">
                   {(selectedComplaint.officerDecisionHistory || []).map((rec) => (
-                    <div key={rec.id} className="p-3 bg-slate-950/60 rounded-lg border border-slate-800 text-xs space-y-1 font-mono">
+                    <div key={rec.id} className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-lg border border-slate-200 dark:border-slate-800 text-xs space-y-1 font-mono">
                       <div className="flex justify-between text-[11px]">
-                        <span className="font-bold text-blue-400">{rec.actionLabel}</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">{rec.actionLabel}</span>
                         <span className="text-slate-500">{rec.timestamp}</span>
                       </div>
-                      <div className="text-slate-200 font-semibold">{rec.officerName}</div>
-                      <p className="text-slate-400 font-sans text-xs italic">"{rec.notes}"</p>
+                      <div className="text-slate-800 dark:text-slate-200 font-semibold">{rec.officerName}</div>
+                      <p className="text-slate-600 dark:text-slate-400 font-sans text-xs italic">"{rec.notes}"</p>
                     </div>
                   ))}
                 </div>
@@ -1008,7 +1007,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 E-Commerce Platform
               </label>
               <select
@@ -1016,14 +1015,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 onChange={(e) =>
                   setNewComplaintData({ ...newComplaintData, platform: e.target.value as PlatformType })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:outline-none font-medium"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-blue-600 focus:outline-none font-medium"
               >
-                <option>Amazon</option>
-                <option>Flipkart</option>
-                <option>Blinkit</option>
-                <option>Zepto</option>
-                <option>Meesho</option>
-                <option>Direct</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Amazon</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Flipkart</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Blinkit</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Zepto</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Meesho</option>
+                <option className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Direct</option>
               </select>
             </div>
 
@@ -1036,21 +1035,21 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Grievance Description & Discrepancy Statement
             </label>
             <textarea
               rows={3}
               value={newComplaintData.description}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, description: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 p-3 text-xs text-slate-900 dark:text-slate-100 focus:border-blue-600 focus:outline-none"
               required
             />
           </div>
 
           {/* Multi Evidence Image Upload */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Evidence Images (Packaging, Store Bill, Invoice)
             </label>
             <input
@@ -1058,13 +1057,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               multiple
               accept="image/*"
               onChange={handleFileUpload}
-              className="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950/80 dark:file:text-blue-300 dark:hover:file:bg-blue-900"
             />
 
             {uploadedFiles.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {uploadedFiles.map((f, i) => (
-                  <span key={i} className="bg-slate-100 text-slate-800 text-[10px] font-mono px-2 py-1 rounded border border-slate-200">
+                  <span key={i} className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 text-[10px] font-mono px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
                     {f.file.name} ({f.tag})
                   </span>
                 ))}
@@ -1073,13 +1072,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
 
           {isSubmitting && (
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs font-mono text-blue-800 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/60 rounded-lg border border-blue-200 dark:border-blue-800 text-xs font-mono text-blue-800 dark:text-blue-200 flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-400" />
               <span>{submissionStatusText} ({submissionProgress}%)</span>
             </div>
           )}
 
-          <div className="pt-3 border-t border-slate-200 flex justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
             <Button variant="outline" size="sm" type="button" onClick={() => setIsSubmitModalOpen(false)}>
               Cancel
             </Button>

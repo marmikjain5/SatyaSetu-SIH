@@ -154,16 +154,16 @@ export const RegulatoryRAGPortal: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Hero Header */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 sm:p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 text-slate-900 dark:text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
         {/* Left (65–70%) */}
         <div className="space-y-2 lg:max-w-[68%]">
-          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-300 bg-slate-800 border border-slate-700 tracking-wide">
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 tracking-wide">
             Hybrid Vector + Knowledge Graph RAG Engine
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             Regulatory Intelligence &amp; Guideline Assistant
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             Search official Indian gazette notifications, statutory clauses, effective date mandates, and pending rule amendments.
           </p>
         </div>
@@ -174,30 +174,30 @@ export const RegulatoryRAGPortal: React.FC = () => {
             type="button"
             onClick={handleTriggerGazetteCrawler}
             disabled={isCrawling}
-            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-750 text-xs font-semibold text-slate-200 hover:text-white transition-all disabled:opacity-50 shadow-2xs"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-all disabled:opacity-50 shadow-2xs"
           >
             <RefreshCw className={cn('h-3.5 w-3.5 text-blue-400', isCrawling && 'animate-spin')} />
             <span>{isCrawling ? 'Crawling Gazette Feeds...' : 'Crawl Gazette Feeds Now'}</span>
           </button>
 
-          <div className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700/80 bg-slate-800/60 text-xs">
+          <div className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-100 dark:bg-slate-800/60 text-xs">
             <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-            <span className="font-bold text-white">4</span>
-            <span className="text-slate-400 text-[11px]">Official Authorities Indexed</span>
+            <span className="font-bold text-slate-900 dark:text-white">4</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px]">Official Authorities Indexed</span>
           </div>
         </div>
       </div>
 
       {/* Crawled Notification Alert Banner */}
       {crawledAlert && (
-        <div className="p-3 bg-slate-900 border border-blue-500/40 text-blue-200 rounded-lg flex items-center justify-between text-xs font-mono animate-in fade-in">
+        <div className="p-3 bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-blue-500/40 text-blue-700 dark:text-blue-200 rounded-lg flex items-center justify-between text-xs font-mono animate-in fade-in">
           <div className="flex items-center gap-2">
             <RefreshCw className={cn('h-3.5 w-3.5 text-blue-400', isCrawling && 'animate-spin')} />
             <span>{crawledAlert}</span>
           </div>
           <button
             onClick={() => setCrawledAlert(null)}
-            className="text-slate-400 hover:text-white font-bold px-2 transition-colors"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold px-2 transition-colors"
           >
             ✕
           </button>
@@ -205,7 +205,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
       )}
 
       {/* Unified Horizontal Navigation Tabs */}
-      <div className="border-b border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
+      <div className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 sm:gap-6 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -215,8 +215,8 @@ export const RegulatoryRAGPortal: React.FC = () => {
               className={cn(
                 'inline-flex items-center gap-2 pb-3 pt-2 text-xs font-medium border-b-2 transition-all whitespace-nowrap -mb-px',
                 isActive
-                  ? 'border-blue-500 text-white font-semibold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                  ? 'border-blue-500 text-slate-900 dark:text-white font-semibold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
               )}
             >
               {React.cloneElement(tab.icon as React.ReactElement, {
@@ -237,7 +237,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
       {activeTab === 'search' && (
         <div className="space-y-5">
           {/* Search Box & Filters */}
-          <Card className="bg-slate-900 border-slate-800 text-white">
+          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
             <CardContent className="p-5 space-y-4">
               <div className="relative">
                 <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
@@ -246,14 +246,14 @@ export const RegulatoryRAGPortal: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ask any statutory question e.g. 'MRP tax inclusive format rule' or 'FSSAI logo 14 digit license mandate'..."
-                  className="w-full bg-slate-800 text-white placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-700 shadow-inner"
+                  className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-200 dark:border-slate-700 shadow-inner"
                 />
               </div>
 
               <div className="flex items-center justify-between flex-wrap gap-3">
                 {/* Authority Pills */}
                 <div className="flex items-center gap-2 flex-wrap text-xs">
-                  <span className="text-slate-400 font-medium flex items-center gap-1">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                     <Filter className="h-3 w-3" /> Authority:
                   </span>
                   {['all', 'Legal Metrology', 'FSSAI', 'BIS', 'CCPA'].map((auth) => (
@@ -263,7 +263,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                       className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                         selectedAuthority === auth
                           ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
                     >
                       {auth === 'all' ? 'All Authorities' : auth}
@@ -271,14 +271,14 @@ export const RegulatoryRAGPortal: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400">
                   <Calendar className="h-3.5 w-3.5 text-blue-400" />
                   <span>Evaluation Date:</span>
                   <input
                     type="date"
                     value={evaluationDate}
                     onChange={(e) => setEvaluationDate(e.target.value)}
-                    className="bg-slate-800 text-blue-300 font-bold border border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500 font-mono"
+                    className="bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-300 font-bold border border-slate-200 dark:border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500 font-mono"
                   />
                   <span className="text-emerald-400 font-semibold hidden sm:inline">(Active Rules)</span>
                 </div>
@@ -287,16 +287,16 @@ export const RegulatoryRAGPortal: React.FC = () => {
           </Card>
 
           {/* RAG Telemetry Trace Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 text-xs font-mono text-slate-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 text-xs font-mono text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2 min-w-0">
               <Cpu className="h-3.5 w-3.5 text-blue-400 shrink-0" />
               <div className="truncate">
                 <span className="text-slate-500 font-medium">RAG Pipeline:</span>{' '}
-                <span className="text-slate-200">Hybrid Vector Search + Knowledge Graph Filtered</span>{' '}
+                <span className="text-slate-700 dark:text-slate-200">Hybrid Vector Search + Knowledge Graph Filtered</span>{' '}
                 <span className="text-blue-400 font-semibold">({searchResults.matchedChunks.length} chunks retrieved)</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0 text-slate-300">
+            <div className="flex items-center gap-1.5 shrink-0 text-slate-600 dark:text-slate-300">
               <span className="text-emerald-400 font-bold">{searchResults.graphTrace.nodesTraversed}</span>
               <span className="text-slate-400">Graph Nodes Traversed</span>
             </div>
@@ -308,7 +308,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
               <Card>
                 <CardContent className="p-8 text-center space-y-2">
                   <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
-                  <h3 className="text-sm font-bold text-slate-800">No Regulatory Chunks Matched</h3>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Regulatory Chunks Matched</h3>
                   <p className="text-xs text-slate-500">
                     Try broadening your search term or selecting "All Authorities".
                   </p>
@@ -325,7 +325,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                           <Badge variant="primary" size="sm" className="font-mono">
                             {chunk.authority}
                           </Badge>
-                          <span className="text-xs font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                          <span className="text-xs font-mono text-blue-700 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/60">
                             {chunk.ruleCode}
                           </span>
                           <Badge variant="success" size="sm">
@@ -402,11 +402,11 @@ export const RegulatoryRAGPortal: React.FC = () => {
       {/* ── TAB 2: KNOWLEDGE GRAPH ───────────────────────────────────── */}
       {activeTab === 'graph' && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden text-white shadow-xs">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden text-slate-900 dark:text-white shadow-xs">
             {/* Header: Title + Subtitle on same row on desktop, NO ICON */}
-            <div className="px-5 py-3.5 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-1.5 sm:gap-4">
+            <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-1.5 sm:gap-4">
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-3">
-                <h2 className="text-base font-bold text-white tracking-tight">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                   Regulatory Knowledge Graph Topology
                 </h2>
                 <span className="text-xs text-slate-400">
@@ -419,7 +419,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
               {/* Three-Column Information Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 {/* Column 1: AUTHORITIES */}
-                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5 space-y-2.5">
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     Authorities ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'authority').length})
                   </div>
@@ -427,7 +427,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'authority').map((n) => (
                       <div
                         key={n.id}
-                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-blue-400 hover:border-slate-700 transition-colors"
+                        className="px-3 py-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
                       >
                         <span className="truncate pr-2">{n.label}</span>
                         <span className="font-mono text-[10px] text-slate-400 shrink-0">ISSUES →</span>
@@ -437,7 +437,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Column 2: ACTIVE RULES */}
-                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5 space-y-2.5">
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     Active Rules ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'rule').length})
                   </div>
@@ -445,7 +445,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'rule').map((n) => (
                       <div
                         key={n.id}
-                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-slate-200 hover:border-slate-700 transition-colors"
+                        className="px-3 py-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
                       >
                         <span className="truncate pr-2">{n.label}</span>
                         <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60 shrink-0">
@@ -457,7 +457,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Column 3: PRODUCT CATEGORIES */}
-                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 space-y-2.5">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5 space-y-2.5">
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     Product Categories ({KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'category').length})
                   </div>
@@ -465,7 +465,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                     {KNOWLEDGE_GRAPH_NODES.filter((n) => n.type === 'category').map((n) => (
                       <div
                         key={n.id}
-                        className="px-3 py-2 rounded-md border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-purple-300 hover:border-slate-700 transition-colors"
+                        className="px-3 py-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex items-center justify-between text-xs font-semibold text-purple-600 dark:text-purple-300 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
                       >
                         <span className="truncate pr-2">{n.label}</span>
                         <span className="font-mono text-[10px] text-purple-400 shrink-0">APPLIES_TO →</span>
@@ -476,10 +476,10 @@ export const RegulatoryRAGPortal: React.FC = () => {
               </div>
 
               {/* Active Knowledge Graph Edge Traversals Table */}
-              <div className="rounded-lg border border-slate-800 bg-slate-950/60 overflow-hidden text-white">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 overflow-hidden text-slate-900 dark:text-white">
                 {/* Section Header */}
-                <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60">
-                  <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60">
+                  <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Active Knowledge Graph Edge Traversals ({KNOWLEDGE_GRAPH_EDGES.length})
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -488,22 +488,22 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Table Column Headers (Fixed) */}
-                <div className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 bg-slate-900/40">
+                <div className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/40">
                   <span>Source</span>
                   <span>Relationship</span>
                   <span>Target</span>
                 </div>
 
                 {/* Scrollable Table Body */}
-                <div className="divide-y divide-slate-800/80 max-h-[320px] overflow-y-auto scrollbar-thin">
+                <div className="divide-y divide-slate-200 dark:divide-slate-800/80 max-h-[320px] overflow-y-auto scrollbar-thin">
                   {KNOWLEDGE_GRAPH_EDGES.map((edge, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2.5 text-xs transition-colors hover:bg-slate-900/40"
+                      className="grid grid-cols-[35%_20%_45%] items-center px-4 py-2.5 text-xs transition-colors hover:bg-slate-100 dark:hover:bg-slate-900/40"
                     >
                       {/* Source Column */}
                       <span
-                        className="font-mono text-blue-400 truncate pr-3"
+                        className="font-mono text-blue-600 dark:text-blue-400 truncate pr-3"
                         title={edge.source}
                       >
                         {edge.source}
@@ -518,7 +518,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
 
                       {/* Target Column */}
                       <span
-                        className="font-mono text-slate-300 truncate pr-2"
+                        className="font-mono text-slate-700 dark:text-slate-300 truncate pr-2"
                         title={edge.target}
                       >
                         {edge.target}
@@ -528,7 +528,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Subtle Table Footer */}
-                <div className="px-4 py-2 border-t border-slate-800 bg-slate-900/40 text-[11px] font-mono text-slate-500 flex items-center justify-between">
+                <div className="px-4 py-2 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/40 text-[11px] font-mono text-slate-500 dark:text-slate-500 flex items-center justify-between">
                   <span>
                     Showing {KNOWLEDGE_GRAPH_EDGES.length} of {KNOWLEDGE_GRAPH_EDGES.length} traversals
                   </span>
@@ -545,12 +545,12 @@ export const RegulatoryRAGPortal: React.FC = () => {
         <div className="space-y-4">
           {/* Human Review Action Alert */}
           {pendingRulesCount > 0 && (
-            <div className="p-4 rounded-xl border border-amber-500/40 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-xs">
+            <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-500/40 bg-amber-50 dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-900 dark:text-white shadow-xs">
               <div>
-                <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                <div className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                   Human Review Action Required
                 </div>
-                <p className="text-xs text-slate-300 mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
                   {pendingRulesCount} proposed rule version(s) pending human officer review. Unapproved rules will NOT reach the Compliance Engine.
                 </p>
               </div>
@@ -565,16 +565,16 @@ export const RegulatoryRAGPortal: React.FC = () => {
             {ruleRegistry.map((rule) => (
               <div
                 key={rule.ruleId}
-                className="rounded-xl border border-slate-800 bg-slate-900 text-white overflow-hidden shadow-xs"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden shadow-xs"
               >
                 {/* Rule Header */}
                 <div className="p-4 sm:p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-blue-400 font-bold text-xs bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60">
+                      <span className="font-mono text-blue-600 dark:text-blue-400 font-bold text-xs bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/60">
                         {rule.code}
                       </span>
-                      <span className="text-xs font-medium text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                         {rule.authority}
                       </span>
                       <span
@@ -596,7 +596,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-white tracking-tight mt-2">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight mt-2">
                     {rule.title}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5 font-mono">
@@ -605,12 +605,12 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Sub-Header */}
-                <div className="px-4 sm:px-5 py-2 bg-slate-950/60 border-t border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="px-4 sm:px-5 py-2 bg-slate-50 dark:bg-slate-950/60 border-t border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Rule Version History &amp; Human Approvals
                 </div>
 
                 {/* Table Header (Desktop) */}
-                <div className="hidden lg:grid grid-cols-[80px_130px_110px_1fr_180px_170px] items-center px-4 sm:px-5 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/30 border-b border-slate-800">
+                <div className="hidden lg:grid grid-cols-[80px_130px_110px_1fr_180px_170px] items-center px-4 sm:px-5 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-950/30 border-b border-slate-200 dark:border-slate-800">
                   <span>Version</span>
                   <span>Status</span>
                   <span>Effective</span>
@@ -620,7 +620,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Version Rows */}
-                <div className="divide-y divide-slate-800/80">
+                <div className="divide-y divide-slate-200 dark:divide-slate-800/80">
                   {rule.versions.map((ver) => (
                     <div
                       key={ver.versionId}
@@ -634,7 +634,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                       {/* Desktop Grid Row */}
                       <div className="hidden lg:grid grid-cols-[80px_130px_110px_1fr_180px_170px] items-start gap-3">
                         {/* Version */}
-                        <span className="font-mono text-xs font-bold text-white pt-0.5">
+                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white pt-0.5">
                           v{ver.versionNumber}.0
                         </span>
 
@@ -655,12 +655,12 @@ export const RegulatoryRAGPortal: React.FC = () => {
                         </div>
 
                         {/* Effective */}
-                        <span className="text-xs font-mono text-slate-300 pt-0.5">
+                        <span className="text-xs font-mono text-slate-600 dark:text-slate-300 pt-0.5">
                           {ver.effectiveFrom}
                         </span>
 
                         {/* Summary */}
-                        <p className="text-xs text-slate-300 leading-relaxed pr-2">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pr-2">
                           {ver.changeSummary}
                         </p>
 
@@ -707,7 +707,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                       <div className="lg:hidden space-y-2 text-xs">
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-white">
+                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
                               v{ver.versionNumber}.0
                             </span>
                             <span
@@ -728,9 +728,9 @@ export const RegulatoryRAGPortal: React.FC = () => {
                           </span>
                         </div>
 
-                        <p className="text-slate-300 leading-relaxed">{ver.changeSummary}</p>
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{ver.changeSummary}</p>
 
-                        <div className="text-[11px] font-mono text-slate-400 space-y-0.5 pt-1 border-t border-slate-800/60">
+                        <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 space-y-0.5 pt-1 border-t border-slate-200 dark:border-slate-800/60">
                           <div>Proposed: {ver.proposedBy}</div>
                           {ver.approvedBy && (
                             <div>Approved: {ver.approvedBy} ({ver.approvedAt})</div>
@@ -780,16 +780,16 @@ export const RegulatoryRAGPortal: React.FC = () => {
             return (
               <div
                 key={src.id}
-                className="rounded-xl border border-slate-800 bg-slate-900 text-white p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-700 transition-colors"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 {/* Header: Abbreviation Badge + Authority Name + Description */}
                 <div className="space-y-2.5">
                   <div className="flex items-start gap-2.5">
-                    <span className="font-mono text-xs font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60 shrink-0 mt-0.5">
+                    <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/60 shrink-0 mt-0.5">
                       {abbr}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
                         {src.name}
                       </h3>
                     </div>
@@ -801,12 +801,12 @@ export const RegulatoryRAGPortal: React.FC = () => {
                 </div>
 
                 {/* Compact Metadata Block */}
-                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5 text-xs font-mono">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3 space-y-1.5 text-xs font-mono">
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                     <span className="text-slate-500 font-medium sm:w-32 shrink-0">
                       Gazette Reference:
                     </span>
-                    <span className="text-slate-300 truncate" title={src.gazetteRef}>
+                    <span className="text-slate-700 dark:text-slate-300 truncate" title={src.gazetteRef}>
                       {src.gazetteRef}
                     </span>
                   </div>
@@ -814,14 +814,14 @@ export const RegulatoryRAGPortal: React.FC = () => {
                     <span className="text-slate-500 font-medium sm:w-32 shrink-0">
                       Document Types:
                     </span>
-                    <span className="text-slate-300 truncate" title={src.documentTypes.join(', ')}>
+                    <span className="text-slate-700 dark:text-slate-300 truncate" title={src.documentTypes.join(', ')}>
                       {src.documentTypes.join(', ')}
                     </span>
                   </div>
                 </div>
 
                 {/* Official Portal Link Footer */}
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                   <a
                     href={src.baseUrl}
                     target="_blank"
