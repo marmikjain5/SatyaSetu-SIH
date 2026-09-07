@@ -139,6 +139,15 @@ export interface Manufacturer {
   fssaiLicenseNo?: string;
 }
 
+/** Shop/store location captured via Google Maps Places Autocomplete */
+export interface ShopLocation {
+  name: string;          // e.g. "D-Mart, Andheri West"
+  address: string;       // full human-readable address
+  coordinates: { lat: number; lng: number };
+  googleMapsUrl: string; // https://maps.google.com/?q=...
+  placeId?: string;      // Google Place ID (when real API is used)
+}
+
 /** Standardized Complaint Categories for Deterministic Classification */
 export type ComplaintCategoryCode =
   | 'missing_mrp'
@@ -296,6 +305,8 @@ export interface Complaint {
   aiMatchedRule: string;
   needsReview?: boolean;
   scannerDetectedDiscrepancies?: ScannerDiscrepancyItem[];
+  /** Physical shop/store where the consumer purchased the product */
+  shopLocation?: ShopLocation;
 }
 
 export interface RegulatoryRule {

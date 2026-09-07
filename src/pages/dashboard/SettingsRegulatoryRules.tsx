@@ -5,7 +5,6 @@ import {
   Cpu,
   CheckCircle2,
   AlertTriangle,
-  Sliders,
   RotateCcw,
   Save,
   Plus,
@@ -35,11 +34,7 @@ export const SettingsRegulatoryRules: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 w-fit">
-            <Sliders className="h-3.5 w-3.5 text-blue-600" />
-            <span>Gazette Dynamic Hot-Reload Engine</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Regulatory Rule Engine & Policy Configuration
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">

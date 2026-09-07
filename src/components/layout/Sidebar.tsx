@@ -8,7 +8,6 @@ import {
   Building2,
   MessageSquareWarning,
   LineChart,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -16,7 +15,6 @@ import {
   ExternalLink,
   BookOpen,
   Factory,
-  Scale,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -110,20 +108,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed })
       label: 'Factory Hygiene',
       icon: Factory,
       roles: ['admin', 'inspector'],
-    },
-    {
-      to: '/dashboard/legal-review',
-      label: 'AI Legal Review',
-      icon: Scale,
-      badge: 'AI',
-      badgeVariant: 'warning' as const,
-      roles: ['admin'],
-    },
-    {
-      to: '/dashboard/settings',
-      label: 'Settings',
-      icon: Settings,
-      roles: ['admin'],
     },
   ];
 

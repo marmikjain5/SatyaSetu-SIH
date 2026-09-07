@@ -86,16 +86,7 @@ export const OverviewDashboard: React.FC = () => {
       {/* Top Banner / Role Welcome */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
-              {user?.department || 'CCPA Regulatory Intelligence'}
-            </span>
-            <span className="text-slate-400">•</span>
-            <span className="text-xs font-mono text-slate-500">
-              National Metrology Grid v4.8
-            </span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Welcome, {user?.name || 'Administrator'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">

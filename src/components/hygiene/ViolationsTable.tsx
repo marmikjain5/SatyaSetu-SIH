@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
   CheckCircle2,
@@ -10,7 +9,6 @@ import {
   Eye,
   Activity,
   FileText,
-  Scale,
 } from 'lucide-react';
 import { HygieneViolation } from '../../types/hygiene';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
@@ -46,7 +44,6 @@ const evidenceIcons: Record<string, React.ElementType> = {
 
 export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, onResolve, onEscalate }) => {
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
-  const navigate = useNavigate();
 
   const sorted = [...violations].sort((a, b) => {
     const statusOrder = { open: 0, escalated: 1, remediated: 2 };
@@ -54,12 +51,6 @@ export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, on
     const sevOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     return sevOrder[a.severity] - sevOrder[b.severity];
   });
-
-  const handleReviewWithAI = (violation: HygieneViolation) => {
-    navigate('/dashboard/legal-review', {
-      state: { hygieneViolation: violation },
-    });
-  };
 
   return (
     <Card>
@@ -159,10 +150,6 @@ export const ViolationsTable: React.FC<ViolationsTableProps> = ({ violations, on
                           <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => onEscalate(v.id)}>
                             <ArrowUpRight className="h-3.5 w-3.5" />
                             Escalate
-                          </Button>
-                          <Button variant="secondary" size="sm" className="text-xs gap-1" onClick={() => handleReviewWithAI(v)}>
-                            <Scale className="h-3.5 w-3.5" />
-                            Review with AI
                           </Button>
                         </div>
                       )}

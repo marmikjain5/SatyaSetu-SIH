@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Camera, UploadCloud, Loader2, AlertTriangle, ShieldAlert, CheckCircle2, Scale, PlusCircle } from 'lucide-react';
+import { UploadCloud, Loader2, AlertTriangle, ShieldAlert, CheckCircle2, PlusCircle, Sparkles } from 'lucide-react';
 import { useHygieneStore } from '../../store/hygieneStore';
 import { HygieneViolation } from '../../types/hygiene';
 import { analyzeFactoryImage, VisualInspectionResult, VisionFinding } from '../../lib/hygieneVisionService';
@@ -19,7 +18,6 @@ export const FactoryImageInspection: React.FC = () => {
   const [createdViolations, setCreatedViolations] = useState<Record<string, HygieneViolation>>({});
 
   const { factories, addViolation } = useHygieneStore();
-  const navigate = useNavigate();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -84,23 +82,13 @@ export const FactoryImageInspection: React.FC = () => {
     setCreatedViolations((prev) => ({ ...prev, [finding.id]: violation }));
   };
 
-  const handleReviewWithAI = (violation: HygieneViolation) => {
-    navigate('/dashboard/legal-review', {
-      state: { hygieneViolation: violation },
-    });
-  };
-
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle>
-              <Camera className="h-5 w-5 text-indigo-600" />
-              AI Visual Inspection
-            </CardTitle>
-            <Badge variant="primary" size="sm" dot>PROTOTYPE AI VISION</Badge>
-          </div>
+          <CardTitle>
+            AI Visual Inspection
+          </CardTitle>
           <p className="text-xs text-slate-500">
             Upload an image of the factory floor to run prototype AI vision analysis for hygiene violations.
           </p>
@@ -150,7 +138,7 @@ export const FactoryImageInspection: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Camera className="h-4 w-4 mr-2" />
+                        <Sparkles className="h-4 w-4 mr-2" />
                         Analyze Image
                       </>
                     )}
@@ -255,15 +243,9 @@ export const FactoryImageInspection: React.FC = () => {
                         
                         <div className="flex justify-end gap-2">
                           {createdViolations[finding.id] ? (
-                            <Button 
-                              variant="secondary" 
-                              size="sm" 
-                              className="text-xs"
-                              onClick={() => handleReviewWithAI(createdViolations[finding.id])}
-                            >
-                              <Scale className="h-3.5 w-3.5 mr-1.5" />
-                              Review with AI
-                            </Button>
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                              ✓ Violation Logged
+                            </span>
                           ) : (
                             <Button 
                               variant="outline" 

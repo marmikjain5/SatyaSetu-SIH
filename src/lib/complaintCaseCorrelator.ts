@@ -29,20 +29,23 @@ import type {
   ScannerDiscrepancyItem,
   RegulatoryMappingItem,
   SupportedLanguage,
+  ShopLocation,
 } from '../types/compliance';
 
 export interface ComplaintSubmissionInput {
   language?: SupportedLanguage;
   consumerName: string;
   consumerEmail: string;
-  consumerPhone: string;
-  productName: string;
+  consumerPhone?: string;
+  productName?: string;  // optional — derived from shop context when not set
   brand?: string;
-  platform: PlatformType;
+  platform?: PlatformType;
   productUrl?: string;
   orderNumber?: string;
   description: string;
   evidenceInputs: ProcessedEvidenceInput[];
+  /** Physical shop selected via Google Maps Places */
+  shopLocation?: ShopLocation;
 }
 
 /**
@@ -80,7 +83,7 @@ export async function buildEvidenceBackedComplaintCase(
 
   // Run Label Rule Engine Validation on extracted OCR data (detecting missing MRP, net qty, address, importer, etc.)
   const mockProductData: ExtractedProductData = {
-    productName: input.productName,
+    productName: input.productName || input.shopLocation?.name || 'Physical Retail Purchase',
     mrp: ocrOut.consolidatedSummary.declaredMrp || '',
     unitSalePrice: '',
     netQuantity: ocrOut.consolidatedSummary.netQuantity || '',
@@ -238,10 +241,10 @@ export async function buildEvidenceBackedComplaintCase(
     language: input.language || 'en',
     consumerName: input.consumerName,
     consumerEmail: input.consumerEmail,
-    consumerPhone: input.consumerPhone,
-    productName: input.productName,
+    consumerPhone: input.consumerPhone || '',
+    productName: input.productName || input.shopLocation?.name || 'Physical Retail Purchase',
     brand: input.brand || 'Unspecified Brand',
-    platform: input.platform,
+    platform: input.platform || (input.shopLocation ? 'Direct' : 'Direct') as PlatformType,
     productUrl: input.productUrl,
     orderNumber: input.orderNumber || `OD-${Math.floor(100000 + Math.random() * 900000)}`,
     category: classification.categoryLabel,
@@ -261,6 +264,7 @@ export async function buildEvidenceBackedComplaintCase(
     aiMatchedRule,
     needsReview: classification.needsReview,
     scannerDetectedDiscrepancies,
+    shopLocation: input.shopLocation,
   };
 
   onProgress?.(100, 'Complaint Case Dossier Successfully Built');

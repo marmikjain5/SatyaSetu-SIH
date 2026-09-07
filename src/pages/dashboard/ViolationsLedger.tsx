@@ -81,11 +81,7 @@ export const ViolationsLedger: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-red-700 bg-red-50 px-2.5 py-0.5 rounded border border-red-200 w-fit">
-            <ShieldAlert className="h-3.5 w-3.5" />
-            <span>Statutory Enforcement Registry · Bengaluru City Circle</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Violations & Enforcement Ledger
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">

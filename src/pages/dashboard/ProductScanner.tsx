@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ScanLine,
   Images,
   BarChart3,
   Activity,
@@ -87,19 +86,7 @@ export const ProductScanner: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className={`flex items-center gap-2 text-xs font-semibold px-2.5 py-0.5 rounded border w-fit ${
-            isManufacturer
-              ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
-              : 'text-blue-700 bg-blue-50 border-blue-200'
-          }`}>
-            <ScanLine className="h-3.5 w-3.5" />
-            <span>
-              {isManufacturer
-                ? 'Brand Packaging & Statutory Declaration Self-Audit'
-                : 'OCR Label Scanning Engine'}
-            </span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             {isManufacturer ? 'Product Packaging & Declaration Upload' : 'Product Scanner'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">

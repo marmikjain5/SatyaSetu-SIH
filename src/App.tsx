@@ -13,8 +13,6 @@ import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanki
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonitoring';
-import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
-import { SettingsRegulatoryRules } from './pages/dashboard/SettingsRegulatoryRules';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { ManufacturerHygieneCertification } from './pages/dashboard/ManufacturerHygieneCertification';
 
@@ -44,9 +42,9 @@ export function App() {
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
           <Route path="factory-hygiene" element={<FactoryHygieneMonitoring />} />
-          <Route path="legal-review" element={<AILegalReviewAgent />} />
           <Route path="factory-certification" element={<ManufacturerHygieneCertification />} />
-          <Route path="settings" element={<SettingsRegulatoryRules />} />
+          <Route path="legal-review" element={<Navigate to="/dashboard" replace />} />
+          <Route path="settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
 
         {/* Fallback */}
