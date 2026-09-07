@@ -27,6 +27,8 @@ import {
   Loader2,
   Image as ImageIcon,
   FileCheck2,
+  Languages,
+  Wand2,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -34,6 +36,7 @@ import {
   PlatformType,
   OfficerActionType,
   EvidenceTag,
+  SupportedLanguage,
 } from '../../types/compliance';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -43,11 +46,14 @@ import { Modal } from '../../components/ui/Modal';
 import { buildEvidenceBackedComplaintCase } from '../../lib/complaintCaseCorrelator';
 import { ProcessedEvidenceInput } from '../../lib/complaintOcrPipeline';
 import { useAuthStore } from '../../store/authStore';
+import { useLanguageStore } from '../../store/languageStore';
+import { transliterateText } from '../../lib/indicTransliteration';
 import { cn } from '../../lib/utils';
 
 export const ConsumerComplaintsPortal: React.FC = () => {
   const { user } = useAuthStore();
   const isConsumer = user?.role === 'consumer';
+  const { language, setLanguage, t } = useLanguageStore();
   const { complaints, addFullComplaint, updateOfficerDecision } = useComplianceStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,11 +131,17 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     setUploadedFiles((prev) => [...prev, ...newItems]);
   };
 
+  const handleTransliterate = () => {
+    if (!newComplaintData.description) return;
+    const converted = transliterateText(newComplaintData.description, language);
+    setNewComplaintData((prev) => ({ ...prev, description: converted }));
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmissionProgress(10);
-    setSubmissionStatusText('Ingesting Evidence & Running Multi-Pass OCR Pipeline...');
+    setSubmissionStatusText(t('submittingBtn'));
 
     try {
       const evidenceInputs: ProcessedEvidenceInput[] = uploadedFiles.map((f) => ({
@@ -140,6 +152,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
       const fullCase = await buildEvidenceBackedComplaintCase(
         {
+          language,
           consumerName: newComplaintData.consumerName,
           consumerEmail: newComplaintData.consumerEmail,
           consumerPhone: newComplaintData.consumerPhone,
@@ -198,6 +211,35 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Multilingual Language Selector Bar */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <Languages className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <span>{t('selectLanguage')}:</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'hi', label: 'हिन्दी' },
+            { code: 'kn', label: 'ಕನ್ನಡ' },
+            { code: 'ta', label: 'தமிழ்' },
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => setLanguage(lang.code as SupportedLanguage)}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                language === lang.code
+                  ? 'bg-blue-600 text-white shadow-sm font-bold ring-2 ring-blue-500/20'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Header */}
       <div className={`rounded-xl border p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
         isConsumer
@@ -222,14 +264,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {isConsumer
-              ? 'Consumer Grievance & Deceptive Packaging Portal'
+              ? t('portalTitle')
               : isInspector
               ? 'Assigned Grievance & Field Investigation Docket'
               : 'National Grievance Adjudication & Dossier Stream'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {isConsumer
-              ? 'Official citizen filing gateway for deceptive packaging, overprinted dual MRP, and deceptive volume shortfalls. Lodge grievances and track investigation progress in real time.'
+              ? t('portalSubtitle')
               : isInspector
               ? 'Review consumer packaging & pricing grievances routed to your jurisdiction for physical retail verification and evidence collection.'
               : 'Central CCPA Directorate console for triaging consumer complaints, validating evidence-backed OCR correlations, and dispatching statutory Section 36 Show Cause Notices.'}
@@ -252,7 +294,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             <Plus className="h-4 w-4" />
             <span>
               {isConsumer
-                ? 'Lodge New Grievance / Complaint'
+                ? t('lodgeGrievanceBtn')
                 : isInspector
                 ? 'Log Field Inspection Sample'
                 : 'Ingest / Simulate Grievance Case'}
@@ -265,49 +307,49 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            {isConsumer ? 'Total Grievances Registered' : 'Total Complaints Filed'}
+            {t('metricsTotalRegistered')}
           </span>
           <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
-            {complaints.length} Cases
+            {complaints.length}
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isConsumer ? 'Active in National Registry' : 'Auto-Triaged via Deterministic OCR'}
+            {t('metricsTotalSub')}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            {isConsumer ? 'Under Technical Review' : 'Needs Human Review'}
+            {t('metricsUnderReview')}
           </span>
           <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
-            {needsReviewCount} Pending
+            {needsReviewCount}
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isConsumer ? 'Evidence Under OCR Audit' : 'Confidence < 60% Triage Threshold'}
+            {t('metricsReviewSub')}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            {isConsumer ? 'Notices Issued to Brands' : 'Under Active Investigation'}
+            {t('metricsActiveNotice')}
           </span>
           <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
-            {inInvestigationCount} Docketed
+            {inInvestigationCount}
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isConsumer ? 'Show Cause Inquiries Active' : 'Show-Cause Notices Issued'}
+            {t('metricsNoticeSub')}
           </span>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            {isConsumer ? 'Resolved / Redressed' : 'Resolved & Recovered'}
+            {t('metricsResolved')}
           </span>
           <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono my-1.5">
-            {resolvedCount} Cases
+            {resolvedCount}
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isConsumer ? 'Grievances Satisfied' : 'Officer Verified Determinations'}
+            {t('metricsResolvedSub')}
           </span>
         </div>
       </div>
@@ -317,7 +359,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-8">
             <Input
-              placeholder="Search Ticket ID, Citizen, Product, Brand, Category, or Rule..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               icon={<Search className="h-4 w-4 text-slate-400" />}
@@ -332,7 +374,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             >
               {statuses.map((st) => (
                 <option key={st} value={st} className="bg-white text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                  Filter Status: {st}
+                  {t('filterByStatus')}: {st}
                 </option>
               ))}
             </select>
@@ -603,9 +645,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Section 1: Complainant Statement */}
                   <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-amber-400 font-bold uppercase text-[11px] font-mono tracking-wider">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-                      <span>1. Complainant Free-Text Allegation</span>
+                    <div className="flex items-center justify-between text-amber-400 font-bold uppercase text-[11px] font-mono tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                        <span>1. Complainant Free-Text Allegation</span>
+                      </div>
+                      <Badge variant="outline" className="font-mono text-[10px] bg-blue-950 text-blue-400 border-blue-800 uppercase">
+                        Language: {selectedComplaint.language ? selectedComplaint.language.toUpperCase() : 'EN'}
+                      </Badge>
                     </div>
                     <div className="p-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 text-xs leading-relaxed italic">
                       "{selectedComplaint.description}"
@@ -970,20 +1017,20 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       <Modal
         isOpen={isSubmitModalOpen}
         onClose={() => setIsSubmitModalOpen(false)}
-        title="Citizen Vigilance: Lodge Packaging / MRP Grievance Dossier"
-        subtitle="Multi-Evidence Processing, Deterministic Classification & Regulatory RAG Ingestion"
+        title={t('newGrievanceTitle')}
+        subtitle={t('newGrievanceSubtitle')}
         maxWidth="2xl"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3.5">
             <Input
-              label="Consumer Full Name"
+              label={t('consumerNameLabel')}
               value={newComplaintData.consumerName}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, consumerName: e.target.value })}
               required
             />
             <Input
-              label="Consumer Email"
+              label={t('emailLabel')}
               type="email"
               value={newComplaintData.consumerEmail}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, consumerEmail: e.target.value })}
@@ -993,13 +1040,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3.5">
             <Input
-              label="Product Title"
+              label={t('productNameLabel')}
               value={newComplaintData.productName}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, productName: e.target.value })}
               required
             />
             <Input
-              label="Brand / Manufacturer"
+              label={t('brandLabel')}
               value={newComplaintData.brand}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, brand: e.target.value })}
               required
@@ -1008,15 +1055,15 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                E-Commerce Platform
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {t('platformLabel')}
               </label>
               <select
                 value={newComplaintData.platform}
                 onChange={(e) =>
                   setNewComplaintData({ ...newComplaintData, platform: e.target.value as PlatformType })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:outline-none font-medium"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-blue-600 focus:outline-none font-medium"
               >
                 <option>Amazon</option>
                 <option>Flipkart</option>
@@ -1028,7 +1075,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             </div>
 
             <Input
-              label="Product Listing URL (Optional)"
+              label={t('productUrlLabel')}
               placeholder="https://amazon.in/dp/..."
               value={newComplaintData.productUrl}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, productUrl: e.target.value })}
@@ -1036,22 +1083,38 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Grievance Description & Discrepancy Statement
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                {t('descriptionLabel')}
+              </label>
+              {language !== 'en' && (
+                <button
+                  type="button"
+                  onClick={handleTransliterate}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  <span>{t('transliterateBtn')}</span>
+                </button>
+              )}
+            </div>
             <textarea
               rows={3}
               value={newComplaintData.description}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, description: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none"
+              placeholder={t('descriptionPlaceholder')}
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-xs text-slate-900 dark:text-white focus:border-blue-600 focus:outline-none"
               required
             />
+            <div className="mt-1 text-[10px] text-slate-500 font-mono">
+              {t('transliterationHelp')}
+            </div>
           </div>
 
           {/* Multi Evidence Image Upload */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Evidence Images (Packaging, Store Bill, Invoice)
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              {t('evidenceHeader')}
             </label>
             <input
               type="file"
@@ -1064,7 +1127,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {uploadedFiles.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {uploadedFiles.map((f, i) => (
-                  <span key={i} className="bg-slate-100 text-slate-800 text-[10px] font-mono px-2 py-1 rounded border border-slate-200">
+                  <span key={i} className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[10px] font-mono px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
                     {f.file.name} ({f.tag})
                   </span>
                 ))}
@@ -1073,19 +1136,19 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
 
           {isSubmitting && (
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs font-mono text-blue-800 flex items-center gap-2">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/60 rounded-lg border border-blue-200 dark:border-blue-800 text-xs font-mono text-blue-800 dark:text-blue-300 flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
               <span>{submissionStatusText} ({submissionProgress}%)</span>
             </div>
           )}
 
-          <div className="pt-3 border-t border-slate-200 flex justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
             <Button variant="outline" size="sm" type="button" onClick={() => setIsSubmitModalOpen(false)}>
-              Cancel
+              {t('cancelBtn')}
             </Button>
-            <Button variant="primary" size="sm" type="submit" className="gap-1.5 bg-blue-700 hover:bg-blue-800">
+            <Button variant="primary" size="sm" type="submit" className="gap-1.5 bg-blue-700 hover:bg-blue-800 text-white">
               <Send className="h-3.5 w-3.5" />
-              <span>Process & Submit Dossier</span>
+              <span>{t('submitComplaintBtn')}</span>
             </Button>
           </div>
         </form>

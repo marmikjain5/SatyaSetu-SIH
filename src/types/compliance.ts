@@ -264,9 +264,12 @@ export interface ScannerDiscrepancyItem {
   ragMapping?: RegulatoryMappingItem;
 }
 
+export type SupportedLanguage = 'en' | 'hi' | 'kn' | 'ta';
+
 export interface Complaint {
   id: string;
   ticketId: string;
+  language?: SupportedLanguage;
   consumerName: string;
   consumerEmail: string;
   consumerPhone: string;
