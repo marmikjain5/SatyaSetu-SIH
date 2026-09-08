@@ -297,6 +297,9 @@ function buildSurpriseInspectionHtmlEmail(
     timeStyle: 'medium',
   });
 
+  const fullAddress = `${options.factoryName}, ${options.location}, ${options.city}, ${options.state}, India`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -315,6 +318,8 @@ function buildSurpriseInspectionHtmlEmail(
     .factory-card { background: #eff6ff; border-left: 4px solid #2563eb; padding: 16px; border-radius: 6px; margin: 20px 0; }
     .score-badge { display: inline-block; background: ${options.overallScore < 60 ? '#dc2626' : options.overallScore < 80 ? '#d97706' : '#16a34a'}; color: white; padding: 3px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
     .directive-box { background: #fffbebfb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 6px; margin: 20px 0; }
+    .maps-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px 16px; border-radius: 8px; margin: 16px 0; }
+    .maps-btn { display: inline-block; background-color: #16a34a; color: #ffffff !important; text-decoration: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; font-size: 12px; margin-top: 8px; }
     .footer { background: #f8fafc; text-align: center; padding: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; }
   </style>
 </head>
@@ -356,6 +361,20 @@ function buildSurpriseInspectionHtmlEmail(
         <div class="meta-item" style="margin-top: 4px;">
           <span class="meta-label">Active Alerts:</span> <strong>${options.activeAlerts} alerts</strong> | 
           <span class="meta-label" style="width: auto;">Open Violations:</span> <strong>${options.openViolationsCount} open</strong>
+        </div>
+      </div>
+
+      <!-- ── Google Maps Navigation Box ── -->
+      <div class="maps-box">
+        <div style="font-weight: bold; color: #15803d; font-size: 13px;">📍 FACTORY LOCATION & NAVIGATION</div>
+        <div style="font-size: 12px; color: #166534; margin-top: 4px;">
+          <strong>Target Address:</strong> ${options.location}, ${options.city}, ${options.state}
+        </div>
+        <a href="${mapsUrl}" target="_blank" class="maps-btn">
+          🗺️ Open Directions on Google Maps &rarr;
+        </a>
+        <div style="font-size: 10px; color: #15803d; margin-top: 6px; word-break: break-all;">
+          Direct Link: <a href="${mapsUrl}" target="_blank" style="color: #15803d;">${mapsUrl}</a>
         </div>
       </div>
 
