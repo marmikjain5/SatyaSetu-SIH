@@ -31,23 +31,26 @@ Carefully inspect all text, labels, stamps, dot-matrix imprints, symbols, and ta
 Extract the following statutory declarations into exact JSON:
 {
   "productName": "Generic or common name of commodity / brand title",
-  "mrp": "Maximum Retail Price number only (e.g. 10.00 or 350.00)",
-  "mrpRaw": "Exact raw text of MRP clause (e.g. MRP Rs. 10.00 incl. of all taxes)",
-  "unitSalePrice": "Unit Sale Price (e.g. Rs. 0.50 / g or Rs. 1.20 / ml)",
-  "netQuantity": "Net weight/volume/count in metric units (e.g. 20 g, 350 ml, 100 g)",
-  "manufacturer": "Name of manufacturer or packer company",
-  "manufacturerAddress": "Complete premises address with PIN code",
-  "manufacturingDate": "Date of manufacture/packing (e.g. MM/YYYY, DD/MM/YYYY, or MAR 2025)",
-  "expiryDate": "Expiry / Best Before / Use By date (e.g. MM/YYYY or FEB 2026)",
-  "batchNumber": "Batch or Lot number",
-  "countryOfOrigin": "Country of Origin / Manufacture (e.g. India)",
+  "mrp": "Maximum Retail Price number only (e.g. 10.00 or 350.00, or null if unprinted/blank)",
+  "mrpRaw": "Exact raw text of MRP clause (e.g. MRP Rs. 10.00 incl. of all taxes, or null if blank)",
+  "unitSalePrice": "Unit Sale Price (e.g. Rs. 0.50 / g or Rs. 1.20 / ml, or null if not declared)",
+  "netQuantity": "Net weight/volume/count in metric units (e.g. 500 g, 20 g, 350 ml)",
+  "manufacturer": "Name of manufacturer, packer, or marketer company (Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', or brand company name)",
+  "manufacturerAddress": "Complete premises address with 6-digit PIN code (Look for 'Packed & Marketed by', 'Manufactured by', or any company address with PIN code)",
+  "manufacturingDate": "Date of manufacture/packing (e.g. MM/YYYY, DD/MM/YYYY, or null if blank)",
+  "expiryDate": "Expiry / Best Before / Use By date (e.g. MM/YYYY, or null if blank)",
+  "batchNumber": "Batch or Lot number (e.g. BN: 1234, or null if blank)",
+  "countryOfOrigin": "Country of Origin / Manufacture (e.g. Product of India, Made in India)",
   "customerCare": "Consumer grievance redressal toll-free number or email",
   "fssaiLicense": "14-digit FSSAI license number (if food item)",
   "vegNonVeg": "VEG (Green dot in square) or NON-VEG (Brown triangle in square) or NONE",
-  "rawDetectedText": "Complete transcription of all visible text"
+  "rawDetectedText": "Key transcript of declared text on package"
 }
 
-If a field is not visible in the image, set its value to null or empty string. Return ONLY the JSON object without markdown fences or extra explanations.
+IMPORTANT:
+- If a field box is blank/unprinted (like an empty MRP or Batch box), set its value to null.
+- For manufacturer and address: Extract the full company name and premises address including the 6-digit postal PIN code from 'Packed & Marketed by' or 'Manufactured by' panels.
+Return ONLY the JSON object without markdown fences or extra explanations.
 """
 
 def encode_image_to_base64(image_path_or_bytes: Any, max_dimension: int = 768) -> str:

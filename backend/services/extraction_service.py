@@ -89,10 +89,12 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
         r"\b([\d.]+)\s*(g|kg|ml|l|mg|pieces?|units?|nos?|pcs?)\b",
     ],
 
-    # PCR-2011-R6(1)(d) — Manufacturer / Packer Address
+    # PCR-2011-R6(1)(d) — Manufacturer / Packer / Marketer Address
     "manufacturerAddress": [
-        r"(?:Mfg\.|Manufactured\s*by|Packed\s*by|Packer|Manufacturer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|FSSAI|MRP|$)",
-        r"(?:Mfg\.|Manufactured\s*by)[:\-\s]+([A-Za-z0-9\s,\-\.]+,[^\n]+[1-9][0-9]{5}[^\n]*)",
+        r"(?:Packed\s*&\s*Marketed\s*by|Marketed\s*by|Mfg\.|Manufactured\s*by|Packed\s*by|Packer|Manufacturer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|FSSAI|MRP|LIC|$)",
+        r"(?:Mfg\.|Manufactured\s*by|Marketed\s*by|Packed\s*by)[:\-\s]+([A-Za-z0-9\s,\-\.]+,[^\n]+[1-9][0-9]{5}[^\n]*)",
+        r"([A-Za-z0-9\s,\-\.]+\b(?:Karnataka|Maharashtra|Tamil\s*Nadu|Delhi|Gujarat|Rajasthan|Haryana|Punjab|Bengal|Telangana|Andhra|Kerala|UP|MP)\b[^\n]*\b[1-9][0-9]{5}\b)",
+        r"([^\n]+?\b[1-9][0-9]{5}\b)",
     ],
 
     # PCR-2011-R6(1)(e) — Date of Manufacture / Packing
