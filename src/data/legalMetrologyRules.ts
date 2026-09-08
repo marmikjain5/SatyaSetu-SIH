@@ -292,8 +292,6 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     validatorKey: 'validateDualMRP',
     penaltyRange: { minFine: 2000, maxFine: 50000 },
     recommendations: [
-    penaltyRange: { minFine: 2000, maxFine: 50000 },
-    recommendations: [
       'Declare only one MRP on any package — no stickers over old prices permitted.',
       'Do not sell at a price exceeding the printed MRP.',
       'For season-end discounts, issue separately labelled batch with updated MRP.',
