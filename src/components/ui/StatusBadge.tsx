@@ -11,10 +11,6 @@ export type StatusType =
   | 'non-compliant'
   | 'under-review'
   | 'notice-issued'
-  | 'critical'
-  | 'high'
-  | 'medium'
-  | 'low'
   | string;
 
 interface StatusBadgeProps {
@@ -48,18 +44,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   } else if (normalized === 'non-compliant') {
     variant = 'danger';
     label = 'NON-COMPLIANT';
-  } else if (normalized === 'critical') {
-    variant = 'danger';
-    label = 'CRITICAL';
-  } else if (normalized === 'high') {
-    variant = 'warning';
-    label = 'HIGH';
-  } else if (normalized === 'medium') {
-    variant = 'warning';
-    label = 'MEDIUM';
-  } else if (normalized === 'low') {
-    variant = 'neutral';
-    label = 'LOW';
   }
 
   return (

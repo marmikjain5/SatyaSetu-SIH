@@ -33,6 +33,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Badge } from '../../components/ui/Badge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
+import { NationalComplianceTrajectoryChart } from '../../components/dashboard/NationalComplianceTrajectoryChart';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -157,86 +158,9 @@ export const OverviewDashboard: React.FC = () => {
 
       {/* Main Charts & Live Ticker Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: National Compliance Ingestion Area Chart */}
-        <div className="lg:col-span-8">
-          <Card className="h-full flex flex-col justify-between">
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <CardTitle>
-                  <TrendingUp className="h-4 w-4 text-blue-600" />
-                  <span>National Product Compliance &amp; Violation Trajectory</span>
-                </CardTitle>
-                <CardDescription>
-                  Monthly telemetry of automated SKU scans vs confirmed Legal Metrology &amp; CCPA violations.
-                </CardDescription>
-              </div>
-
-              {/* Dynamic Time Range Filter Buttons */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
-                {(['3M', '6M', 'All'] as const).map((range) => (
-                  <button
-                    key={range}
-                    type="button"
-                    onClick={() => setTimeRange(range)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold font-mono transition-all ${
-                      timeRange === range
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                    }`}
-                  >
-                    {range === 'All' ? 'Full Year' : `Last ${range}`}
-                  </button>
-                ))}
-              </div>
-            </CardHeader>
-
-            <CardContent className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={filteredTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorScanned" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorViolations" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#DC2626" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                  <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0F172A',
-                      borderColor: '#1E293B',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '11px',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="scanned"
-                    name="Scanned SKUs"
-                    stroke="#2563EB"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorScanned)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="violations"
-                    name="Violations Detected"
-                    stroke="#DC2626"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorViolations)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        {/* National Compliance Trajectory Dual-Axis Chart */}
+        <div className="lg:col-span-12">
+          <NationalComplianceTrajectoryChart data={filteredTrends} />
         </div>
 
         {/* Right: Category Risk Distribution Bar Chart */}
