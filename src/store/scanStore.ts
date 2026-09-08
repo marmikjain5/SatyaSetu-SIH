@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import type { ScanRecord, UploadedImage, ExtractedProductData } from '../types/scan';
+import type {
+  ScanRecord,
+  UploadedImage,
+  ExtractedProductData,
+  ScanAngle,
+} from '../types/scan';
 import type { ComplianceValidationResult } from '../types/ruleEngine';
 import type { ReadabilityAnalysisResult } from '../types/readability';
 import { ocrService } from '../lib/ocrService';
@@ -9,6 +14,7 @@ import {
   processScanDiscrepanciesAndCorrelate,
   ScanCorrelationResult,
 } from '../lib/scanComplaintCorrelator';
+import { consolidateMultiAngleExtractions } from '../lib/multiAngleConsolidator';
 import { useComplianceStore } from './complianceStore';
 
 interface ScanState {
@@ -19,6 +25,10 @@ interface ScanState {
   isProcessing: boolean;
   currentProgress: number;
   currentStatusMessage: string;
+  activeAngleIndex: number; // 0 = Master Consolidated View, 1..N = Angle View
+  hasUnviewedCompletion: boolean;
+  lastCompletedScanId: string | null;
+
   /** Validation results keyed by scan ID */
   validationResults: Record<string, ComplianceValidationResult>;
   /** Correlation results (RAG mappings, verified user complaints, auto-added complaints) */
@@ -30,9 +40,17 @@ interface ScanState {
   addImages: (files: File[]) => void;
   removeImage: (id: string) => void;
   clearImages: () => void;
+  updateImageAngleLabel: (id: string, label: string) => void;
+  setActiveAngleIndex: (index: number) => void;
+  clearUnviewedCompletion: () => void;
   startScan: () => Promise<void>;
   updateScanProgress: (id: string, progress: number, status: string) => void;
-  completeScan: (id: string, rawText: string, confidence: number, extractedData: ExtractedProductData) => void;
+  completeScan: (
+    id: string,
+    rawText: string,
+    confidence: number,
+    extractedData: ExtractedProductData
+  ) => void;
   failScan: (id: string, error: string) => void;
   deleteScan: (id: string) => void;
   clearHistory: () => void;
@@ -42,6 +60,15 @@ interface ScanState {
 }
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+
+const DEFAULT_ANGLE_LABELS = [
+  'Angle 1 (Front Panel)',
+  'Angle 2 (Back / Declarations)',
+  'Angle 3 (Nutritional Panel)',
+  'Angle 4 (Side / MRP Stamp)',
+  'Angle 5 (Top / Barcode)',
+  'Angle 6 (Additional View)',
+];
 
 function generateId(): string {
   return `scan-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
@@ -75,32 +102,59 @@ export const useScanStore = create<ScanState>((set, get) => ({
   isProcessing: false,
   currentProgress: 0,
   currentStatusMessage: '',
+  activeAngleIndex: 0,
+  hasUnviewedCompletion: false,
+  lastCompletedScanId: null,
   validationResults: {},
   correlationResults: {},
   readabilityResults: {},
 
-  addImages: (files) => {
+  addImages: async (files) => {
     const validFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
+    if (validFiles.length === 0) return;
 
-    validFiles.forEach(async (file) => {
+    const currentImages = get().uploadedImages;
+    const newImages: UploadedImage[] = [];
+
+    for (let i = 0; i < validFiles.length; i++) {
+      const file = validFiles[i];
       const dataUrl = await fileToDataUrl(file);
-      const image: UploadedImage = {
+      const angleIndex = currentImages.length + i;
+      const angleLabel = DEFAULT_ANGLE_LABELS[angleIndex] || `Angle ${angleIndex + 1}`;
+
+      newImages.push({
         id: generateId(),
         file,
         name: file.name,
         size: file.size,
         dataUrl,
         addedAt: Date.now(),
-      };
-      set((state) => ({
-        uploadedImages: [...state.uploadedImages, image],
-      }));
-    });
+        angleLabel,
+      });
+    }
+
+    set((state) => ({
+      uploadedImages: [...state.uploadedImages, ...newImages],
+    }));
   },
 
   removeImage: (id) => {
+    set((state) => {
+      const remaining = state.uploadedImages.filter((img) => img.id !== id);
+      // Re-index angle labels
+      const reindexed = remaining.map((img, idx) => ({
+        ...img,
+        angleLabel: DEFAULT_ANGLE_LABELS[idx] || `Angle ${idx + 1}`,
+      }));
+      return { uploadedImages: reindexed };
+    });
+  },
+
+  updateImageAngleLabel: (id, label) => {
     set((state) => ({
-      uploadedImages: state.uploadedImages.filter((img) => img.id !== id),
+      uploadedImages: state.uploadedImages.map((img) =>
+        img.id === id ? { ...img, angleLabel: label } : img
+      ),
     }));
   },
 
@@ -108,117 +162,222 @@ export const useScanStore = create<ScanState>((set, get) => ({
     set({ uploadedImages: [] });
   },
 
+  setActiveAngleIndex: (index) => {
+    set({ activeAngleIndex: index });
+  },
+
+  clearUnviewedCompletion: () => {
+    set({ hasUnviewedCompletion: false });
+  },
+
   startScan: async () => {
     const { uploadedImages } = get();
     if (uploadedImages.length === 0 || get().isProcessing) return;
 
-    set({ isProcessing: true, currentProgress: 0, currentStatusMessage: 'Initializing OCR engine...' });
+    const isMultiAngle = uploadedImages.length > 1;
+    const totalImages = uploadedImages.length;
+    const scanId = generateId();
+    const primaryImage = uploadedImages[0];
 
-    // Process each image sequentially
-    for (const image of uploadedImages) {
-      const scanId = generateId();
-      const scanRecord: ScanRecord = {
-        id: scanId,
-        imageName: image.name,
-        imageDataUrl: image.dataUrl,
-        timestamp: formatTimestamp(),
-        status: 'processing',
-        progress: 0,
-        confidence: 0,
-        extractedData: null,
-      };
+    const titleDescriptor = isMultiAngle
+      ? `${primaryImage.name.replace(/\.[^/.]+$/, '')} (${totalImages} Angles Consolidated)`
+      : primaryImage.name;
 
-      set({ currentScan: scanRecord });
+    const initialScanRecord: ScanRecord = {
+      id: scanId,
+      imageName: titleDescriptor,
+      imageDataUrl: primaryImage.dataUrl,
+      timestamp: formatTimestamp(),
+      status: 'processing',
+      progress: 0,
+      confidence: 0,
+      extractedData: null,
+      isMultiAngle,
+      angles: [],
+      activeAngleIndex: 0,
+    };
 
-      try {
-        const result = await ocrService.recognize(image.dataUrl, (progress, status) => {
-          set({
-            currentProgress: progress,
-            currentStatusMessage: status,
-            currentScan: { ...scanRecord, progress, status: 'processing' },
-          });
+    set({
+      isProcessing: true,
+      currentProgress: 2,
+      currentStatusMessage: isMultiAngle
+        ? `Initializing Multi-Angle Vision Engine (${totalImages} photos of same product)...`
+        : 'Initializing OCR engine...',
+      currentScan: initialScanRecord,
+      activeAngleIndex: 0,
+      hasUnviewedCompletion: false,
+    });
+
+    try {
+      const angles: ScanAngle[] = [];
+
+      // Process each image as an angle of the same product
+      for (let i = 0; i < totalImages; i++) {
+        const image = uploadedImages[i];
+        const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
+        const baseProgress = (i / totalImages) * 85;
+
+        set({
+          currentProgress: Math.round(baseProgress),
+          currentStatusMessage: isMultiAngle
+            ? `Analyzing ${angleLabel} (${i + 1}/${totalImages}): ${image.name}...`
+            : 'Analyzing product packaging...',
         });
 
-        // Auto-trigger Rule Engine Validation
-        const validationResult = validateProduct(result.extractedData);
-        validationResult.scanId = scanId;
-
-        // Auto-trigger RAG Statutory Mapping, User Complaint Verification & Auto-Adding Missing Complaints
-        const correlationResult = processScanDiscrepanciesAndCorrelate(
-          scanId,
-          result.extractedData,
-          validationResult,
-          result.rawText
-        );
-
-        // Auto-trigger Feature 4: Font Size & Optical Readability Analysis Engine
-        const readabilityResult = await readabilityService.analyze(
-          scanId,
+        // Run OCR on this specific angle
+        const ocrResult = await ocrService.recognize(
           image.dataUrl,
-          result.extractedData,
-          result.extractedData.imageDimensions || { width: 800, height: 600 }
+          (angleProgress, angleStatus) => {
+            const compositeProgress = Math.round(
+              baseProgress + (angleProgress / 100) * (85 / totalImages)
+            );
+            set({
+              currentProgress: Math.min(88, compositeProgress),
+              currentStatusMessage: isMultiAngle
+                ? `[${angleLabel}] ${angleStatus}`
+                : angleStatus,
+            });
+          }
         );
 
-        const completedScan: ScanRecord = {
-          ...scanRecord,
-          status: 'completed',
-          progress: 100,
-          confidence: result.confidence,
-          extractedData: result.extractedData,
-          readabilityResult,
+        // Readability analysis for this angle
+        let angleReadability: ReadabilityAnalysisResult | undefined = undefined;
+        try {
+          angleReadability = await readabilityService.analyze(
+            `${scanId}-angle-${i + 1}`,
+            image.dataUrl,
+            ocrResult.extractedData,
+            ocrResult.extractedData.imageDimensions || { width: 1000, height: 800 }
+          );
+        } catch {
+          // ignore readability errors for sub-angles
+        }
+
+        const angleRecord: ScanAngle = {
+          id: `${scanId}-angle-${i + 1}`,
+          angleIndex: i + 1,
+          label: angleLabel,
+          imageName: image.name,
+          imageDataUrl: image.dataUrl,
+          extractedData: ocrResult.extractedData,
+          confidence: ocrResult.confidence,
+          rawText: ocrResult.rawText,
+          readabilityResult: angleReadability,
         };
 
-        // Automatically ingest scanned product into the central Compliance Products Repository
-        useComplianceStore.getState().addScannedProduct(
-          result.extractedData,
-          image.dataUrl,
-          result.confidence,
-          validationResult
-        );
+        angles.push(angleRecord);
 
+        // Update ongoing scan record with accumulated angles
         set((state) => ({
-          scans: [completedScan, ...state.scans],
-          currentScan: completedScan,
-          currentProgress: 100,
-          currentStatusMessage: `Extraction & Readability complete — Score: ${readabilityResult.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s) mapped.`,
-          validationResults: {
-            ...state.validationResults,
-            [completedScan.id]: validationResult,
-          },
-          correlationResults: {
-            ...state.correlationResults,
-            [completedScan.id]: correlationResult,
-          },
-          readabilityResults: {
-            ...state.readabilityResults,
-            [completedScan.id]: readabilityResult,
-          },
-        }));
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'OCR processing failed';
-        const failedScan: ScanRecord = {
-          ...scanRecord,
-          status: 'error',
-          progress: 0,
-          errorMessage,
-        };
-
-        set((state) => ({
-          scans: [failedScan, ...state.scans],
-          currentScan: failedScan,
-          currentStatusMessage: `Error: ${errorMessage}`,
+          currentScan: state.currentScan
+            ? {
+                ...state.currentScan,
+                angles: [...angles],
+              }
+            : null,
         }));
       }
-    }
 
-    set({ isProcessing: false, uploadedImages: [] });
+      // Step 2: Consolidate all angles into a single master product declaration
+      set({
+        currentProgress: 88,
+        currentStatusMessage: isMultiAngle
+          ? `Consolidating declarations across ${totalImages} angles & running statutory compliance audit...`
+          : 'Validating statutory declarations & compliance rules...',
+      });
+
+      const { masterExtractedData, masterConfidence, consolidatedRawText } =
+        consolidateMultiAngleExtractions(angles, primaryImage.name.replace(/\.[^/.]+$/, ''));
+
+      // Step 3: Run Rule Engine Validation on the master product
+      const validationResult = validateProduct(masterExtractedData);
+      validationResult.scanId = scanId;
+
+      // Step 4: Run RAG Statutory Mapping & Complaint Correlation
+      const correlationResult = processScanDiscrepanciesAndCorrelate(
+        scanId,
+        masterExtractedData,
+        validationResult,
+        consolidatedRawText
+      );
+
+      // Step 5: Master Readability Analysis
+      const masterReadability = await readabilityService.analyze(
+        scanId,
+        primaryImage.dataUrl,
+        masterExtractedData,
+        masterExtractedData.imageDimensions || { width: 1200, height: 900 }
+      );
+
+      const completedScan: ScanRecord = {
+        ...initialScanRecord,
+        status: 'completed',
+        progress: 100,
+        confidence: masterConfidence,
+        extractedData: masterExtractedData,
+        readabilityResult: masterReadability,
+        isMultiAngle,
+        angles,
+        activeAngleIndex: 0,
+      };
+
+      // Step 6: Ingest Scanned Product into Central Compliance Store
+      useComplianceStore.getState().addScannedProduct(
+        masterExtractedData,
+        primaryImage.dataUrl,
+        masterConfidence,
+        validationResult
+      );
+
+      set((state) => ({
+        scans: [completedScan, ...state.scans],
+        currentScan: completedScan,
+        currentProgress: 100,
+        currentStatusMessage: isMultiAngle
+          ? `Multi-Angle Analysis Complete (${totalImages} angles compiled) — Score: ${masterReadability.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} discrepancy(s) mapped.`
+          : `Extraction & Readability complete — Score: ${masterReadability.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s) mapped.`,
+        validationResults: {
+          ...state.validationResults,
+          [completedScan.id]: validationResult,
+        },
+        correlationResults: {
+          ...state.correlationResults,
+          [completedScan.id]: correlationResult,
+        },
+        readabilityResults: {
+          ...state.readabilityResults,
+          [completedScan.id]: masterReadability,
+        },
+        isProcessing: false,
+        uploadedImages: [],
+        hasUnviewedCompletion: true,
+        lastCompletedScanId: completedScan.id,
+      }));
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Multi-angle scanning failed';
+      const failedScan: ScanRecord = {
+        ...initialScanRecord,
+        status: 'error',
+        progress: 0,
+        errorMessage,
+      };
+
+      set((state) => ({
+        scans: [failedScan, ...state.scans],
+        currentScan: failedScan,
+        currentStatusMessage: `Error: ${errorMessage}`,
+        isProcessing: false,
+      }));
+    }
   },
 
   updateScanProgress: (id, progress, status) => {
     set((state) => ({
-      currentScan: state.currentScan?.id === id
-        ? { ...state.currentScan, progress }
-        : state.currentScan,
+      currentScan:
+        state.currentScan?.id === id
+          ? { ...state.currentScan, progress }
+          : state.currentScan,
       currentProgress: progress,
       currentStatusMessage: status,
     }));
@@ -228,7 +387,13 @@ export const useScanStore = create<ScanState>((set, get) => ({
     set((state) => ({
       scans: state.scans.map((s) =>
         s.id === id
-          ? { ...s, status: 'completed' as const, progress: 100, confidence, extractedData }
+          ? {
+              ...s,
+              status: 'completed' as const,
+              progress: 100,
+              confidence,
+              extractedData,
+            }
           : s
       ),
     }));
@@ -239,6 +404,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
       scans: state.scans.map((s) =>
         s.id === id ? { ...s, status: 'error' as const, errorMessage: error } : s
       ),
+      isProcessing: false,
     }));
   },
 
@@ -258,11 +424,17 @@ export const useScanStore = create<ScanState>((set, get) => ({
   },
 
   clearHistory: () => {
-    set({ scans: [], currentScan: null, validationResults: {}, correlationResults: {}, readabilityResults: {} });
+    set({
+      scans: [],
+      currentScan: null,
+      validationResults: {},
+      correlationResults: {},
+      readabilityResults: {},
+    });
   },
 
   viewScan: (scan) => {
-    set({ currentScan: scan });
+    set({ currentScan: scan, activeAngleIndex: 0 });
   },
 
   setValidationResult: (scanId, result) => {

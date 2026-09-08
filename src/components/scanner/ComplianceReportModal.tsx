@@ -595,39 +595,17 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 </p>
               </div>
 
-              {/* Digital Signature Stamp Block */}
-              <div className="border-2 border-slate-900 dark:border-slate-700 rounded-xl p-4 bg-slate-50 dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Digital Signature Block */}
+              <div className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50 dark:bg-slate-900 flex items-center justify-between gap-4">
                 <div className="space-y-1 text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    <span className="font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                      Cryptographically Signed &amp; Timestamped
-                    </span>
-                  </div>
-                  <p className="text-slate-700 dark:text-slate-300">
-                    <strong>Inspecting Officer:</strong> {digitalSignature.signedBy} ({digitalSignature.badgeNumber})
+                  <p className="text-slate-800 dark:text-slate-200 font-semibold">
+                    Digitally signed by {digitalSignature.signedBy ? `${digitalSignature.signedBy}${digitalSignature.badgeNumber ? ` (${digitalSignature.badgeNumber})` : ''}` : 'the particular officer'}.
                   </p>
-                  <p className="text-slate-500 font-mono text-[11px]">
-                    Cert ID: {digitalSignature.certificateId} • {digitalSignature.timestamp}
-                  </p>
-                  <div className="flex items-center gap-2 pt-1">
-                    <span className="text-[10px] font-mono text-slate-400 truncate max-w-sm">
-                      SHA-256: {digitalSignature.sha256Hash}
-                    </span>
-                    <button
-                      onClick={handleCopyHash}
-                      className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                      title="Copy SHA-256 Hash"
-                    >
-                      {copiedHash ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="h-16 w-16 rounded-full border-2 border-dashed border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 flex flex-col items-center justify-center text-emerald-700 dark:text-emerald-300 text-[9px] font-black leading-tight text-center shrink-0">
-                  <span>✓ e-Sign</span>
-                  <span>VERIFIED</span>
-                  <span className="text-[7px] font-mono opacity-80">CCA-GOV</span>
+                  {digitalSignature.timestamp && (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Timestamp: {digitalSignature.timestamp}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

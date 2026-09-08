@@ -103,12 +103,16 @@ export const ImageUploader: React.FC = () => {
 
           <div className="text-center">
             <p className="text-sm font-semibold text-slate-800">
-              {isDragActive ? 'Drop images here' : 'Upload Product Images'}
+              {isDragActive ? 'Drop product packaging images here' : 'Upload Product Packaging Images'}
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              Drag & drop or click to browse • PNG, JPG, JPEG, WebP
+              Select multiple photos of the <span className="font-semibold text-blue-600">same product</span> from different angles (Front, Back, Side, Nutritional Panel)
+            </p>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              PNG, JPG, JPEG, WebP • Multi-angle images will be consolidated into a single compliance audit
             </p>
           </div>
+
 
           <input
             ref={inputRef}

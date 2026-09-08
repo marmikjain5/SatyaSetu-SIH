@@ -48,6 +48,11 @@ class ValidationFinding:
     max_fine_inr: float
     imprisonment_months: int
     estimated_penalty_inr: float = 0.0
+    # ── LLM Augmentation Fields (populated after deterministic pass) ─────────
+    llm_verdict: Optional[str] = None          # "confirm" | "dismiss" | "escalate"
+    llm_reasoning: Optional[str] = None        # Brief legal reasoning from LLM
+    llm_severity_override: Optional[str] = None  # Overridden severity if LLM escalates
+    llm_recommendation: Optional[str] = None   # LLM-generated corrective action
 
 
 @dataclass
@@ -65,6 +70,9 @@ class StatutoryAuditReport:
     pass_count: int = 0
     missing_declarations: List[str] = field(default_factory=list)
     auto_notice_required: bool = False
+    # ── LLM Augmentation Metadata ─────────────────────────────────────────────
+    llm_provider: Optional[str] = None          # Which LLM provider ran augmentation
+    llm_augmentation_error: Optional[str] = None  # Error message if LLM failed
 
 
 # ─── Schedule I: Maximum Permissible Error Table ────────────────────────────
@@ -769,9 +777,11 @@ def validate_product_compliance(
     product_category: str = "ALL",
     is_repeat_offender: bool = False,
     evaluation_date: Optional[str] = None,
+    use_llm: bool = True,
 ) -> StatutoryAuditReport:
     """
-    Production-grade deterministic statutory validation against gazette-verified rules.
+    Production-grade deterministic statutory validation against gazette-verified rules,
+    optionally augmented by an LLM verification pass.
 
     Parameters
     ----------
@@ -785,11 +795,17 @@ def validate_product_compliance(
         Whether the manufacturer is a repeat offender (affects penalty estimation).
     evaluation_date : str, optional
         ISO date string for temporal rule evaluation (default: today).
+    use_llm : bool
+        If True, runs an LLM verification pass on fail/warning findings after the
+        deterministic checks complete. The LLM can confirm, dismiss (false-positive),
+        or escalate severity — but cannot create new violations.
+        Defaults to True; set False for fast/offline mode.
 
     Returns
     -------
     StatutoryAuditReport
-        Complete statutory audit report with findings, score, and penalty.
+        Complete statutory audit report with findings, score, penalty, and optional
+        LLM augmentation metadata.
     """
     eval_date = evaluation_date or datetime.today().strftime("%Y-%m-%d")
     findings: List[ValidationFinding] = []
@@ -924,7 +940,7 @@ def validate_product_compliance(
         else "warning" if violation_count == 0 \
         else "non-compliant"
 
-    return StatutoryAuditReport(
+    report = StatutoryAuditReport(
         scan_id=scan_id,
         evaluation_date=eval_date,
         product_category=product_category,
@@ -938,3 +954,55 @@ def validate_product_compliance(
         missing_declarations=missing,
         auto_notice_required=score < 60 or violation_count >= 2,
     )
+
+    # ── LLM Augmentation Pass (optional, non-blocking) ────────────────────────
+    if use_llm:
+        try:
+            from services.llm_validation_service import llm_validation_augmentor
+        except ImportError:
+            try:
+                from backend.services.llm_validation_service import llm_validation_augmentor
+            except ImportError:
+                llm_validation_augmentor = None  # type: ignore
+
+        if llm_validation_augmentor is not None:
+            # Serialize findings for the LLM prompt (same shape as API output)
+            serialized_findings = [
+                {
+                    "rule_id":          f.rule_id,
+                    "rule_code":        f.rule_code,
+                    "target_field":     f.target_field,
+                    "status":           f.status,
+                    "evidence":         f.evidence,
+                    "expected_standard": f.expected_standard,
+                }
+                for f in findings
+            ]
+
+            augmentation = llm_validation_augmentor.augment(
+                extracted_fields=extracted_fields,
+                findings=serialized_findings,
+                evaluation_date=eval_date,
+            )
+
+            report.llm_provider = augmentation.provider
+            report.llm_augmentation_error = augmentation.error
+
+            # Merge LLM verdicts back into findings by rule_id
+            augmentation_map = {a.rule_id: a for a in augmentation.augmentations}
+            for finding in report.findings:
+                aug = augmentation_map.get(finding.rule_id)
+                if aug:
+                    finding.llm_verdict           = aug.verdict
+                    finding.llm_reasoning         = aug.reasoning
+                    finding.llm_severity_override = aug.severity_override
+                    finding.llm_recommendation    = aug.recommendation
+
+                    # Apply severity override if LLM escalates
+                    if aug.verdict == "escalate" and aug.severity_override:
+                        try:
+                            finding.severity = ViolationSeverity(aug.severity_override)
+                        except ValueError:
+                            pass  # Ignore unknown severity values
+
+    return report

@@ -90,6 +90,9 @@ def _serialize_audit_report(report: StatutoryAuditReport) -> Dict[str, Any]:
         "total_estimated_penalty_inr": report.total_estimated_penalty_inr,
         "missing_declarations": report.missing_declarations,
         "auto_notice_required": report.auto_notice_required,
+        # LLM augmentation metadata
+        "llm_provider": report.llm_provider,
+        "llm_augmentation_error": report.llm_augmentation_error,
         "findings": [
             {
                 "rule_id": f.rule_id,
@@ -107,6 +110,11 @@ def _serialize_audit_report(report: StatutoryAuditReport) -> Dict[str, Any]:
                 "max_fine_inr": f.max_fine_inr,
                 "imprisonment_months": f.imprisonment_months,
                 "estimated_penalty_inr": f.estimated_penalty_inr,
+                # LLM augmentation per-finding
+                "llm_verdict": f.llm_verdict,
+                "llm_reasoning": f.llm_reasoning,
+                "llm_severity_override": f.llm_severity_override,
+                "llm_recommendation": f.llm_recommendation,
             }
             for f in report.findings
         ],
@@ -156,7 +164,8 @@ class ExtractionAPIHandler:
         """
         POST /api/v1/validate
 
-        Runs deterministic statutory validation against all gazette-verified rules.
+        Runs deterministic statutory validation against all gazette-verified rules,
+        optionally followed by an LLM verification pass on fail/warning findings.
         """
         extracted_fields = payload.get("extracted_fields")
         if not extracted_fields or not isinstance(extracted_fields, dict):
@@ -169,6 +178,7 @@ class ExtractionAPIHandler:
         product_category = payload.get("product_category", "ALL").upper()
         is_repeat_offender = bool(payload.get("is_repeat_offender", False))
         evaluation_date = payload.get("evaluation_date")
+        use_llm = bool(payload.get("use_llm", True))  # default on
 
         report = validate_product_compliance(
             extracted_fields=extracted_fields,
@@ -176,6 +186,7 @@ class ExtractionAPIHandler:
             product_category=product_category,
             is_repeat_offender=is_repeat_offender,
             evaluation_date=evaluation_date,
+            use_llm=use_llm,
         )
 
         return {
@@ -216,6 +227,7 @@ class ExtractionAPIHandler:
             "product_category": payload.get("product_category", "ALL"),
             "is_repeat_offender": payload.get("is_repeat_offender", False),
             "evaluation_date": payload.get("evaluation_date"),
+            "use_llm": payload.get("use_llm", True),
         }
         validation_response = self.handle_validate(validate_payload)
 
@@ -402,6 +414,7 @@ class ExtractionAPIHandler:
                 "scan_id": product_id,
                 "product_category": payload.get("product_category", "ALL"),
                 "is_repeat_offender": payload.get("is_repeat_offender", False),
+                "use_llm": payload.get("use_llm", True),
             }
             val_resp = self.handle_validate(val_payload)
             audit_report = val_resp.get("audit_report")

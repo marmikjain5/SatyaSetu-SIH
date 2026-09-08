@@ -653,23 +653,14 @@ export function generateReportHtml(report: ComplianceInspectionReport): string {
       </p>
     </div>
 
-    <!-- Section G: Digital Signature & Cryptographic Stamp -->
-    <div class="signature-stamp-box">
-      <div class="signature-details">
-        <h4>Digitally Signed &amp; Sealed by Statutory Inspector</h4>
-        <p><strong>Officer:</strong> ${digitalSignature.signedBy} | <strong>Badge:</strong> ${digitalSignature.badgeNumber}</p>
-        <p><strong>Designation:</strong> ${digitalSignature.designation}</p>
-        <p><strong>Timestamp:</strong> ${digitalSignature.timestamp}</p>
-        <div class="signature-hash">
-          SHA-256 HASH: ${digitalSignature.sha256Hash}
-        </div>
-      </div>
-
-      <div class="verified-seal">
-        <span>✓ e-Sign</span>
-        <span>VERIFIED</span>
-        <span style="font-size: 6pt; font-family: monospace;">CCA-GOV</span>
-      </div>
+    <!-- Section G: Digital Signature -->
+    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; background: #f8fafc; margin-top: 16px;">
+      <p style="margin: 0; font-size: 9pt; color: #1e293b; font-weight: 600;">
+        Digitally signed by ${digitalSignature.signedBy || 'the inspecting officer'}.
+      </p>
+      <p style="margin: 4px 0 0 0; font-size: 8pt; color: #64748b;">
+        Designation: ${digitalSignature.designation} | Timestamp: ${digitalSignature.timestamp}
+      </p>
     </div>
   </div>
 
@@ -866,12 +857,9 @@ export function exportReportToDocx(report: ComplianceInspectionReport): void {
     <p><strong>Rectification Deadline:</strong> ${verdict.recommendedActionDeadline}</p>
 
     <hr/>
-    <h2>5. DIGITAL SIGNATURE VERIFICATION STAMP</h2>
-    <p><strong>Signed by:</strong> ${digitalSignature.signedBy} (${digitalSignature.badgeNumber})</p>
-    <p><strong>Designation:</strong> ${digitalSignature.designation}</p>
+    <h2>5. DIGITAL SIGNATURE</h2>
+    <p><strong>Digitally signed by:</strong> ${digitalSignature.signedBy} (${digitalSignature.designation})</p>
     <p><strong>Timestamp:</strong> ${digitalSignature.timestamp}</p>
-    <p><strong>SHA-256 Hash:</strong> ${digitalSignature.sha256Hash}</p>
-    <p><strong>Certificate ID:</strong> ${digitalSignature.certificateId} (e-Sign Verified)</p>
   </body>
   </html>`;
 
