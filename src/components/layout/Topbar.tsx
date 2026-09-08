@@ -11,9 +11,11 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
+import { useScanStore } from '../../store/scanStore';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
+import { Loader2, Scan } from 'lucide-react';
 
 interface TopbarProps {
   onOpenCommandPalette: () => void;
@@ -22,12 +24,14 @@ interface TopbarProps {
 export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
   const { user, logout } = useAuthStore();
   const { violations } = useComplianceStore();
+  const { isProcessing, currentProgress, currentScan } = useScanStore();
   const navigate = useNavigate();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const isConsumer = user?.role === 'consumer';
+
 
   const officerNotifications = [
     {
@@ -108,6 +112,25 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
+        {/* Background Scan Active Indicator */}
+        {isProcessing && (
+          <button
+            onClick={() => navigate('/dashboard/scanner')}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-semibold hover:bg-blue-100 transition-all shadow-xs animate-pulse"
+            title="Product scanning active in background • Click to open Scanner"
+          >
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600 dark:text-blue-400" />
+            <span className="hidden md:inline">
+              {(currentScan?.angles?.length || 0) > 1 || currentScan?.isMultiAngle
+                ? 'Multi-Angle Scan'
+                : 'Scanning Product'}
+            </span>
+            <span className="font-mono text-[11px] bg-blue-600 text-white px-1.5 py-0.2 rounded-full">
+              {currentProgress}%
+            </span>
+          </button>
+        )}
+
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
 

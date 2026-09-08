@@ -125,10 +125,8 @@ const EvidenceInspector: React.FC<EvidenceInspectorProps> = ({
   );
 };
 
-// ─── Main Component ─────────────────────────────────────────────
-
 export const OCRResultsPanel: React.FC = () => {
-  const { currentScan } = useScanStore();
+  const { currentScan, activeAngleIndex, setActiveAngleIndex } = useScanStore();
   const [activeTab, setActiveTab] = useState('declarations');
   const [copiedPayload, setCopiedPayload] = useState(false);
   const [highlightedKey, setHighlightedKey] = useState<DeclarationFieldKey | null>(null);
@@ -146,8 +144,13 @@ export const OCRResultsPanel: React.FC = () => {
     return null;
   }
 
+  const isMultiAngle = Boolean(currentScan.isMultiAngle || (currentScan.angles && currentScan.angles.length > 1));
+  const angles = currentScan.angles || [];
+  const activeAngle = activeAngleIndex > 0 && angles[activeAngleIndex - 1] ? angles[activeAngleIndex - 1] : null;
+
   const data: ExtractedProductData = currentScan.extractedData;
   const declarations = { ...data.declarations };
+
 
   // Apply local edits
   Object.entries(localOverrides).forEach(([k, v]) => {
@@ -273,8 +276,66 @@ export const OCRResultsPanel: React.FC = () => {
       </CardHeader>
 
       <CardContent className="p-4 sm:p-5 space-y-4 flex-1 flex flex-col">
+        {/* Multi-Angle Inspection Selector Bar */}
+        {isMultiAngle && angles.length > 1 && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-2.5">
+            <div className="flex items-center justify-between gap-2 mb-2 px-1">
+              <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-blue-600" />
+                Multi-Angle Photo Views ({angles.length} Angles of Same Product)
+              </span>
+              <span className="text-[10px] text-blue-600 font-medium">
+                Click any angle to view its specific photo & extracted declarations
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                onClick={() => setActiveAngleIndex(0)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap border shadow-2xs',
+                  activeAngleIndex === 0
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                )}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>🌟 Consolidated Master View</span>
+              </button>
+
+              {angles.map((angle, idx) => {
+                const angleNum = idx + 1;
+                const isSelected = activeAngleIndex === angleNum;
+                return (
+                  <button
+                    key={angle.id || idx}
+                    onClick={() => setActiveAngleIndex(angleNum)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap border shadow-2xs',
+                      isSelected
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    )}
+                  >
+                    <span>📸 {angle.label || `Angle ${angleNum}`}</span>
+                    <span
+                      className={cn(
+                        'text-[10px] font-mono px-1 py-0.2 rounded',
+                        isSelected ? 'bg-blue-700 text-blue-100' : 'bg-slate-100 text-slate-600'
+                      )}
+                    >
+                      {angle.confidence}%
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* 2. Top Summary Statistics Bar (Single clean bordered card with icons) */}
         <div className="border border-slate-200/90 rounded-xl p-3 bg-white grid grid-cols-5 divide-x divide-slate-100 text-center shadow-xs">
+
           <div className="px-1 sm:px-2">
             <div className="flex items-center justify-center gap-1">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -444,8 +505,15 @@ export const OCRResultsPanel: React.FC = () => {
                                 <span className="text-[10px] text-slate-400 block mt-0.5 font-normal">
                                   {field.isMandatory ? 'Mandatory declaration' : 'Statutory declaration'}
                                 </span>
+                                {field.sourceAngle && isMultiAngle && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 mt-1 font-mono">
+                                    📸 {field.sourceAngle}
+                                  </span>
+                                )}
+
 
                                 {/* Inline value editing or value snippet */}
+
                                 {isEditingThis ? (
                                   <div className="mt-1 space-y-1">
                                     <input
@@ -608,12 +676,13 @@ export const OCRResultsPanel: React.FC = () => {
         {/* Tab 2: Visual Evidence & Bounding Box Inspector */}
         {activeTab === 'evidence' && (
           <EvidenceInspector
-            imageUrl={currentScan.imageDataUrl}
-            declarations={declarations}
+            imageUrl={activeAngle ? activeAngle.imageDataUrl : currentScan.imageDataUrl}
+            declarations={activeAngle?.extractedData?.declarations || declarations}
             highlightedKey={highlightedKey}
             onHighlight={setHighlightedKey}
           />
         )}
+
 
         {/* Tab 3: Rule Engine Compliance Payload (JSON) */}
         {activeTab === 'rule_engine' && (

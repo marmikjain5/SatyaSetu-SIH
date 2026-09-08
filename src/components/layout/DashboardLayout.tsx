@@ -3,6 +3,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
+import { GlobalScanNotification } from './GlobalScanNotification';
 import { useAuthStore } from '../../store/authStore';
 import { GridPattern } from '../ui/GridPattern';
 import { cn } from '../../lib/utils';
@@ -82,6 +83,10 @@ export const DashboardLayout: React.FC = () => {
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
       />
+
+      {/* Global Background Scan Progress & Completion Notification */}
+      <GlobalScanNotification />
     </div>
   );
 };
+

@@ -63,6 +63,8 @@ export interface DeclarationField {
   confidence: number; // 0–100%
   sourceText: string; // surrounding raw OCR snippet
   sourcePass: string; // preprocessed variant name e.g. "adaptive_threshold"
+  sourceAngle?: string; // e.g. "Angle 2 (Back Panel)"
+  sourceAngleIndex?: number;
   boundingBox: BoundingBox | null;
   validationStatus: ValidationStatus;
   validationMessage: string;
@@ -144,9 +146,23 @@ export interface UploadedImage {
   size: number;
   dataUrl: string;
   addedAt: number;
+  angleLabel?: string;
 }
 
 import type { ReadabilityAnalysisResult } from './readability';
+
+/** A single angle/view of a multi-angle scanned product */
+export interface ScanAngle {
+  id: string;
+  angleIndex: number;
+  label: string; // e.g. "Angle 1 (Front)", "Angle 2 (Back)", "Angle 3 (Side)"
+  imageName: string;
+  imageDataUrl: string;
+  extractedData: ExtractedProductData | null;
+  confidence: number;
+  rawText: string;
+  readabilityResult?: ReadabilityAnalysisResult;
+}
 
 /** A completed or in-progress scan record */
 export interface ScanRecord {
@@ -160,6 +176,9 @@ export interface ScanRecord {
   extractedData: ExtractedProductData | null;
   readabilityResult?: ReadabilityAnalysisResult;
   errorMessage?: string;
+  isMultiAngle?: boolean;
+  angles?: ScanAngle[];
+  activeAngleIndex?: number; // 0 = Master Consolidated View, 1..N = Specific Angle
 }
 
 /** OCR provider result (provider-agnostic) */
@@ -171,3 +190,4 @@ export interface OCRResult {
 
 /** Progress callback signature */
 export type OCRProgressCallback = (progress: number, status: string) => void;
+
