@@ -34,6 +34,7 @@ interface FactoryDetailModalProps {
   onClose: () => void;
   onResolveViolation: (id: string) => void;
   onAcknowledgeAlert: (id: string) => void;
+  onScheduleInspection?: (factory: Factory) => void;
 }
 
 const statusBadge = {
@@ -75,6 +76,7 @@ export const FactoryDetailModal: React.FC<FactoryDetailModalProps> = ({
   onClose,
   onResolveViolation,
   onAcknowledgeAlert,
+  onScheduleInspection,
 }) => {
   if (!factory) return null;
 
@@ -111,6 +113,20 @@ export const FactoryDetailModal: React.FC<FactoryDetailModalProps> = ({
               <ClipboardCheck className="h-4 w-4 text-slate-400" />
               <span>{factory.totalInspections} inspections · {factory.inspectionPassRate}% pass rate</span>
             </div>
+
+            {onScheduleInspection && (
+              <div className="pt-1">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-xs shadow-sm"
+                  onClick={() => onScheduleInspection(factory)}
+                >
+                  <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                  Schedule Surprise Inspection
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Score Ring */}

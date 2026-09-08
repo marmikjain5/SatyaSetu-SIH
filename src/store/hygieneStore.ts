@@ -59,6 +59,7 @@ interface HygieneState {
   getFactoryViolations: (factoryId: string) => HygieneViolation[];
   getFactoryInspections: (factoryId: string) => HygieneInspection[];
   addViolation: (violation: HygieneViolation) => void;
+  addInspection: (inspection: HygieneInspection) => void;
   addManufacturerAssessment: (assessment: ManufacturerAssessment) => void;
   getManufacturerAssessments: (manufacturerId: string) => ManufacturerAssessment[];
 }
@@ -160,6 +161,11 @@ export const useHygieneStore = create<HygieneState>((set, get) => ({
   addViolation: (violation) =>
     set((state) => ({
       violations: [violation, ...state.violations],
+    })),
+
+  addInspection: (inspection) =>
+    set((state) => ({
+      inspections: [inspection, ...state.inspections],
     })),
 
   getFactoryById: (id) => get().factories.find((f) => f.id === id),

@@ -15,6 +15,8 @@ import { InspectionHistory } from '../../components/hygiene/InspectionHistory';
 import { HygieneTrendChart } from '../../components/hygiene/HygieneTrendChart';
 import { FactoryDetailModal } from './FactoryDetailModal';
 import { FactoryImageInspection } from '../../components/hygiene/FactoryImageInspection';
+import { ScheduleInspectionModal } from '../../components/hygiene/ScheduleInspectionModal';
+import { Factory } from '../../types/hygiene';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -48,6 +50,20 @@ export const FactoryHygieneMonitoring: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // Schedule Inspection Modal state
+  const [scheduleFactory, setScheduleFactory] = useState<Factory | null>(null);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+
+  const handleOpenSchedule = (factory: Factory) => {
+    setScheduleFactory(factory);
+    setIsScheduleOpen(true);
+  };
+
+  const handleCloseSchedule = () => {
+    setIsScheduleOpen(false);
+    setScheduleFactory(null);
+  };
 
   // Compute tab counts
   const unackAlertCount = alerts.filter((a) => !a.acknowledged).length;
@@ -120,6 +136,7 @@ export const FactoryHygieneMonitoring: React.FC = () => {
             onSelectFactory={handleSelectFactory}
             onSearchChange={setSearchQuery}
             onStatusFilterChange={setStatusFilter}
+            onScheduleInspection={handleOpenSchedule}
           />
           <HygieneTrendChart trends={trends} />
         </div>
@@ -196,7 +213,16 @@ export const FactoryHygieneMonitoring: React.FC = () => {
         onClose={handleCloseDetail}
         onResolveViolation={resolveViolation}
         onAcknowledgeAlert={acknowledgeAlert}
+        onScheduleInspection={handleOpenSchedule}
+      />
+
+      {/* ── Schedule Inspection Modal ── */}
+      <ScheduleInspectionModal
+        factory={scheduleFactory}
+        isOpen={isScheduleOpen}
+        onClose={handleCloseSchedule}
       />
     </div>
   );
 };
+

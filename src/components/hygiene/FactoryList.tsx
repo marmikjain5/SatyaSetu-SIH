@@ -13,6 +13,7 @@ interface FactoryListProps {
   onSelectFactory: (factory: Factory) => void;
   onSearchChange: (query: string) => void;
   onStatusFilterChange: (status: HygieneStatus | 'all') => void;
+  onScheduleInspection?: (factory: Factory) => void;
 }
 
 const statusConfig: Record<HygieneStatus, { label: string; variant: 'success' | 'warning' | 'danger' | 'primary' }> = {
@@ -41,6 +42,7 @@ export const FactoryList: React.FC<FactoryListProps> = ({
   onSelectFactory,
   onSearchChange,
   onStatusFilterChange,
+  onScheduleInspection,
 }) => {
   const filtered = factories.filter((f) => {
     const matchesSearch =
@@ -156,6 +158,22 @@ export const FactoryList: React.FC<FactoryListProps> = ({
                       <div className="text-[10px] text-slate-400 uppercase">Last Inspected</div>
                     </div>
                   </div>
+
+                  {/* Schedule Inspection Action Button */}
+                  {onScheduleInspection && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 font-semibold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onScheduleInspection(factory);
+                      }}
+                    >
+                      <Calendar className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
+                      Schedule Inspection
+                    </Button>
+                  )}
 
                   {/* Action */}
                   <Button variant="ghost" size="icon" className="shrink-0 opacity-50 group-hover:opacity-100">
