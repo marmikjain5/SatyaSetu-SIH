@@ -687,7 +687,7 @@ function extractCountryOfOriginCandidates(pass: MultiPassOCRData): CandidateResu
 // ─── 8. Manufacturer, Importer & Address Extractors ──────────────
 
 const MFG_KEYWORDS: RegExp[] = [
-  /(?:mfg|mfd|manufactured|made)\s*(?:by|\.)\s*[:;.\-]?\s*/i,
+  /(?:packed\s*&\s*marketed|marketed|packed|packer|mfg|mfd|manufactured|made)\s*(?:by|at|\.)\s*[:;.\-]?\s*/i,
   /manufacturer\s*[:;.\-]\s*/i,
 ];
 
@@ -722,9 +722,10 @@ function extractManufacturerCandidates(pass: MultiPassOCRData): CandidateResult[
 }
 
 const ADDRESS_KEYWORDS: RegExp[] = [
-  /(?:regd|registered)?\s*(?:office|address|unit|plant|premise|works)\s*[:;.\-]\s*/i,
+  /(?:packed\s*&\s*marketed|marketed|packed|mfd|manufactured)\s*(?:by|at)?\s*[:;.\-]?/i,
+  /(?:regd|registered)?\s*(?:office|address|unit|plant|premise|premises|works)\s*[:;.\-]\s*/i,
   /add(?:ress)?\.?\s*[:;.\-]\s*/i,
-  /(?:plot|survey|sector)\s*(?:no|number)?\.?\s*[:;.\-]?\s*/i,
+  /(?:plot|survey|sector|phase|industrial\s*area)\s*(?:no|number)?\.?\s*[:;.\-]?\s*/i,
 ];
 
 function extractAddressCandidates(pass: MultiPassOCRData): CandidateResult[] {
@@ -737,19 +738,42 @@ function extractAddressCandidates(pass: MultiPassOCRData): CandidateResult[] {
       const match = lineText.match(kw);
       if (match) {
         let val = lineText.substring(match.index! + match[0].length).trim();
-        for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
-          if (/^(?:mfg|mrp|customer|net|batch|exp|fssai)/i.test(lines[j].text)) break;
+        for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
+          if (/^(?:mfg|mrp|customer|net\s*wt|batch|exp|use\s*by|fssai)/i.test(lines[j].text)) break;
           val += `, ${lines[j].text}`;
-          if (/\b\d{6}\b/.test(lines[j].text)) break; // PIN code terminator
+          if (/\b[1-9][0-9]{5}\b/.test(lines[j].text)) break; // PIN code terminator
         }
         val = val.replace(/[,;.]$/, '').trim();
         if (val.length >= 6) {
-          const hasPIN = /\b\d{6}\b/.test(val);
+          const hasPIN = /\b[1-9][0-9]{5}\b/.test(val);
           results.push({
             value: val,
             rawValue: match[0],
             rawMatch: lineText.trim(),
-            score: hasPIN ? 0.92 : 0.72,
+            score: hasPIN ? 0.95 : 0.72,
+            bbox: lines[i].bbox,
+          });
+        }
+      }
+    }
+  }
+
+  // Fallback: If no keyword-based address match, search for any line with a 6-digit Indian PIN code
+  if (results.length === 0) {
+    for (let i = 0; i < lines.length; i++) {
+      if (/\b[1-9][0-9]{5}\b/.test(lines[i].text)) {
+        let val = lines[i].text;
+        // Scan up to 2 preceding lines to construct the address
+        const start = Math.max(0, i - 2);
+        const prefix = lines.slice(start, i).map(l => l.text).join(', ');
+        if (prefix) val = `${prefix}, ${val}`;
+        val = val.replace(/[,;.]$/, '').trim();
+        if (val.length >= 6) {
+          results.push({
+            value: val,
+            rawValue: lines[i].text,
+            rawMatch: val,
+            score: 0.90,
             bbox: lines[i].bbox,
           });
         }

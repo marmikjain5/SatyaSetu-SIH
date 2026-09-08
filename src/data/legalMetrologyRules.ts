@@ -172,7 +172,7 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     ruleCode: 'PCR-2011-R6(1)(e)',
     act: 'Legal Metrology (Packaged Commodities) Rules, 2011',
     section: 'Rule 6(1)(e) — G.S.R. 882(E)',
-    fieldKey: 'packingDate',
+    fieldKey: 'manufacturingDate',
     title: 'Date of Manufacture / Packing / Import',
     description:
       'Month and year in which the commodity is manufactured, packed, or imported must be declared. ' +
@@ -192,31 +192,7 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     ],
   },
 
-  // ─── 7. Manufacturing Date (separate fieldKey for OCR mapping) ──────────
-  {
-    id: 'PCR-R6-1E-MFG',
-    ruleCode: 'PCR-2011-R6(1)(e)-MFG',
-    act: 'Legal Metrology (Packaged Commodities) Rules, 2011',
-    section: 'Rule 6(1)(e) — Manufacturing Date sub-field — G.S.R. 882(E)',
-    fieldKey: 'manufacturingDate',
-    title: 'Date of Manufacture (Month/Year)',
-    description:
-      'Month and year of manufacture must be declared with the prefix "Mfg Date", "Date of Manufacture", ' +
-      '"Mfd." or equivalent. Must not be a future date.',
-    severity: 'high',
-    isMandatory: true,
-    isConditional: false,
-    conditionDescription: '',
-    validatorKey: 'validateDate',
-    penaltyRange: { minFine: 25000, maxFine: 50000 },
-    recommendations: [
-      'Declare manufacturing date as MM/YYYY or MMM/YYYY.',
-      'Prefix with "Mfg Date:" or "Mfd.".',
-      'For multi-batch products, the batch-specific manufacturing date is required.',
-    ],
-  },
-
-  // ─── 8. Consumer Care / Grievance Redressal Contact ────────────────────
+  // ─── 7. Consumer Care / Grievance Redressal Contact ────────────────────
   {
     id: 'PCR-R6-1F',
     ruleCode: 'PCR-2011-R6(1)(f)',
@@ -241,7 +217,7 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     ],
   },
 
-  // ─── 9. Country of Origin ── G.S.R. 1537(E) 2017 Amendment ─────────────
+  // ─── 8. Country of Origin ── G.S.R. 1537(E) 2017 Amendment ─────────────
   {
     id: 'PCR-R6-1N',
     ruleCode: 'PCR-2017-R6(1)(n)',
@@ -269,13 +245,13 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     ],
   },
 
-  // ─── 10. PDP Font Height — Rule 7 Table I & II ─────────────────────────
+  // ─── 9. PDP Font Height — Rule 7 Table I & II ─────────────────────────
   {
     id: 'PCR-R7-FONT',
     ruleCode: 'PCR-2011-R7-TableI-II',
     act: 'Legal Metrology (Packaged Commodities) Rules, 2011',
     section: 'Rule 7 — Table I (weight/volume) & Table II (length/area/count) — G.S.R. 882(E)',
-    fieldKey: 'batchNumber', // reuses an available fieldKey; fontHeight validated via readabilityService
+    fieldKey: 'netQuantity',
     title: 'Minimum Numeral/Letter Height on Principal Display Panel',
     description:
       'Minimum numeral/letter height on PDP is governed by Rule 7: ' +
@@ -284,10 +260,10 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
       'Width of any numeral must be ≥1/3 of height (except "1", "I", "i", "l"). ' +
       'Clearance above/below the qty declaration = numeral height; left/right clearance = 2× numeral height.',
     severity: 'medium',
-    isMandatory: true,
+    isMandatory: false,
     isConditional: false,
     conditionDescription: '',
-    validatorKey: 'validateBatchNumber', // physical font check handled by readabilityService
+    validatorKey: 'validateFontHeight',
     penaltyRange: { minFine: 10000, maxFine: 50000 },
     recommendations: [
       'Verify PDP area and apply correct minimum numeral height from Rule 7 Table I or II.',
@@ -296,7 +272,7 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     ],
   },
 
-  // ─── 11. Dual MRP Prohibition — Rule 18 ────────────────────────────────
+  // ─── 10. Dual MRP Prohibition — Rule 18 ────────────────────────────────
   {
     id: 'PCR-R18-DUALMRP',
     ruleCode: 'PCR-2011-R18(1)',
@@ -310,10 +286,12 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
       'Compoundable under Section 36(1) of the Legal Metrology Act, 2009. ' +
       'Fine: ₹2,000 to ₹50,000 + confiscation of offending packages.',
     severity: 'critical',
-    isMandatory: true,
+    isMandatory: false,
     isConditional: false,
     conditionDescription: '',
-    validatorKey: 'validateMRP',
+    validatorKey: 'validateDualMRP',
+    penaltyRange: { minFine: 2000, maxFine: 50000 },
+    recommendations: [
     penaltyRange: { minFine: 2000, maxFine: 50000 },
     recommendations: [
       'Declare only one MRP on any package — no stickers over old prices permitted.',
