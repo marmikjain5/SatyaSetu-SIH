@@ -304,9 +304,6 @@ export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violat
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <Badge variant={SEVERITY_BADGE[v.severity] || 'secondary'} size="sm" className="font-mono text-[9px] font-bold">
-                                {v.severity.toUpperCase()}
-                              </Badge>
                               <span className={cn('text-[10px] font-semibold px-2 py-0.5 rounded border', STATUS_COLORS[v.status] || 'bg-slate-100 text-slate-600 border-slate-200')}>
                                 {v.status}
                               </span>

@@ -241,7 +241,6 @@ export const ViolationsLedger: React.FC = () => {
 
                 {/* ── Right Column: badges + action ── */}
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <StatusBadge status={violation.severity} />
                   <StatusBadge status={violation.status} />
                   <div className="text-right">
                     <div className="text-[10px] text-slate-400">Est. Penalty</div>

@@ -4,6 +4,8 @@ export interface ComplianceTrendPoint {
   violations: number;
   notices: number;
   resolved: number;
+  scannedLabel?: string;
+  violationsLabel?: string;
 }
 
 export interface CategoryRiskMetric {
