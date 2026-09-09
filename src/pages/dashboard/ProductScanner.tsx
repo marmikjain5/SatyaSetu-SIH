@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Images,
@@ -190,7 +190,7 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title={isManufacturer ? 'Declaration Accuracy' : 'Avg Confidence'}
-          value={avgConfidence > 0 ? `${avgConfidence}%` : '—'}
+          value={avgConfidence > 0 ? `${avgConfidence}%` : 'â€”'}
           icon={Activity}
           variant={avgConfidence >= 90 ? 'success' : avgConfidence >= 70 ? 'warning' : 'default'}
           description={isManufacturer ? 'Mandatory declaration score' : 'Across completed scans'}
@@ -204,14 +204,13 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title="Last Verification"
-          value={lastScanTime === 'Never' ? '—' : lastScanTime.split(',')[0] || '—'}
+          value={lastScanTime === 'Never' ? 'â€”' : lastScanTime.split(',')[0] || 'â€”'}
           icon={Clock}
           variant="default"
           description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
         />
       </div>
 
-<<<<<<< HEAD
       {/* Active Inspection Session Banner (Feature: All products in session treated as 1 unified inspection) */}
       {completedScans.length > 0 && (
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
@@ -225,7 +224,8 @@ export const ProductScanner: React.FC = () => {
                   Unified Inspection Session
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
-                  {completedScans.length} {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
+                  {completedScans.length}{' '}
+                  {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
                 </span>
                 {sessionTotalViolations > 0 ? (
                   <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
@@ -242,7 +242,6 @@ export const ProductScanner: React.FC = () => {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-2.5 shrink-0">
             <Button
               variant="primary"
@@ -257,13 +256,9 @@ export const ProductScanner: React.FC = () => {
         </div>
       )}
 
-
-      {/* Upload Section */}
-      <ImageUploader />
-=======
       {/* Capture/Upload Section */}
       {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
->>>>>>> 7bf803c (feat: add live manufacturer inspection and factory vision)
+
 
       {/* Image Previews + Actions */}
       <ImagePreviewPanel />
@@ -358,3 +353,4 @@ export const ProductScanner: React.FC = () => {
     </div>
   );
 };
+
