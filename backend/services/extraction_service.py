@@ -162,7 +162,7 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
 # Mandatory field keys per Legal Metrology Rules
 MANDATORY_FIELDS = {
-    "productName", "mrp", "netQuantity", "manufacturerAddress",
+    "productName", "mrp", "netQuantity", "manufacturer", "manufacturerAddress",
     "manufacturingDate", "countryOfOrigin", "customerCare", "batchNumber",
 }
 
@@ -461,6 +461,24 @@ def extract_from_image_hybrid(
                     )
             
             res.overall_confidence = (total_conf / found_count) if found_count > 0 else 0.0
+
+            # Add 'address' as alias for 'manufacturerAddress' so the frontend can read it under both keys
+            mfr_addr_field = res.fields.get("manufacturerAddress")
+            if mfr_addr_field and mfr_addr_field.value:
+                res.fields["address"] = ExtractedField(
+                    key="address",
+                    value=mfr_addr_field.value,
+                    raw_match=mfr_addr_field.raw_match,
+                    confidence=mfr_addr_field.confidence,
+                    regex_pattern=mfr_addr_field.regex_pattern,
+                    is_mandatory=True,
+                    validation_status=mfr_addr_field.validation_status
+                )
+            else:
+                res.fields["address"] = ExtractedField(
+                    key="address", value="", raw_match="", confidence=0.0,
+                    regex_pattern="", is_mandatory=True, validation_status="non-compliant"
+                )
             return res
 
     # Fallback to standard OCR regex extraction
