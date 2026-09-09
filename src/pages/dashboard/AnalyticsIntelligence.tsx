@@ -21,7 +21,6 @@ import {
   COMPLIANCE_TRENDS,
   CATEGORY_RISK_METRICS,
   PLATFORM_COMPLIANCE_METRICS,
-  STATE_COMPLIANCE_METRICS,
   NATIONAL_STATS,
 } from '../../data/mockComplianceData';
 import { formatNumber, formatCurrency } from '../../lib/utils';

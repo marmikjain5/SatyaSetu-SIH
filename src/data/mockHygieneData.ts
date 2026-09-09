@@ -237,7 +237,7 @@ const ZONES_FACTORY_4: HygieneZone[] = [
     ],
   },
   {
-    id: 'Z-F4-02', factoryId: 'FAC-004', name: 'Tablet Press Room', type: 'production',
+    id: 'Z-F4-02', factoryId: 'FAC-004', name: 'Filling & Bottling Line', type: 'production',
     score: 82, status: 'compliant', activeIssues: 0, lastInspected: '2026-08-20',
     parameters: [
       buildParam('P-F4-Z2-01', 'Temperature',          'sensor-telemetry',       22.0, 'temp',    '2026-08-27 18:49'),
@@ -331,13 +331,13 @@ export const MOCK_FACTORIES: Factory[] = [
   },
   {
     id: 'FAC-004',
-    name: 'Cipla Pharmaceuticals – Patalganga',
-    location: 'MIDC Patalganga, Raigad',
-    city: 'Raigad',
+    name: 'Marico Limited – Jalgaon Edible Oils Plant',
+    location: 'MIDC Industrial Area, Jalgaon',
+    city: 'Jalgaon',
     state: 'Maharashtra',
-    registrationNumber: 'MH-PHARMA-2018-07263',
+    registrationNumber: 'MH-FOOD-2018-07263',
     fssaiLicense: 'FSSAI-10020027000310',
-    category: 'Pharmaceuticals — Solid Dosage',
+    category: 'Packaged Consumer Foods — Edible Oils & Blends',
     overallScore: computeFactoryScore(ZONES_FACTORY_4),
     complianceStatus: deriveHygieneStatus(computeFactoryScore(ZONES_FACTORY_4)),
     activeAlerts: computeActiveAlerts(ZONES_FACTORY_4),
@@ -535,7 +535,7 @@ export const MOCK_INSPECTIONS: HygieneInspection[] = [
     evidence: [
       { id: 'EV-INS4-01', type: 'visual-observation', title: 'Blending Unit — PPE Compliance', description: 'One operator observed without proper hair covering during blending operations.', imageRef: 'ins-photo-5', capturedAt: '2026-08-20 11:00' },
     ],
-    notes: 'Generally well-maintained pharmaceutical facility. Minor PPE compliance gap in Blending Unit. Operator counseled on-site. Recommend awareness session for entire shift.',
+    notes: 'Generally well-maintained food & edible oil packaging facility. Minor PPE compliance gap in Blending Unit. Operator counseled on-site. Recommend awareness session for entire shift.',
   },
   {
     id: 'INS-005', factoryId: 'FAC-001', inspector: 'Anjali Krishnan', inspectorBadge: 'LM-SZ-1055',

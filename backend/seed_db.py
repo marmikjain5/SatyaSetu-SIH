@@ -223,7 +223,7 @@ def seed_database():
             ProductModel(
                 id="prod-4",
                 sku="SKU-ZPT-COSM-774",
-                title="Himalayan Organics Bhringraj & Red Onion Anti-Hairfall Ayurvedic Hair Oil 200ml",
+                title="Himalayan Organics Bhringraj & Red Onion Anti-Hairfall Nourishing Hair Oil 200ml",
                 brand="Himalayan Organics",
                 category="Cosmetics & Personal Care",
                 manufacturer_id="mfg-4",
@@ -245,7 +245,7 @@ def seed_database():
                 dietary_type="Vegetarian",
                 claims=[{"text": "100% Stops Hair Fall in 7 Days", "isMisleading": True, "reason": "Unsubstantiated timeline clinical claim"}],
                 missing_mandatory_fields=["Batch Number Font Size < 1mm", "Best Before Clear Date Format"],
-                regulatory_acts=["Drugs & Magic Remedies Act, 1954", "Legal Metrology Rules 2011 Rule 9"],
+                regulatory_acts=["Legal Metrology (Packaged Commodities) Rules 2011 Rule 9", "Consumer Protection Act 2019 (Misleading Advertisements)"],
                 last_scanned="Today at 09:12 AM",
             ),
         ]

@@ -59,7 +59,7 @@ export const CoreCapabilitiesSection: React.FC = () => {
       title: 'Misleading Claim Detection',
       subtitle: 'NLP & LLM Regulatory Verification Engine',
       description:
-        'Identifies exaggerated efficacy claims, fake endorsements, and prohibited statements under the Drugs & Magic Remedies Act and CCPA 2022 Guidelines.',
+        'Identifies exaggerated efficacy claims, fake endorsements, and prohibited statements under the Legal Metrology Act 2009 and CCPA 2022 Guidelines.',
       icon: AlertOctagon,
       badge: 'RAG Regulatory',
       metrics: ['Clinical Evidence Verification', 'Deceptive Discount Detection', 'Dark Pattern Recognition'],

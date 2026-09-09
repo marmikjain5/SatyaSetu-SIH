@@ -16,6 +16,11 @@ import {
 } from '../lib/scanComplaintCorrelator';
 import { consolidateMultiAngleExtractions } from '../lib/multiAngleConsolidator';
 import { useComplianceStore } from './complianceStore';
+import {
+  MOCK_SCANS,
+  MOCK_VALIDATION_RESULTS,
+  MOCK_READABILITY_RESULTS,
+} from '../data/mockScans';
 
 interface ScanState {
   // State
@@ -38,6 +43,7 @@ interface ScanState {
 
   // Actions
   addImages: (files: File[]) => void;
+  loadSampleImage: (imageUrl: string, fileName: string) => Promise<void>;
   removeImage: (id: string) => void;
   clearImages: () => void;
   updateImageAngleLabel: (id: string, label: string) => void;
@@ -96,7 +102,7 @@ function formatTimestamp(): string {
 }
 
 export const useScanStore = create<ScanState>((set, get) => ({
-  scans: [],
+  scans: MOCK_SCANS,
   currentScan: null,
   uploadedImages: [],
   isProcessing: false,
@@ -105,9 +111,20 @@ export const useScanStore = create<ScanState>((set, get) => ({
   activeAngleIndex: 0,
   hasUnviewedCompletion: false,
   lastCompletedScanId: null,
-  validationResults: {},
+  validationResults: MOCK_VALIDATION_RESULTS,
   correlationResults: {},
-  readabilityResults: {},
+  readabilityResults: MOCK_READABILITY_RESULTS,
+
+  loadSampleImage: async (imageUrl: string, fileName: string) => {
+    try {
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+      await get().addImages([file]);
+    } catch (err) {
+      console.error('Failed to load sample image', err);
+    }
+  },
 
   addImages: async (files) => {
     const validFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));

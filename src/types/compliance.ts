@@ -13,7 +13,7 @@ export type PlatformType =
   | 'Retail (Karnataka)'
   | 'Retail & Wholesale (Karnataka)'
   | 'Pan-India Retail & E-Commerce'
-  | 'Pan-India Retail & Pharmacy'
+  | 'Pan-India Retail & Supermarkets'
   | 'E-Commerce Dark Store (Bengaluru)'
   | 'Amazon / BigBasket / Offline Retail'
   | string; // Allow any future platform string

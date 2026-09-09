@@ -130,6 +130,47 @@ export const ImageUploader: React.FC = () => {
             <span>{error}</span>
           </div>
         )}
+
+        {/* Quick Sample Declarations for Testing */}
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono uppercase tracking-wider">
+              Quick Test: Sample FMCG Packaging Declarations
+            </span>
+            <span className="text-[11px] text-slate-400 font-mono">1-Click Load</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {[
+              { name: 'Parachute Oil', img: '/products/parachute_coconut_oil.jpg' },
+              { name: 'Nivea Lotion', img: '/products/nivea_body_lotion.jpg' },
+              { name: 'Nescafé Classic', img: '/products/nescafe_classic.jpg' },
+              { name: 'Bournvita Pouch', img: '/products/bournvita.jpg' },
+              { name: 'Mysore Sandal', img: '/products/mysore_sandal_soap.jpg' },
+            ].map((item, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  useScanStore.getState().loadSampleImage(item.img, `${item.name.toLowerCase().replace(/\s+/g, '-')}.jpg`);
+                }}
+                disabled={isProcessing}
+                className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50/70 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900 transition-all text-left group disabled:opacity-50"
+              >
+                <img src={item.img} alt={item.name} className="w-8 h-8 rounded object-cover shrink-0 border border-slate-200 dark:border-slate-700" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 truncate">
+                    {item.name}
+                  </div>
+                  <div className="text-[10px] text-blue-600 dark:text-blue-400 font-mono">
+                    + Load Label
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
