@@ -29,6 +29,7 @@ interface Props {
   violations: Violation[];
   isOpen: boolean;
   onClose: () => void;
+  onScheduleInspection?: (manufacturer: Manufacturer) => void;
 }
 
 const RISK_COLORS = {
@@ -52,7 +53,13 @@ const STATUS_COLORS: Record<string, string> = {
   'Resolved': 'bg-green-100 text-green-700 border-green-200',
 };
 
-export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violations, isOpen, onClose }) => {
+export const ManufacturerDossierModal: React.FC<Props> = ({
+  manufacturer,
+  violations,
+  isOpen,
+  onClose,
+  onScheduleInspection,
+}) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'violations' | 'actions'>('overview');
   const navigate = useNavigate();
 
@@ -92,7 +99,7 @@ export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violat
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[600]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80000]"
             onClick={onClose}
           />
 
@@ -102,7 +109,7 @@ export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violat
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-            className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl z-[700] flex flex-col overflow-hidden"
+            className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl z-[80001] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className={`px-6 pt-5 pb-4 border-b border-slate-200 ${rc.ring} border-l-4`} style={{ borderLeftColor: mfg.riskTier === 'Critical' ? '#dc2626' : mfg.riskTier === 'High' ? '#d97706' : mfg.riskTier === 'Moderate' ? '#ca8a04' : '#16a34a' }}>
@@ -128,12 +135,28 @@ export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violat
                     CIN: {mfg.cin}
                   </p>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {onScheduleInspection && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs text-blue-700 border-blue-200 hover:bg-blue-50 font-semibold shrink-0"
+                      onClick={() => {
+                        onScheduleInspection(mfg);
+                      }}
+                      title="Schedule surprise inspection notice & dispatch email to enforcement team"
+                    >
+                      <Calendar className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
+                      Schedule Inspection
+                    </Button>
+                  )}
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Risk Score Bar */}
@@ -388,7 +411,13 @@ export const ManufacturerDossierModal: React.FC<Props> = ({ manufacturer, violat
                       <button
                         key={action.label}
                         disabled={action.disabled}
-                        onClick={() => alert(`Action triggered: ${action.label}\n\n(This is a demo — in production this would log to the enforcement ledger.)`)}
+                        onClick={() => {
+                          if (action.label.includes('Schedule') && onScheduleInspection) {
+                            onScheduleInspection(mfg);
+                          } else {
+                            alert(`Action triggered: ${action.label}\n\n(This is a demo — in production this would log to the enforcement ledger.)`);
+                          }
+                        }}
                         className={cn(
                           'w-full flex items-start gap-3 p-4 rounded-xl text-white text-left transition-all',
                           action.disabled ? 'opacity-40 cursor-not-allowed bg-slate-400' : action.color
