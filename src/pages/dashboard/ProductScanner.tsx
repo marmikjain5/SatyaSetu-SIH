@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Images,
@@ -20,6 +20,7 @@ import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
+import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
@@ -189,7 +190,7 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title={isManufacturer ? 'Declaration Accuracy' : 'Avg Confidence'}
-          value={avgConfidence > 0 ? `${avgConfidence}%` : '—'}
+          value={avgConfidence > 0 ? `${avgConfidence}%` : 'â€”'}
           icon={Activity}
           variant={avgConfidence >= 90 ? 'success' : avgConfidence >= 70 ? 'warning' : 'default'}
           description={isManufacturer ? 'Mandatory declaration score' : 'Across completed scans'}
@@ -203,7 +204,7 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title="Last Verification"
-          value={lastScanTime === 'Never' ? '—' : lastScanTime.split(',')[0] || '—'}
+          value={lastScanTime === 'Never' ? 'â€”' : lastScanTime.split(',')[0] || 'â€”'}
           icon={Clock}
           variant="default"
           description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
@@ -223,7 +224,8 @@ export const ProductScanner: React.FC = () => {
                   Unified Inspection Session
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
-                  {completedScans.length} {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
+                  {completedScans.length}{' '}
+                  {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
                 </span>
                 {sessionTotalViolations > 0 ? (
                   <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
@@ -240,7 +242,6 @@ export const ProductScanner: React.FC = () => {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-2.5 shrink-0">
             <Button
               variant="primary"
@@ -255,9 +256,9 @@ export const ProductScanner: React.FC = () => {
         </div>
       )}
 
+      {/* Capture/Upload Section */}
+      {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
 
-      {/* Upload Section */}
-      <ImageUploader />
 
       {/* Image Previews + Actions */}
       <ImagePreviewPanel />
@@ -352,3 +353,4 @@ export const ProductScanner: React.FC = () => {
     </div>
   );
 };
+
