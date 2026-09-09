@@ -61,6 +61,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
   if (!isOpen) return null;
 
   const { coverPage, productInfo, ruleValidation, readabilityAnalysis, evidence, recommendations, verdict, digitalSignature } = report;
+  const isSessionReport = report.reportType === 'inspection-session' && !!report.auditedProducts;
 
   const handleDownloadPdf = async () => {
     setIsExporting(true);
@@ -317,8 +318,325 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 </Button>
               </div>
             </form>
+          ) : isSessionReport ? (
+            /* ── Multi-Product Inspection Session Printable View ── */
+            <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
+              {/* Government Header Banner */}
+              <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 text-center space-y-1">
+                <div className="inline-flex items-center gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest font-mono">
+                  <span>GOVERNMENT OF INDIA</span>
+                  <span>•</span>
+                  <span>MINISTRY OF CONSUMER AFFAIRS</span>
+                </div>
+                <h1 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
+                  Comprehensive Multi-Commodity Inspection Session Report
+                </h1>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards • {report.auditedProducts?.length || 0} Products Audited
+                </p>
+              </div>
+
+              {/* Identification Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-mono">
+                <div>
+                  <span className="text-slate-500">INSPECTION SESSION ID: </span>
+                  <span className="font-bold text-blue-700 dark:text-blue-400">{coverPage.reportId}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">SESSION DATE: </span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{coverPage.formattedDate}</span>
+                </div>
+              </div>
+
+              {/* Status & Verdict Hero Banner */}
+              <div className={cn('p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4', statusBadge.bg)}>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                      OVERALL INSPECTION SWEEP VERDICT
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono bg-slate-900 text-white dark:bg-white dark:text-slate-900">
+                      RISK TIER: {coverPage.riskTier}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-black tracking-tight uppercase flex items-center gap-2">
+                    {React.createElement(statusBadge.icon, { className: 'h-5 w-5' })}
+                    <span>{verdict.verdictTitle}</span>
+                  </h3>
+                  <p className="text-xs max-w-xl opacity-90">
+                    {verdict.summaryRemarks}
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-center min-w-[120px] shrink-0 shadow-2xs">
+                  <span className="text-3xl font-black font-mono block leading-none text-slate-900 dark:text-slate-100">
+                    {coverPage.complianceScore}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono block mt-1">
+                    Avg Compliance Score
+                  </span>
+                </div>
+              </div>
+
+              {/* Session KPI Summary Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
+                  <span className="text-2xl font-black font-mono text-slate-900 dark:text-slate-100 block">
+                    {report.sessionSummary?.totalProductsScanned || report.auditedProducts?.length || 0}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase font-mono mt-0.5 block">
+                    Total Products Audited
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
+                  <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 block">
+                    {report.sessionSummary?.compliantCount ?? 0}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase font-mono mt-0.5 block">
+                    Fully Compliant
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
+                  <span className="text-2xl font-black font-mono text-red-600 dark:text-red-400 block">
+                    {report.sessionSummary?.nonCompliantCount ?? 0}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase font-mono mt-0.5 block">
+                    Non-Compliant / Flagged
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
+                  <span className="text-2xl font-black font-mono text-amber-600 dark:text-amber-400 block">
+                    {report.sessionSummary?.totalViolationsCount ?? 0}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase font-mono mt-0.5 block">
+                    Total Violations Flagged
+                  </span>
+                </div>
+              </div>
+
+              {/* Section 1: Inspection Authority */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
+                  <span>1. Inspecting Authority &amp; Sweep Identity</span>
+                  <span className="font-mono text-[10px] text-slate-400">SEC-01</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block font-mono">
+                      Inspecting Officer
+                    </span>
+                    <p className="font-bold text-slate-900 dark:text-slate-100">
+                      {coverPage.inspectorName} ({coverPage.inspectorBadge})
+                    </p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                      {coverPage.inspectorDesignation}
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      {coverPage.department}
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block font-mono">
+                      Inspection Scope &amp; Jurisdiction
+                    </span>
+                    <p className="font-bold text-slate-900 dark:text-slate-100">
+                      {coverPage.jurisdiction}
+                    </p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                      Facility: {coverPage.inspectionLocation}
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      Commodities Audited: {report.auditedProducts?.length || 0} Packaged Goods
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Audited Products Master Ledger Table */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
+                  <span>2. Audited Products Master Ledger ({report.auditedProducts?.length || 0} Products)</span>
+                  <span className="font-mono text-[10px] text-slate-400">SEC-02</span>
+                </h4>
+
+                <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-800">
+                      <tr>
+                        <th className="p-2.5 w-[5%] text-center">#</th>
+                        <th className="p-2.5 w-[28%]">Product / Commodity</th>
+                        <th className="p-2.5 w-[24%]">Manufacturer / Brand</th>
+                        <th className="p-2.5 w-[15%]">MRP / Quantity</th>
+                        <th className="p-2.5 w-[10%] text-center">Score</th>
+                        <th className="p-2.5 w-[18%]">Inspection Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {(report.auditedProducts || []).map((p, idx) => (
+                        <tr key={p.scanId || idx} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                          <td className="p-2 text-center font-bold text-slate-500">{idx + 1}</td>
+                          <td className="p-2">
+                            <span className="font-bold block text-slate-900 dark:text-slate-100">{p.productName}</span>
+                            <span className="text-[10px] font-mono text-slate-500">Batch: {p.batchNumber}</span>
+                          </td>
+                          <td className="p-2 text-slate-700 dark:text-slate-300">{p.manufacturer}</td>
+                          <td className="p-2 font-mono">
+                            <span className="font-bold block">{p.mrp}</span>
+                            <span className="text-[10px] text-slate-500">{p.netQuantity}</span>
+                          </td>
+                          <td className="p-2 text-center font-mono font-bold">
+                            <span className={cn(
+                              p.complianceScore >= 80 ? 'text-emerald-600' : p.complianceScore >= 60 ? 'text-amber-600' : 'text-red-600'
+                            )}>
+                              {p.complianceScore}
+                            </span>
+                          </td>
+                          <td className="p-2">
+                            <span
+                              className={cn(
+                                'px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono inline-block',
+                                p.status === 'compliant'
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                  : p.status === 'non-compliant'
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                              )}
+                            >
+                              {p.status === 'compliant' ? 'COMPLIANT' : `${p.violationCount} VIOLATION(S)`}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                  <span>Total Violations: <strong className="text-red-600">{ruleValidation.violationCount}</strong> | Total Warnings: <strong className="text-amber-600">{ruleValidation.warningCount}</strong></span>
+                  <span>Cumulative Compounding Fine Exposure: <strong className="text-slate-900 dark:text-slate-100">{verdict.statutoryPenaltyEstimate}</strong></span>
+                </div>
+              </div>
+
+              {/* Section 3: Consolidated Violations Matrix */}
+              {(report.consolidatedViolations || []).length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
+                    <span>3. Consolidated Legal Metrology &amp; FSSAI Violations Matrix</span>
+                    <span className="font-mono text-[10px] text-slate-400">SEC-03</span>
+                  </h4>
+
+                  <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                          <th className="p-2.5 w-[22%]">Product &amp; Manufacturer</th>
+                          <th className="p-2.5 w-[14%]">Rule Code</th>
+                          <th className="p-2.5 w-[24%]">Statutory Act &amp; Section</th>
+                          <th className="p-2.5 w-[26%]">Observed Deficiency</th>
+                          <th className="p-2.5 w-[14%]">Statutory Fine</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {(report.consolidatedViolations || []).map((v, i) => (
+                          <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                            <td className="p-2">
+                              <span className="font-bold block text-slate-900 dark:text-slate-100">{v.productName}</span>
+                              <span className="text-[10px] text-slate-500">{v.manufacturer}</span>
+                            </td>
+                            <td className="p-2 font-mono font-bold text-slate-700 dark:text-slate-300">{v.ruleCode}</td>
+                            <td className="p-2">
+                              <span className="font-bold block text-slate-900 dark:text-slate-100">{v.ruleName}</span>
+                              <span className="text-[10px] text-slate-500">{v.section}</span>
+                            </td>
+                            <td className="p-2 text-red-600 dark:text-red-400 font-mono text-[11px]">{v.evidence}</td>
+                            <td className="p-2 font-mono font-bold text-red-700 dark:text-red-400">{v.penaltyRange}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Section 4: Readability Overview */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
+                  <span>4. Optical Readability &amp; Print Typography Summary</span>
+                  <span className="font-mono text-[10px] text-slate-400">SEC-04</span>
+                </h4>
+
+                <div className="grid grid-cols-3 gap-3 text-center text-xs">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase font-mono block">Avg Font Height</span>
+                    <span className="text-lg font-black font-mono text-slate-900 dark:text-slate-100">
+                      {readabilityAnalysis.summary.avgFontSizePt} pt
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      ≈ {((readabilityAnalysis.summary.avgFontSizePt * 25.4) / 72).toFixed(1)} mm
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase font-mono block">Contrast Ratio</span>
+                    <span className="text-lg font-black font-mono text-slate-900 dark:text-slate-100">
+                      {readabilityAnalysis.summary.avgContrastRatio}:1
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      WCAG 2.1 Standard
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase font-mono block">Readability Score</span>
+                    <span className="text-lg font-black font-mono text-indigo-600 dark:text-indigo-400">
+                      {readabilityAnalysis.summary.overallScore}/100
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      {readabilityAnalysis.flaggedRegions.length} Defect Regions
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Directives & Recommendations */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
+                  <span>5. Corrective Action Directives &amp; Compounding Notices</span>
+                  <span className="font-mono text-[10px] text-slate-400">SEC-05</span>
+                </h4>
+
+                <ul className="text-xs space-y-1.5 list-disc pl-5 text-slate-700 dark:text-slate-300">
+                  {recommendations.correctiveActions.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                  {recommendations.legalEnforcementSteps.map((l, i) => (
+                    <li key={i}><strong className="text-slate-900 dark:text-slate-100">Statutory Notice:</strong> {l}</li>
+                  ))}
+                </ul>
+
+                <p className="text-xs font-bold text-red-600 dark:text-red-400 pt-1">
+                  Enforcement Deadline: {verdict.recommendedActionDeadline} (Under Rule 24 Guidelines)
+                </p>
+              </div>
+
+              {/* Digital Signature Block */}
+              <div className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50 dark:bg-slate-900 flex items-center justify-between gap-4">
+                <div className="space-y-1 text-xs">
+                  <p className="text-slate-800 dark:text-slate-200 font-semibold">
+                    Digitally signed by {digitalSignature.signedBy ? `${digitalSignature.signedBy}${digitalSignature.badgeNumber ? ` (${digitalSignature.badgeNumber})` : ''}` : 'the inspecting officer'}.
+                  </p>
+                  {digitalSignature.timestamp && (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Timestamp: {digitalSignature.timestamp} • SHA-256 e-Sign Standard
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           ) : (
-            /* ── Official Printable Report View ─────────────────── */
+            /* ── Single-Product Printable Report View ─────────────────── */
             <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
               {/* Government Header Banner */}
               <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 text-center space-y-1">
@@ -610,6 +928,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>

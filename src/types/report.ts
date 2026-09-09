@@ -119,9 +119,66 @@ export interface ReportVerdictData {
   recommendedActionDeadline: string;
 }
 
+export interface AuditedProductViolation {
+  ruleCode: string;
+  ruleName: string;
+  section: string;
+  evidence: string;
+  expectedStandard: string;
+  penalty: string;
+  status: 'pass' | 'fail' | 'warning' | 'not-applicable';
+}
+
+export interface AuditedProductSummary {
+  scanId: string;
+  productName: string;
+  manufacturer: string;
+  mrp: string;
+  netQuantity: string;
+  batchNumber: string;
+  manufacturingDate: string;
+  expiryDate: string;
+  complianceScore: number;
+  readabilityScore: number;
+  status: ReportComplianceStatus;
+  violationCount: number;
+  warningCount: number;
+  imageDataUrl?: string;
+  violations: AuditedProductViolation[];
+}
+
+export interface ConsolidatedViolationEntry {
+  scanId: string;
+  productName: string;
+  manufacturer: string;
+  ruleCode: string;
+  ruleName: string;
+  section: string;
+  evidence: string;
+  expectedStandard: string;
+  penaltyRange: string;
+  severity: 'critical' | 'high' | 'medium' | 'low' | string;
+}
+
+
+export interface InspectionSessionSummary {
+  totalProductsScanned: number;
+  compliantCount: number;
+  nonCompliantCount: number;
+  warningCount: number;
+  totalViolationsCount: number;
+  totalWarningsCount: number;
+  avgComplianceScore: number;
+  avgReadabilityScore: number;
+  totalEstimatedFineMin: number;
+  totalEstimatedFineMax: number;
+  overallVerdict: ReportComplianceStatus;
+}
+
 /** Complete Inspection-Grade Compliance Report Model */
 export interface ComplianceInspectionReport {
   schemaVersion: '5.0.0';
+  reportType?: 'single-product' | 'inspection-session';
   reportId: string;
   scanId: string;
   generatedAt: string;
@@ -134,6 +191,10 @@ export interface ComplianceInspectionReport {
   recommendations: ReportRecommendationsData;
   verdict: ReportVerdictData;
   digitalSignature: DigitalSignatureInfo;
+  /** Multi-Product Inspection Session specific data */
+  sessionSummary?: InspectionSessionSummary;
+  auditedProducts?: AuditedProductSummary[];
+  consolidatedViolations?: ConsolidatedViolationEntry[];
 }
 
 export interface ReportGenerationOptions {
@@ -147,3 +208,4 @@ export interface ReportGenerationOptions {
   actionDeadlineDays?: number;
   applyDigitalSignature?: boolean;
 }
+
