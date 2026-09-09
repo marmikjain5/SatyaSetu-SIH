@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  UploadCloud,
   Loader2,
   Sparkles,
   ShieldAlert,
@@ -12,10 +11,12 @@ import {
   ChevronRight,
   Award,
   RefreshCw,
+  Video,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useHygieneStore, ManufacturerAssessment } from '../../store/hygieneStore';
 import { analyzeFactoryImage, VisualInspectionResult } from '../../lib/hygieneVisionService';
+import { LiveFactoryVideoRecorder } from '../../components/hygiene/LiveFactoryVideoRecorder';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -25,9 +26,9 @@ export const ManufacturerHygieneCertification: React.FC = () => {
   const { user } = useAuthStore();
   const { manufacturerAssessments, addManufacturerAssessment } = useHygieneStore();
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [recordedVideoBlob, setRecordedVideoBlob] = useState<Blob | null>(null);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
+  const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState('');
   const [result, setResult] = useState<VisualInspectionResult | null>(null);
@@ -37,24 +38,22 @@ export const ManufacturerHygieneCertification: React.FC = () => {
     (a) => !user?.id || a.manufacturerId === user?.id || user?.role === 'admin'
   );
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      setImageUrl(URL.createObjectURL(file));
-      setResult(null);
-      setIsCertified(false);
-    }
+  const handleVideoRecorded = (videoBlob: Blob, videoUrl: string, snapshotDataUrl: string) => {
+    setRecordedVideoBlob(videoBlob);
+    setRecordedVideoUrl(videoUrl);
+    setSnapshotUrl(snapshotDataUrl);
+    setResult(null);
+    setIsCertified(false);
   };
 
   const handleAnalyze = async () => {
-    if (!imageUrl) return;
+    if (!snapshotUrl && !recordedVideoUrl) return;
     setIsAnalyzing(true);
-    setAnalysisStatus('Preprocessing factory image...');
+    setAnalysisStatus('Processing factory video stream...');
     await new Promise((r) => setTimeout(r, 600));
-    setAnalysisStatus('Running AI Hygiene Vision Assessment...');
-    const inspectionResult = await analyzeFactoryImage(imageUrl);
-    setAnalysisStatus('Generating compliance report...');
+    setAnalysisStatus('Running AI Hygiene Vision Assessment on recorded video...');
+    const inspectionResult = await analyzeFactoryImage(snapshotUrl || recordedVideoUrl || '');
+    setAnalysisStatus('Compiling hygiene self-certification proof...');
     await new Promise((r) => setTimeout(r, 500));
     setResult(inspectionResult);
     setIsAnalyzing(false);
@@ -69,7 +68,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
       id: `MFG-CERT-${Date.now()}`,
       manufacturerId: user.id,
       manufacturerName: user.name,
-      imageUrl: result.imageUrl,
+      imageUrl: snapshotUrl || recordedVideoUrl || result.imageUrl,
       riskScore: result.riskScore,
       riskLevel: result.riskLevel,
       findingsCount: result.findings.length,
@@ -83,8 +82,16 @@ export const ManufacturerHygieneCertification: React.FC = () => {
   };
 
   const handleReset = () => {
-    setImageFile(null);
-    setImageUrl(null);
+    if (recordedVideoUrl) {
+      try {
+        URL.revokeObjectURL(recordedVideoUrl);
+      } catch {
+        // ignore
+      }
+    }
+    setRecordedVideoBlob(null);
+    setRecordedVideoUrl(null);
+    setSnapshotUrl(null);
     setResult(null);
     setIsCertified(false);
   };
@@ -103,7 +110,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
             Factory Hygiene Self-Certification Portal
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Upload factory floor images to run AI-powered hygiene assessment. Passing assessments generate a self-certification proof that can be submitted to regulators for compliance verification.
+            Record a live video of your factory floor, production area or storage zone for hygiene assessment. Passing assessments generate a self-certification proof that can be submitted to regulators for compliance verification.
           </p>
         </div>
       </div>
@@ -118,7 +125,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
             {myAssessments.length}
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            Factory Images Analyzed
+            Factory Videos Inspected
           </span>
         </div>
 
@@ -147,84 +154,15 @@ export const ManufacturerHygieneCertification: React.FC = () => {
         </div>
       </div>
 
-      {/* Upload & Analysis Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            AI Factory Hygiene Assessment
-          </CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Upload a clear photograph of your factory floor, production area, or storage zone. Our AI will analyze it for hygiene compliance.
-          </p>
-        </CardHeader>
-        <CardContent>
-          {!imageUrl ? (
-            <div
-              className="border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-xl p-12 text-center hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-colors cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UploadCloud className="h-10 w-10 text-indigo-400 mx-auto mb-3" />
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
-                Upload Factory Image for Assessment
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                PNG, JPG or WEBP (max 10MB) — production floor, storage, or processing areas
-              </p>
-              <div className="flex justify-center gap-2 mt-4">
-                <Button variant="outline" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                  Browse Files
-                </Button>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                accept="image/png, image/jpeg, image/webp"
-                onChange={handleImageUpload}
-              />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 max-h-[400px] flex items-center justify-center">
-                <img src={imageUrl} alt="Uploaded factory" className="max-h-[400px] object-contain" />
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
-                    Replace
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={handleReset}>
-                    Clear
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/png, image/jpeg, image/webp"
-                    onChange={handleImageUpload}
-                  />
-                </div>
-              </div>
-
-              {!result && (
-                <div className="flex justify-center pt-2">
-                  <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full sm:w-auto min-w-[260px]">
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        {analysisStatus}
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Run AI Hygiene Assessment
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Live Factory Video Recording Section — LIVE VIDEO ONLY */}
+      <LiveFactoryVideoRecorder
+        onVideoRecorded={handleVideoRecorded}
+        onReset={handleReset}
+        recordedVideoUrl={recordedVideoUrl}
+        isAnalyzing={isAnalyzing}
+        onRunAssessment={handleAnalyze}
+        analysisStatus={analysisStatus}
+      />
 
       {/* Analysis Results */}
       {result && (
@@ -333,7 +271,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
                 {isCertified && (
                   <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={handleReset}>
                     <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                    Upload New Image
+                    Record New Video
                   </Button>
                 )}
               </CardContent>

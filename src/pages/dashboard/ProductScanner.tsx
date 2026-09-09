@@ -20,6 +20,7 @@ import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
+import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
@@ -210,6 +211,7 @@ export const ProductScanner: React.FC = () => {
         />
       </div>
 
+<<<<<<< HEAD
       {/* Active Inspection Session Banner (Feature: All products in session treated as 1 unified inspection) */}
       {completedScans.length > 0 && (
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
@@ -258,6 +260,10 @@ export const ProductScanner: React.FC = () => {
 
       {/* Upload Section */}
       <ImageUploader />
+=======
+      {/* Capture/Upload Section */}
+      {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
+>>>>>>> 7bf803c (feat: add live manufacturer inspection and factory vision)
 
       {/* Image Previews + Actions */}
       <ImagePreviewPanel />
