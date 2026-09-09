@@ -366,10 +366,15 @@ class _GeminiTextProvider:
 # ─── JSON Parser ─────────────────────────────────────────────────────────────
 
 def _safe_parse_json_list(raw: str) -> Optional[List[Dict]]:
-    """Robustly parses a JSON array from LLM output, handling partial/wrapped responses."""
+    """Robustly parses a JSON array from LLM output, handling partial/wrapped/truncated responses."""
+    import re
     raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```", 2)[-1] if raw.count("```") >= 2 else raw.lstrip("`").strip()
+    if raw.startswith("```json"):
+        raw = raw[7:]
+    elif raw.startswith("```"):
+        raw = raw[3:]
+    if raw.endswith("```"):
+        raw = raw[:-3]
     raw = raw.strip()
 
     try:
@@ -392,6 +397,21 @@ def _safe_parse_json_list(raw: str) -> Optional[List[Dict]]:
                 return result
         except Exception:
             pass
+
+    # Robust Fallback: Extract each individual JSON object { ... }
+    extracted_objects = []
+    # Match non-nested JSON objects inside the array
+    obj_matches = re.findall(r'\{[^{}]*\}', raw)
+    for m in obj_matches:
+        try:
+            obj = json.loads(m)
+            if isinstance(obj, dict) and "rule_id" in obj:
+                extracted_objects.append(obj)
+        except Exception:
+            continue
+
+    if extracted_objects:
+        return extracted_objects
 
     return None
 

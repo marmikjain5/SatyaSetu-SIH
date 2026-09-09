@@ -187,7 +187,13 @@ function validateAddress(
       if (addrMatch) {
         value = addrMatch[0].trim();
       } else {
-        value = `Premises with verified PIN: ${pinMatch[1]}`;
+        value = `Manufacturing premise with verified PIN: ${pinMatch[1]}`;
+      }
+    } else {
+      // Look for city/state or company location keywords
+      const locMatch = rawText.match(/(?:mumbai|delhi|bengaluru|bangalore|kolkata|chennai|hyderabad|pune|ahmedabad|jaipur|noida|gurugram|gujarat|maharashtra|karnataka|tamil\s*nadu|haryana|uttar\s*pradesh|india)/i);
+      if (locMatch) {
+        value = `Manufacturing premises, ${locMatch[0]}`;
       }
     }
   }
@@ -201,7 +207,7 @@ function validateAddress(
     };
   }
 
-  const hasPIN = /\b[1-9][0-9]{5}\b/.test(value);
+  const hasPIN = /\b[1-9][0-9]{5}\b/.test(value) || /\b[1-9][0-9]{5}\b/.test(rawText);
   if (!hasPIN) {
     return {
       status: 'warning',

@@ -28,15 +28,15 @@ STATUTORY_VISION_PROMPT = """You are SatyaDrishti's statutory packaging complian
 
 Carefully inspect all text, labels, stamps, dot-matrix imprints, symbols, and tables in this product image (including curved surfaces, bottle sides, and nutritional panels).
 
-Extract the following statutory declarations into exact JSON:
+Extract the following statutory declarations into exact JSON. Fill ALL fields you can see:
 {
+  "manufacturer": "Name of manufacturer, packer, or marketer company (Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', 'Mfg. by', 'Mfrd. by', or visible company name on label)",
+  "manufacturerAddress": "Complete premises address with 6-digit PIN code (Look for address block after 'Packed & Marketed by', 'Manufactured by', or any address line with PIN)",
   "productName": "Generic or common name of commodity / brand title",
-  "mrp": "Maximum Retail Price number only (e.g. 10.00 or 350.00, or null if unprinted/blank)",
+  "mrp": "Maximum Retail Price number only (e.g. 10.00 or 350.00, or null if blank)",
   "mrpRaw": "Exact raw text of MRP clause (e.g. MRP Rs. 10.00 incl. of all taxes, or null if blank)",
-  "unitSalePrice": "Unit Sale Price (e.g. Rs. 0.50 / g or Rs. 1.20 / ml, or null if not declared)",
   "netQuantity": "Net weight/volume/count in metric units (e.g. 500 g, 20 g, 350 ml)",
-  "manufacturer": "Name of manufacturer, packer, or marketer company (Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', or brand company name)",
-  "manufacturerAddress": "Complete premises address with 6-digit PIN code (Look for 'Packed & Marketed by', 'Manufactured by', or any company address with PIN code)",
+  "unitSalePrice": "Unit Sale Price (e.g. Rs. 0.50 / g or Rs. 1.20 / ml, or null if not declared)",
   "manufacturingDate": "Date of manufacture/packing (e.g. MM/YYYY, DD/MM/YYYY, or null if blank)",
   "expiryDate": "Expiry / Best Before / Use By date (e.g. MM/YYYY, or null if blank)",
   "batchNumber": "Batch or Lot number (e.g. BN: 1234, or null if blank)",
@@ -44,16 +44,18 @@ Extract the following statutory declarations into exact JSON:
   "customerCare": "Consumer grievance redressal toll-free number or email",
   "fssaiLicense": "14-digit FSSAI license number (if food item)",
   "vegNonVeg": "VEG (Green dot in square) or NON-VEG (Brown triangle in square) or NONE",
-  "rawDetectedText": "Key transcript of declared text on package"
+  "rawDetectedText": "Key transcript of all visible text on package"
 }
 
 IMPORTANT:
-- If a field box is blank/unprinted (like an empty MRP or Batch box), set its value to null.
-- For manufacturer and address: Extract the full company name and premises address including the 6-digit postal PIN code from 'Packed & Marketed by' or 'Manufactured by' panels.
-Return ONLY the JSON object without markdown fences or extra explanations.
+- manufacturer and manufacturerAddress are the MOST critical fields — always extract them even if other fields are unclear.
+- If a field is blank/unprinted, set its value to null.
+- For manufacturer: Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', 'Mfg. by', 'Mfrd. by', or any identifiable company/brand name.
+- For manufacturerAddress: Extract full address with PIN code. Include street, city, state, PIN.
+Return ONLY the JSON object without markdown fences or extra text.
 """
 
-def encode_image_to_base64(image_path_or_bytes: Any, max_dimension: int = 768) -> str:
+def encode_image_to_base64(image_path_or_bytes: Any, max_dimension: int = 896) -> str:
     """Encodes an image file path or raw bytes to a base64 string, resizing to optimal dimension for speed and accuracy."""
     try:
         from PIL import Image
@@ -95,7 +97,7 @@ class OllamaVisionProvider:
         self,
         base_url: str = DEFAULT_OLLAMA_BASE_URL,
         model_name: str = DEFAULT_OLLAMA_VISION_MODEL,
-        timeout_seconds: int = 60
+        timeout_seconds: int = 120
     ):
         self.base_url = base_url.rstrip("/")
         self.model_name = model_name
@@ -129,7 +131,7 @@ class OllamaVisionProvider:
         """Calls Ollama /api/chat endpoint with image, token pruning, and speed optimizations."""
         self.is_available()
 
-        num_predict = int(os.getenv("OLLAMA_NUM_PREDICT", "550"))
+        num_predict = int(os.getenv("OLLAMA_NUM_PREDICT", "900"))
         num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "4096"))
 
         payload = {

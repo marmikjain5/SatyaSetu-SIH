@@ -323,11 +323,16 @@ export class HybridVisionBackendProvider implements OCRProvider {
         let nonCompliantCount = 0;
         let missingCount = 0;
 
+        const MANDATORY_FIELD_SET = new Set([
+          'productName', 'mrp', 'netQuantity', 'manufacturer', 'address',
+          'manufacturingDate', 'countryOfOrigin', 'customerCare', 'batchNumber'
+        ]);
+
         for (const key of keys) {
           const bf = backendFields[key] || {};
           const val = bf.value && bf.value !== '(Not detected)' ? bf.value : '';
           const conf = Math.round((bf.confidence_pct || (val ? 90 : 0)));
-          const isMandatory = bf.is_mandatory !== false;
+          const isMandatory = bf.is_mandatory !== undefined ? Boolean(bf.is_mandatory) : MANDATORY_FIELD_SET.has(key);
           const status = !val
             ? (isMandatory ? 'missing' : 'compliant')
             : (bf.validation_status || (conf >= 80 ? 'compliant' : 'warning'));
@@ -399,7 +404,7 @@ export class HybridVisionBackendProvider implements OCRProvider {
           unitSalePrice: declarations.unitSalePrice?.value || '',
           netQuantity: declarations.netQuantity?.value || '',
           manufacturer: declarations.manufacturer?.value || declarations.address?.value || '',
-          address: declarations.address?.value || '',
+          address: declarations.address?.value || declarations.manufacturer?.value || '',
           importer: declarations.importer?.value || '',
           countryOfOrigin: declarations.countryOfOrigin?.value || 'India',
           packingDate: declarations.packingDate?.value || '',

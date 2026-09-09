@@ -141,6 +141,32 @@ export function consolidateMultiAngleExtractions(
     }
   }
 
+  // Address & Manufacturer Cross-Fallback
+  if (!consolidatedDeclarations.address?.value && consolidatedDeclarations.manufacturer?.value) {
+    consolidatedDeclarations.address = {
+      ...consolidatedDeclarations.manufacturer,
+      key: 'address',
+      label: 'Manufacturer Address',
+      ruleCode: 'PCR-2011-R6(1)(d)',
+      ruleDescription: 'Complete address of the manufacturer / packer with PIN code.',
+      isMandatory: true,
+      category: 'manufacturing',
+    };
+    consolidatedFieldConfidence.address = consolidatedDeclarations.manufacturer.confidence;
+  }
+  if (!consolidatedDeclarations.manufacturer?.value && consolidatedDeclarations.address?.value) {
+    consolidatedDeclarations.manufacturer = {
+      ...consolidatedDeclarations.address,
+      key: 'manufacturer',
+      label: 'Manufacturer Name',
+      ruleCode: 'PCR-2011-R6(1)(a)',
+      ruleDescription: 'Name of the manufacturer or packer.',
+      isMandatory: true,
+      category: 'manufacturing',
+    };
+    consolidatedFieldConfidence.manufacturer = consolidatedDeclarations.address.confidence;
+  }
+
   // Calculate mandatory compliance summary
   let totalMandatory = 0;
   let compliantCount = 0;
@@ -198,8 +224,8 @@ export function consolidateMultiAngleExtractions(
     mrp: consolidatedDeclarations.mrp?.value || '',
     unitSalePrice: consolidatedDeclarations.unitSalePrice?.value || '',
     netQuantity: consolidatedDeclarations.netQuantity?.value || '',
-    manufacturer: consolidatedDeclarations.manufacturer?.value || '',
-    address: consolidatedDeclarations.address?.value || '',
+    manufacturer: consolidatedDeclarations.manufacturer?.value || consolidatedDeclarations.address?.value || '',
+    address: consolidatedDeclarations.address?.value || consolidatedDeclarations.manufacturer?.value || '',
     importer: consolidatedDeclarations.importer?.value || '',
     countryOfOrigin: consolidatedDeclarations.countryOfOrigin?.value || 'India',
     packingDate: consolidatedDeclarations.packingDate?.value || '',
