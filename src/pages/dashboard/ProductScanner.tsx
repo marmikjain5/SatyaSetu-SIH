@@ -53,14 +53,31 @@ export const ProductScanner: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
-  const handleGenerateReport = (options?: Partial<ReportGenerationOptions>) => {
-    if (!currentScan || !currentScan.extractedData) return;
+  const handleGenerateSessionReport = (options?: Partial<ReportGenerationOptions>) => {
+    const validScans = scans.filter((s) => s.status === 'completed' && s.extractedData);
+    if (validScans.length === 0) return;
 
-    const valResult = validationResults[currentScan.id];
-    const readResult = readabilityResults[currentScan.id] || currentScan.readabilityResult;
+    const report = reportService.generateSessionInspectionReport(
+      validScans,
+      validationResults,
+      readabilityResults,
+      options
+    );
+
+    addReport(report);
+    setActiveReport(report);
+    setIsReportModalOpen(true);
+  };
+
+  const handleGenerateSingleReport = (targetScan?: typeof currentScan, options?: Partial<ReportGenerationOptions>) => {
+    const scan = targetScan || currentScan;
+    if (!scan || !scan.extractedData) return;
+
+    const valResult = validationResults[scan.id];
+    const readResult = readabilityResults[scan.id] || scan.readabilityResult;
 
     const report = reportService.generateComplianceReport(
-      currentScan,
+      scan,
       valResult,
       readResult,
       options
@@ -71,8 +88,20 @@ export const ProductScanner: React.FC = () => {
     setIsReportModalOpen(true);
   };
 
+  const handleRegenerateReport = (options?: Partial<ReportGenerationOptions>) => {
+    if (activeReport?.reportType === 'inspection-session') {
+      handleGenerateSessionReport(options);
+    } else {
+      handleGenerateSingleReport(currentScan || scans[0], options);
+    }
+  };
+
   const totalScans = scans.length;
   const completedScans = scans.filter((s) => s.status === 'completed');
+  const sessionTotalViolations = completedScans.reduce(
+    (sum, s) => sum + (validationResults[s.id]?.violationCount || 0),
+    0
+  );
   const avgConfidence =
     completedScans.length > 0
       ? Math.round(
@@ -126,23 +155,28 @@ export const ProductScanner: React.FC = () => {
             )}
           </Button>
 
-          {currentScan?.status === 'completed' && currentScan?.extractedData && (
+          {completedScans.length > 0 && (
             <Button
               variant="primary"
               size="sm"
-              onClick={() => handleGenerateReport()}
-              className={`text-xs gap-1.5 shadow-sm ${
+              onClick={() => handleGenerateSessionReport()}
+              className={`text-xs gap-1.5 shadow-sm font-semibold ${
                 isManufacturer
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
               <FileCheck className="h-3.5 w-3.5" />
-              <span>{isManufacturer ? 'Generate Compliance Self-Certificate' : 'Generate Compliance Report'}</span>
+              <span>
+                {isManufacturer
+                  ? `Generate Session Self-Certificate (${completedScans.length})`
+                  : `Generate Inspection Report (${completedScans.length} ${completedScans.length === 1 ? 'Product' : 'Products'})`}
+              </span>
             </Button>
           )}
         </div>
       </div>
+
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -175,6 +209,52 @@ export const ProductScanner: React.FC = () => {
           description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
         />
       </div>
+
+      {/* Active Inspection Session Banner (Feature: All products in session treated as 1 unified inspection) */}
+      {completedScans.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold font-mono uppercase bg-blue-600 text-white px-2 py-0.5 rounded">
+                  Unified Inspection Session
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                  {completedScans.length} {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
+                </span>
+                {sessionTotalViolations > 0 ? (
+                  <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
+                    {sessionTotalViolations} Violations Flagged
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold font-mono uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900">
+                    All Products Compliant
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation matrix and compounding fine ledger.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleGenerateSessionReport()}
+              className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs font-bold"
+            >
+              <FileCheck className="h-3.5 w-3.5" />
+              <span>Generate Inspection Report ({completedScans.length})</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
 
       {/* Upload Section */}
       <ImageUploader />
@@ -254,9 +334,10 @@ export const ProductScanner: React.FC = () => {
           report={activeReport}
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
-          onRegenerate={(opts) => handleGenerateReport(opts)}
+          onRegenerate={(opts) => handleRegenerateReport(opts)}
         />
       )}
+
 
       {/* Feature 5: Compliance Reports History Modal */}
       <ReportHistoryModal
