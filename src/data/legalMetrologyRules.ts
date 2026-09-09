@@ -12,8 +12,8 @@
  *  │  BLOCK B — FSSAI Food Safety & Standards (Labelling & Display) Regs, 2020       │
  *  │            Gazette: FSSAI F.No. 1-116/FSSAI/Imports/2021, effective 1 Oct 2022  │
  *  ├─────────────────────────────────────────────────────────────────────────────────┤
- *  │  BLOCK C — Consumer Protection Act, 2019 & E-Commerce Rules, 2020               │
- *  │            Gazette: G.S.R. 462(E), 23 Jul 2020                                  │
+ *  │  BLOCK C — Legal Metrology E-Commerce Declarations & BIS Standards              │
+ *  │            Gazette: G.S.R. 629(E), Ministry of Consumer Affairs                 │
  *  └─────────────────────────────────────────────────────────────────────────────────┘
  *
  *  Architecture note:

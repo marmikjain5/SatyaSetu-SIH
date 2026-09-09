@@ -232,7 +232,7 @@ export const PublicDirectoryPage: React.FC = () => {
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex items-center gap-2 text-blue-900 font-bold text-sm">
               <ShieldCheck className="h-5 w-5 text-blue-600" />
-              <span>Know Your Consumer Rights (Consumer Protection Act 2019)</span>
+              <span>Mandatory Statutory Packaging Standards (Legal Metrology Rules, 2011)</span>
             </div>
             <p className="text-xs text-blue-800 leading-relaxed">
               Every packaged commodity sold in India or on e-commerce marketplaces must clearly display MRP (inclusive of all taxes), Unit Sale Price, Name & Address of Manufacturer/Packer, Net Quantity, Country of Origin, Customer Care contact, and FSSAI License where applicable.

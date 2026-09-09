@@ -69,7 +69,7 @@ export const MOCK_PRODUCTS: Product[] = [
       },
     ],
     regulatoryActs: [
-      'Consumer Protection Act 2019 - Sec 2(28) (Misleading Advertising Guidelines 2022)',
+      'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
       'FSSAI (Advertising and Claims) Regulations, 2018',
     ],
   },
@@ -417,7 +417,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     regulatoryActs: [
       'Drugs and Cosmetics Act, 1940 (Ayurvedic Drugs Rules)',
-      'Consumer Protection Act 2019 - Sec 2(28)',
+      'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
     ],
   },
 

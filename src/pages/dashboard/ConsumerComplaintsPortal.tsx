@@ -71,7 +71,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     brand: '',
     platform: 'Direct' as string,
     productUrl: '',
-    description: 'The packet says MRP ₹1,999 but the shop charged me ₹2,499 on bill invoice. Also sticker was overprinted on printed MRP.',
+    description: 'The pack received had a paper sticker placed over the printed MRP. The underlying printed MRP was ₹240 whereas the sticker altered it to ₹299, and the mandatory Unit Sale Price was missing.',
   });
 
   // Shop location selected via Google Maps Places Autocomplete
@@ -428,7 +428,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {filteredComplaints.map((cmp) => {
                 const confScore = cmp.classificationResult?.confidenceScore || Math.round(cmp.sentimentScore * 100);
-                const isOvercharged = cmp.extractedEvidenceSummary?.priceOverchargeAmount;
+                const hasPriceAlteration = cmp.extractedEvidenceSummary?.priceOverchargeAmount;
 
                 return (
                   <tr
@@ -480,13 +480,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     </td>
 
                     <td className="px-3 py-3.5">
-                      {isOvercharged ? (
+                      {hasPriceAlteration ? (
                         <div className="font-mono">
                           <div className="text-rose-400 font-semibold text-xs">
-                            +₹{isOvercharged} Overcharge
+                            +₹{hasPriceAlteration} Alteration Variance
                           </div>
                           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
-                            Pkg ₹{cmp.extractedEvidenceSummary?.declaredMrp} vs Bill ₹{cmp.extractedEvidenceSummary?.receiptPrice}
+                            Base: {cmp.extractedEvidenceSummary?.declaredMrp} | Altered: {cmp.extractedEvidenceSummary?.receiptPrice}
                           </div>
                         </div>
                       ) : (
@@ -895,7 +895,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
                       {selectedComplaint.extractedEvidenceSummary?.receiptPrice && (
                         <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Receipt Charged Price</span>
+                          <span className="text-slate-400 block text-[10px]">Altered / Secondary Sticker Price</span>
                           <span className="font-bold text-rose-400">
                             {selectedComplaint.extractedEvidenceSummary.receiptPrice}
                           </span>
@@ -1180,13 +1180,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               rows={7}
               value={newComplaintData.description}
               onChange={(e) => setNewComplaintData({ ...newComplaintData, description: e.target.value })}
-              placeholder={`Describe your issue in detail. For example:
-• The MRP printed on the packet says ₹199, but the shop charged me ₹250.
-• A new price sticker was pasted over the original printed MRP.
-• The shop refused to give a bill/invoice on request.
-• The product packaging appeared tampered, re-sealed, or re-labelled.
-• The net quantity on the pack does not match what was actually inside.
-• The manufacturing/expiry date was missing or smudged on the label.`}
+              placeholder={`Describe your packaging or statutory issue in detail. For example:
+• A dual price sticker was pasted over the original printed MRP on the package.
+• The mandatory Unit Sale Price (₹ per g or ₹ per ml) is missing from the label.
+• The manufacturing or packaging date is missing, smudged, or in non-standard format.
+• The net quantity declared on the packaging does not match the actual contents.
+• The manufacturer/packer name or complete postal address with PIN code is missing.
+• The product packaging appeared tampered, re-sealed, or re-labelled.`}
               className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3.5 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all resize-none"
               required
               minLength={30}
