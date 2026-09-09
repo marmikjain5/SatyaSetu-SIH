@@ -21,7 +21,7 @@ export interface CategoryPatternDefinition {
 export const CATEGORY_PATTERNS: CategoryPatternDefinition[] = [
   {
     code: 'price_above_mrp',
-    label: 'Price Charged Above Declared MRP',
+    label: 'Altered / Dual MRP Sticker on Packaging',
     keywords: [
       // English
       'charged', 'overcharged', 'bill', 'receipt', 'extra', 'more', 'overcharge', 'selling price',
@@ -613,11 +613,11 @@ export function classifyComplaintText(
     if (!isNaN(pkg) && !isNaN(rcp) && rcp > pkg) {
       return {
         categoryCode: 'price_above_mrp',
-        categoryLabel: 'Price Charged Above Declared MRP',
+        categoryLabel: 'Altered / Dual MRP Sticker on Packaging',
         confidenceScore: 98,
         needsReview: false,
-        matchedKeywords: ['numeric_price_discrepancy', `mrp:${pkg}`, `receipt:${rcp}`],
-        reasoning: `Extracted store receipt price (₹${rcp}) exceeds product packaging MRP (₹${pkg}) by ₹${(rcp - pkg).toFixed(2)}.`,
+        matchedKeywords: ['numeric_price_discrepancy', `mrp:${pkg}`, `sticker:${rcp}`],
+        reasoning: `Extracted altered sticker price (₹${rcp}) differs from base product packaging MRP (₹${pkg}) by ₹${(rcp - pkg).toFixed(2)}.`,
       };
     }
   }

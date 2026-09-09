@@ -26,8 +26,8 @@ export const LandingFooter: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Legal Metrology Act, 2009</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Packaged Commodities Rules 2011</li>
-              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Consumer Protection Act, 2019</li>
-              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">E-Commerce Rules, 2020</li>
+              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Legal Metrology Amendment Rules 2022 (USP)</li>
+              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">E-Commerce PCR Rules, 2017</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">FSSAI Packaging Regulations 2018</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Drugs &amp; Magic Remedies Act 1954</li>
             </ul>

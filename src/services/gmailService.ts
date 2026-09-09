@@ -154,7 +154,7 @@ function buildSCNHtmlEmail(options: SendSCNEmailOptions, senderEmail: string, re
       Product / Brand: ${options.productName} (${options.brand})<br>
       E-Commerce Marketplace: ${options.platform}</p>
 
-      <p><strong>SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 OF LEGAL METROLOGY ACT, 2009 & CONSUMER PROTECTION ACT, 2019</strong></p>
+      <p><strong>SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 & 39 OF LEGAL METROLOGY ACT, 2009 (PACKAGED COMMODITIES RULES, 2011)</strong></p>
 
       <p>1. WHEREAS, automated optical surveillance and algorithmic compliance audit conducted by the National SatyaDrishti Intelligence Platform has uncovered prima facie statutory non-compliance in respect of the pre-packaged commodity marketed by your entity.</p>
 
@@ -171,7 +171,7 @@ function buildSCNHtmlEmail(options: SendSCNEmailOptions, senderEmail: string, re
       <div style="margin-top: 25px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
         <strong>Digitally Signed & Dispatched By:</strong><br>
         ${options.assignedOfficer}<br>
-        <em>Authorized Regulatory Officer, Central Consumer Protection Authority</em>
+        <em>Authorized Regulatory Officer, Legal Metrology Enforcement Division</em>
       </div>
     </div>
 

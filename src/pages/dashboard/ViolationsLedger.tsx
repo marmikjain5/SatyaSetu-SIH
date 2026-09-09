@@ -85,7 +85,7 @@ export const ViolationsLedger: React.FC = () => {
             Violations & Enforcement Ledger
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Infractions logged under Legal Metrology Act 2009, FSSAI Regulations & Consumer Protection Act 2019.
+            Infractions logged under Legal Metrology Act 2009, Packaged Commodities Rules 2011 & FSSAI Labelling Regulations 2020.
             {entityFilter && (
               <span className="ml-2 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-semibold">
                 Filtered: {entityFilter}

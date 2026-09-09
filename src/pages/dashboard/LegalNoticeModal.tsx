@@ -339,7 +339,7 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
             {/* Notice Body */}
             <div className="pt-3 space-y-2 text-[11px] leading-relaxed text-slate-800">
               <p className="font-bold uppercase tracking-wide">
-                SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 OF LEGAL METROLOGY ACT, 2009 & SECTION 89 OF CONSUMER PROTECTION ACT, 2019
+                SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 & 39 OF LEGAL METROLOGY ACT, 2009 (PACKAGED COMMODITIES RULES, 2011)
               </p>
 
               <p>

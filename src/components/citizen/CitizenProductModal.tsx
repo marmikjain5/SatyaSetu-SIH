@@ -207,7 +207,7 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
                 )}
               </div>
               <p className="text-[10px] text-blue-600 pt-1">
-                Mandatory under Consumer Protection (E-Commerce) Rules 2020
+                Mandatory under Legal Metrology (Packaged Commodities) Rules 2011 (Rule 6)
               </p>
             </div>
           </div>
@@ -353,7 +353,7 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
         <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
             <Info className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-            <span>Public transparency data provided in compliance with National Consumer Protection Guidelines.</span>
+            <span>Public transparency data provided in compliance with Statutory Legal Metrology & FSSAI Standards.</span>
           </div>
 
           <div className="flex items-center gap-3 justify-end">
