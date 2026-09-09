@@ -253,9 +253,8 @@ export const ManufacturerDossierModal: React.FC<Props> = ({
                   </div>
 
                   {/* Compliance Metrics */}
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: 'Active Violations', value: mfg.activeViolations, color: 'text-red-700' },
                       { label: 'SCN Notices Issued', value: mfg.noticesIssued, color: 'text-amber-700' },
                       { label: 'Products Scanned', value: mfg.totalProductsScanned, color: 'text-slate-900' },
                     ].map((stat) => (

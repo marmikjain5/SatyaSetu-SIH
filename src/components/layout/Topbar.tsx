@@ -12,7 +12,6 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
 import { useScanStore } from '../../store/scanStore';
-import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
 import { Loader2, Scan } from 'lucide-react';
@@ -224,19 +223,10 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="font-bold text-slate-900 dark:text-white">{user?.name}</div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{user?.email}</div>
-                <div className="mt-1.5">
-                  <Badge variant={isConsumer ? 'success' : 'primary'} size="sm" className="font-mono text-[9px] uppercase font-bold">
-                    {user?.department}
-                  </Badge>
-                </div>
               </div>
 
-              <div className="py-1">
-                <div className="px-4 py-2 text-[11px] text-slate-500 font-mono">
-                  {isConsumer ? 'Citizen ID' : 'Badge'}: <strong className="text-slate-800 dark:text-slate-200">{user?.badgeNumber}</strong>
-                </div>
-
-                {isConsumer && (
+              {isConsumer && (
+                <div className="py-1">
                   <button
                     onClick={() => {
                       setIsProfileOpen(false);
@@ -247,8 +237,8 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette }) => {
                     <FileCheck2 className="h-3.5 w-3.5 text-emerald-600" />
                     <span>My Lodged Complaints</span>
                   </button>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
                 <button

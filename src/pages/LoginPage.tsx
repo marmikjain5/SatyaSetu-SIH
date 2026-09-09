@@ -12,7 +12,6 @@ import {
   Factory,
   ArrowRight,
   AlertCircle,
-  CheckCircle2,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -372,20 +371,6 @@ export const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Portal-Specific Features List */}
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-800 text-[11px] space-y-1.5">
-              <span className="font-semibold text-slate-700 dark:text-slate-300 block">
-                Permitted Features in this Portal:
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {currentConfig.allowedFeatures.map((feat, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span className="truncate">{feat}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             <Button
               type="submit"
