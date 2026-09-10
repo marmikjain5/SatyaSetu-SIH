@@ -1,0 +1,80 @@
+[
+  {
+    "source_id": "legal_metrology",
+    "name": "Department of Consumer Affairs - Legal Metrology",
+    "authority": "Legal Metrology",
+    "base_url": "https://consumeraffairs.nic.in/acts-and-rules/legal-metrology",
+    "jurisdiction": "India (National)",
+    "description": "Statutory rules governing pre-packaged commodities, net quantity declarations, MRP inclusion of taxes, and mandatory packaging declarations under the Legal Metrology (Packaged Commodities) Rules, 2011 & 2017 amendments.",
+    "document_types": [
+      "act",
+      "rule",
+      "amendment",
+      "notification",
+      "circular",
+      "guideline"
+    ],
+    "official_gazette_references": [
+      "G.S.R. 202(E) - Packaged Commodities Rules 2011",
+      "G.S.R. 629(E) - Legal Metrology Amendment Rules 2017",
+      "G.S.R. 779(E) - Unit Sale Price & Country of Origin Amendment 2021",
+      "G.S.R. 518(E) - Standard Pack Size Standardization 2022"
+    ]
+  },
+  {
+    "source_id": "fssai",
+    "name": "Food Safety and Standards Authority of India (FSSAI)",
+    "authority": "FSSAI",
+    "base_url": "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php",
+    "jurisdiction": "India (Food & Agriculture)",
+    "description": "Regulations governing packaging, labelling, display requirements, nutritional info, FSSAI license logo display, and vegetarian/non-vegetarian symbols.",
+    "document_types": [
+      "act",
+      "regulation",
+      "amendment",
+      "advisory",
+      "order"
+    ],
+    "official_gazette_references": [
+      "F. No. 1-1164/FSSAI/Imports/2014 - Labelling Regulations",
+      "F. No. M&L/1(71)2011/FSSAI - Food Safety and Standards (Labelling and Display) Regulations 2020"
+    ]
+  },
+  {
+    "source_id": "bis",
+    "name": "Bureau of Indian Standards (BIS)",
+    "authority": "BIS",
+    "base_url": "https://www.bis.gov.in/rules-regulations/",
+    "jurisdiction": "India (Standards & Quality Marks)",
+    "description": "Standards for ISI certification mark, mandatory registration schemes (CRS) on packaged electronic items, bottled water, infant food, and toy safety labels.",
+    "document_types": [
+      "act",
+      "standard",
+      "scheme",
+      "order",
+      "gazette"
+    ],
+    "official_gazette_references": [
+      "BIS Act, 2016 (Act No. 11 of 2016)",
+      "Electronics and Information Technology Goods (Compulsory Registration) Order"
+    ]
+  },
+  {
+    "source_id": "ccpa",
+    "name": "Central Consumer Protection Authority (CCPA)",
+    "authority": "CCPA / Consumer Affairs",
+    "base_url": "https://consumeraffairs.nic.in/central-consumer-protection-authority",
+    "jurisdiction": "India (Consumer Rights & Misleading Ads)",
+    "description": "Guidelines on misleading advertisements, dark patterns, e-commerce consumer disclosures, and mandatory seller details under Consumer Protection Act 2019.",
+    "document_types": [
+      "act",
+      "guideline",
+      "e_commerce_rule",
+      "advisory"
+    ],
+    "official_gazette_references": [
+      "Consumer Protection (E-Commerce) Rules, 2020",
+      "F. No. J-24/14/2020-CPU - Guidelines for Prevention of Misleading Advertisements 2022"
+    ]
+  }
+]

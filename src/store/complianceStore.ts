@@ -1,5 +1,16 @@
 import { create } from 'zustand';
-import { Product, Violation, Manufacturer, Complaint, RegulatoryRule } from '../types/compliance';
+import {
+  Product,
+  Violation,
+  Manufacturer,
+  Complaint,
+  RegulatoryRule,
+  OfficerActionType,
+  OfficerDecisionRecord,
+  ComplianceStatus,
+  PlatformType,
+  ViolationSeverity,
+} from '../types/compliance';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 import { MOCK_VIOLATIONS } from '../data/mockViolations';
 import { MOCK_MANUFACTURERS } from '../data/mockManufacturers';
@@ -17,12 +28,28 @@ interface ComplianceState {
   searchQuery: string;
 
   // Actions
+  addProduct: (product: Product) => void;
+  addScannedProduct: (
+    scanData: any,
+    imageUrl?: string,
+    confidence?: number,
+    validationResult?: any
+  ) => Product;
   setSelectedProduct: (product: Product | null) => void;
   setSelectedViolation: (violation: Violation | null) => void;
   setSearchQuery: (query: string) => void;
   issueNotice: (violationId: string, customNoticeText?: string) => string;
   resolveViolation: (violationId: string) => void;
-  addComplaint: (complaint: Omit<Complaint, 'id' | 'ticketId' | 'submittedAt' | 'status'>) => void;
+  addComplaint: (complaint: Omit<Complaint, 'id' | 'ticketId' | 'submittedAt' | 'status'> | Complaint) => void;
+  addFullComplaint: (complaint: Complaint) => void;
+  updateOfficerDecision: (
+    complaintId: string,
+    action: OfficerActionType,
+    notes: string,
+    officerName?: string,
+    assignedInspector?: string
+  ) => void;
+  updateComplaint: (complaint: Complaint) => void;
   toggleRule: (ruleId: string) => void;
 }
 
@@ -35,6 +62,105 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
   selectedProduct: null,
   selectedViolation: null,
   searchQuery: '',
+
+  addProduct: (product) => {
+    set((state) => ({
+      products: [product, ...state.products],
+    }));
+  },
+
+  addScannedProduct: (scanData, imageUrl, confidence, validationResult) => {
+    const productId = `PROD-${Date.now()}`;
+    const violationsList: Violation[] = [];
+
+    const violationsCount = validationResult?.violations?.length || 0;
+    const warningsCount = validationResult?.warnings?.length || 0;
+    let status: ComplianceStatus = 'compliant';
+    if (violationsCount > 0) {
+      status = 'non-compliant';
+    } else if (warningsCount > 0) {
+      status = 'under-review';
+    }
+
+    const mrpValue = typeof scanData?.mrp === 'number' 
+      ? scanData.mrp 
+      : (parseFloat(String(scanData?.mrp || '').replace(/[^0-9.]/g, '')) || 499);
+
+    const listedPriceValue = typeof scanData?.unitSalePrice === 'number'
+      ? scanData.unitSalePrice
+      : (parseFloat(String(scanData?.unitSalePrice || '').replace(/[^0-9.]/g, '')) || Math.round(mrpValue * 0.9));
+
+    const newProduct: Product = {
+      id: productId,
+      sku: scanData?.fssaiLicenseNumber ? `SKU-FSSAI-${scanData.fssaiLicenseNumber.slice(-4)}` : `SKU-SCAN-${Math.floor(100 + Math.random() * 900)}`,
+      title: scanData?.productName || 'Scanned Packaged Commodity',
+      brand: scanData?.brandName || 'Brand (Extracted from OCR)',
+      manufacturer: scanData?.manufacturerName || scanData?.packerName || 'Manufacturer Extracted via OCR',
+      category: scanData?.category || 'Nutritional Supplements & Health Foods',
+      platform: (scanData?.platform as PlatformType) || 'Direct',
+      productUrl: '#',
+      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+      mrp: mrpValue,
+      listedPrice: listedPriceValue,
+      netWeight: scanData?.netQuantity || scanData?.netWeight || 'Declared on package',
+      mfgDate: scanData?.manufacturingDate || new Date().toISOString().split('T')[0],
+      expiryDate: scanData?.expiryDate || scanData?.bestBeforeDate,
+      countryOfOrigin: scanData?.countryOfOrigin || 'India',
+      customerCareContact: scanData?.consumerCareEmail || scanData?.consumerCarePhone || scanData?.consumerCareDetails || 'Declared on package',
+      customerCarePhone: scanData?.consumerCarePhone,
+      customerCareEmail: scanData?.consumerCareEmail,
+      fssaiLicenseNumber: scanData?.fssaiLicenseNumber,
+      manufacturerAddress: scanData?.manufacturerAddress,
+      packerAddress: scanData?.packerAddress,
+      unitSalePrice: typeof scanData?.unitSalePrice === 'string' ? scanData.unitSalePrice : undefined,
+      dietaryType: 'Vegetarian',
+      complianceScore: validationResult ? validationResult.score : Math.round(confidence || 92),
+      status,
+      violationsCount,
+      ocrConfidence: Math.round(confidence || 96),
+      lastScanned: 'Just now',
+      missingMandatoryFields: validationResult?.missingDeclarations || [],
+      claims: scanData?.claims?.map((c: string) => ({ text: c, isMisleading: false, confidence: 90 })) || [],
+      regulatoryActs: ['Legal Metrology Act, 2009', 'Legal Metrology (Packaged Commodities) Rules, 2011'],
+    };
+
+    if (validationResult?.violations && validationResult.violations.length > 0) {
+      validationResult.violations.forEach((v: any, idx: number) => {
+        const violationId = `VIO-${Date.now()}-${idx}`;
+        const newViolation: Violation = {
+          id: violationId,
+          caseNumber: `CASE-2025-${Math.floor(1000 + Math.random() * 9000)}`,
+          productId: newProduct.id,
+          productName: newProduct.title,
+          brand: newProduct.brand,
+          manufacturer: newProduct.manufacturer,
+          platform: newProduct.platform,
+          ruleCode: v.ruleCode || 'LM-R6-01',
+          actName: v.actReference || 'Legal Metrology Act, 2009',
+          section: 'Section 36 / Rule 6(1)',
+          description: v.description || 'Statutory packaging non-compliance detected via automated scan.',
+          severity: (v.severity as ViolationSeverity) || 'high',
+          status: 'Open',
+          detectedAt: 'Just now',
+          evidence: {
+            type: 'OCR Label',
+            extractedValue: v.extractedValue || 'Non-compliant declaration',
+            expectedStandard: v.expectedValue || 'As per Packaged Commodities Rules, 2011',
+          },
+          penaltyEstimate: v.penaltyAmount || 25000,
+          assignedOfficer: 'Central Metrology Review Cell',
+        };
+        violationsList.push(newViolation);
+      });
+    }
+
+    set((state) => ({
+      products: [newProduct, ...state.products],
+      violations: [...violationsList, ...state.violations],
+    }));
+
+    return newProduct;
+  },
 
   setSelectedProduct: (product) => set({ selectedProduct: product }),
   setSelectedViolation: (violation) => set({ selectedViolation: violation }),
@@ -64,9 +190,16 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
   },
 
   addComplaint: (complaintData) => {
+    if ('ticketId' in complaintData && 'id' in complaintData) {
+      set((state) => ({
+        complaints: [complaintData as Complaint, ...state.complaints],
+      }));
+      return;
+    }
+
     const ticketId = `NCH-GRV-2025-${Math.floor(10000 + Math.random() * 90000)}`;
     const newComplaint: Complaint = {
-      ...complaintData,
+      ...(complaintData as any),
       id: `CMP-${Date.now()}`,
       ticketId,
       submittedAt: 'Just now',
@@ -74,6 +207,74 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
     };
     set((state) => ({
       complaints: [newComplaint, ...state.complaints],
+    }));
+  },
+
+  addFullComplaint: (complaint) => {
+    set((state) => ({
+      complaints: [complaint, ...state.complaints],
+    }));
+  },
+
+  updateOfficerDecision: (complaintId, action, notes, officerName = 'Inspector Officer', assignedInspector) => {
+    const actionStatusMap: Record<OfficerActionType, Complaint['status']> = {
+      ACCEPT_INVESTIGATION: 'Investigation',
+      REJECT: 'Rejected',
+      REQUEST_INFO: 'More Info Requested',
+      INSUFFICIENT_EVIDENCE: 'Insufficient Evidence',
+      ASSIGN_INSPECTION: 'Assigned for Inspection',
+      RESOLVE: 'Resolved',
+    };
+
+    const actionLabelMap: Record<OfficerActionType, string> = {
+      ACCEPT_INVESTIGATION: 'Accepted for Formal Legal Investigation',
+      REJECT: 'Complaint Rejected / Dismissed',
+      REQUEST_INFO: 'Additional Information Requested from Complainant',
+      INSUFFICIENT_EVIDENCE: 'Marked as Insufficient Evidence',
+      ASSIGN_INSPECTION: 'Assigned Zonal Metrology Officer for On-Site Inspection',
+      RESOLVE: 'Complaint Resolved & Penalty Recovered',
+    };
+
+    const newStatus = actionStatusMap[action] || 'Investigation';
+    const actionLabel = actionLabelMap[action] || action;
+
+    set((state) => ({
+      complaints: state.complaints.map((c) => {
+        if (c.id !== complaintId) return c;
+
+        const newRecord: OfficerDecisionRecord = {
+          id: `odr-${Date.now()}`,
+          timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          officerName,
+          action,
+          actionLabel,
+          notes,
+          assignedInspector,
+        };
+
+        const existingHistory = c.officerDecisionHistory || [];
+
+        return {
+          ...c,
+          status: newStatus,
+          assignedOfficer: officerName,
+          officerDecisionHistory: [newRecord, ...existingHistory],
+          caseCorrelationSummary: c.caseCorrelationSummary
+            ? {
+                ...c.caseCorrelationSummary,
+                verificationStatus: (actionLabel as any),
+              }
+            : undefined,
+        };
+      }),
+    }));
+  },
+
+  updateComplaint: (updatedComplaint) => {
+    set((state) => ({
+      complaints: state.complaints.map((c) =>
+        c.id === updatedComplaint.id ? updatedComplaint : c
+      ),
     }));
   },
 

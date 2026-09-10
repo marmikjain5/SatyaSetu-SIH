@@ -1,114 +1,150 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, CheckCircle, Lock, Sparkles, Building2, UserCheck, Scale } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { LiveComplianceWidget } from './LiveComplianceWidget';
+import { motion } from 'framer-motion';
+import loopVideo from '../ui/loop.mp4';
 
-interface HeroSectionProps {
-  onRequestDemo: () => void;
-}
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestDemo }) => {
+export const HeroSection: React.FC = () => {
+  const highlights = [
+    {
+      title: 'Precision OCR & Vision',
+      desc: 'Instantly reads micro-print, multilingual text, and statutory declarations from any packaging angle.',
+    },
+    {
+      title: 'Automated Rule Validation',
+      desc: 'Cross-checks declarations in real-time against the Legal Metrology (Packaged Commodities) Rules, 2011.',
+    },
+    {
+      title: 'Inspection-Ready Intelligence',
+      desc: 'Generates evidentiary audit trails, penalty estimations, and exportable regulatory dossiers.',
+    },
+  ];
+
   return (
-    <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-grid-pattern">
-      {/* Subtle top ambient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-blue-500/5 blur-3xl pointer-events-none" />
+    <section
+      id="about"
+      className="relative overflow-hidden bg-[#F8FAFC] dark:bg-[#020617] text-slate-900 dark:text-white pt-10 pb-16 lg:pt-14 lg:pb-24 scroll-mt-24 border-b border-slate-200 dark:border-slate-800/80 transition-colors duration-300"
+    >
+      {/* Subtle background ambient mesh */}
+      <div className="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Hero Content */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Gov Authority Trust Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white border border-slate-200 shadow-xs text-xs font-semibold text-slate-800">
-              <span className="h-2 w-2 rounded-full bg-blue-600" />
-              <span>National Consumer Intelligence Architecture</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-blue-700 font-mono">SIH 2025</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 xl:gap-20 items-center">
+          {/* ====== LEFT COLUMN: Looping Inspection Video ====== */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="lg:col-span-5 relative"
+          >
+            {/* Ambient glow behind video */}
+            <div className="absolute -inset-4 bg-blue-500/15 dark:bg-blue-500/20 rounded-3xl blur-2xl pointer-events-none" />
+
+            <div className="relative rounded-2xl overflow-hidden border border-slate-300/80 dark:border-slate-700/70 shadow-2xl shadow-blue-900/15 dark:shadow-blue-950/40 bg-slate-950 aspect-[16/10]">
+              <video
+                src={loopVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-[112%] h-[112%] max-w-none object-cover -mt-[1%] -ml-[1%]"
+              />
+
+              {/* Subtle dark overlay for contrast */}
+              <div className="absolute inset-0 bg-slate-950/10 pointer-events-none" />
+
+              {/* Seamless dark corner overlay completely concealing the corner watermark */}
+              <div className="absolute bottom-0 right-0 w-16 h-16 bg-slate-950 pointer-events-none z-20 rounded-br-2xl" />
+            </div>
+          </motion.div>
+
+          {/* ====== RIGHT COLUMN: Attractive Typographic Product Story ====== */}
+          <div className="lg:col-span-7 space-y-6 text-left relative">
+            {/* --- Spotlight Beam Positioned Directly Over SATYADRISHTI --- */}
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-0">
+              <div className="h-1.5 w-44 sm:w-64 bg-slate-900/80 dark:bg-white rounded-full shadow-[0_0_35px_10px_rgba(37,99,235,0.4)] dark:shadow-[0_0_45px_14px_rgba(255,255,255,0.9),0_0_90px_28px_rgba(37,99,235,0.45)] z-10" />
+              <div
+                className="w-[320px] sm:w-[500px] h-[300px] sm:h-[400px] opacity-35 dark:opacity-45 mix-blend-multiply dark:mix-blend-screen"
+                style={{
+                  background:
+                    'radial-gradient(ellipse 70% 80% at 50% 0%, rgba(37,99,235,0.4) 0%, rgba(59,130,246,0.18) 40%, rgba(0,0,0,0) 80%)',
+                }}
+              />
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold tracking-tight text-slate-900 leading-[1.12]">
-              AI-Powered Consumer Protection & Compliance Intelligence
-            </h1>
+            {/* Main Brand Title */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="relative z-10"
+            >
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-[0.2em] sm:tracking-[0.25em] uppercase drop-shadow-[0_0_25px_rgba(37,99,235,0.15)] dark:drop-shadow-[0_0_35px_rgba(59,130,246,0.3)] leading-tight">
+                SATYADRISHTI
+              </h1>
 
-            {/* Subheadline */}
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
-              Monitor compliance, detect violations, protect consumers, and empower regulators through intelligent automation.
-            </p>
+              <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-200 tracking-wide mt-1.5">
+                AI-Powered Legal Metrology Compliance Platform
+              </p>
+            </motion.div>
 
-            {/* CTA Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-3.5">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={onRequestDemo}
-                className="shadow-sm font-semibold gap-2"
-              >
-                <span>Request Demo</span>
-                <ArrowRight className="h-4 w-4 text-blue-400" />
-              </Button>
+            {/* Hero Hook / Narrative (Attractive & Clean Typography) */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-3 relative z-10"
+            >
+              <p className="text-lg sm:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-blue-400 dark:via-sky-300 dark:to-indigo-300 leading-snug">
+                Autonomous Intelligence for Statutory Packaging Verification.
+              </p>
 
-              <Link to="/login">
-                <Button variant="outline" size="lg" className="font-semibold gap-2 bg-white">
-                  <span>Explore Platform</span>
-                  <Scale className="h-4 w-4 text-slate-600" />
-                </Button>
-              </Link>
-            </div>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal max-w-xl">
+                SatyaDrishti bridges cutting-edge optical recognition with statutory Indian consumer laws.
+                By converting physical label images into structured, verifiable intelligence, it empowers
+                inspectors, brands, and citizens to uncover violations with unparalleled accuracy and speed.
+              </p>
+            </motion.div>
 
-            {/* Key Trust Signals / Quick Links */}
-            <div className="pt-6 border-t border-slate-200/80 grid grid-cols-3 gap-4 text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span className="font-medium text-slate-700">Legal Metrology</span>
+            {/* Typographic Highlights (No Cards, Pure Elegant Flow) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="space-y-3 pt-2 relative z-10"
+            >
+              {highlights.map((item, idx) => (
+                <div key={idx} className="text-left space-y-0.5">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-wide">
+                    {item.title}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Mission Quote & Bottom Motto */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="pt-3 space-y-3 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80"
+            >
+              <div className="flex items-center gap-3 text-[11px] font-bold tracking-[0.2em] text-blue-600 dark:text-blue-400 uppercase font-mono">
+                <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-r from-transparent to-blue-500/80" />
+                <span>Transparency. Compliance. Trust.</span>
+                <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-l from-transparent to-blue-500/80" />
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span className="font-medium text-slate-700">CCPA Dark Patterns</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span className="font-medium text-slate-700">OCR Multi-Lingual</span>
-              </div>
-            </div>
-
-            {/* Quick 1-Click Role Exploration */}
-            <div className="bg-slate-100/80 p-3.5 rounded-xl border border-slate-200 text-xs">
-              <span className="font-semibold text-slate-800 uppercase tracking-wider text-[11px] block mb-2">
-                Instant Role Access (Demo Credentials Pre-wired):
-              </span>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  to="/login?role=admin"
-                  className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <Building2 className="h-3 w-3 text-blue-600" />
-                  <span>Admin / CCPA Director</span>
-                </Link>
-                <Link
-                  to="/login?role=inspector"
-                  className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <Scale className="h-3 w-3 text-blue-600" />
-                  <span>Field Inspector</span>
-                </Link>
-                <Link
-                  to="/login?role=consumer"
-                  className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <UserCheck className="h-3 w-3 text-blue-600" />
-                  <span>Consumer Portal</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Live Compliance Mockup */}
-          <div className="lg:col-span-6">
-            <LiveComplianceWidget />
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
+                Building a fairer, compliant marketplace for 1.4 billion consumers.
+              </p>
+            </motion.div>
           </div>
         </div>
       </div>
     </section>
   );
 };
+
+export default HeroSection;

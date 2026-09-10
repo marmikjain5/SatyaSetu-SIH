@@ -1,33 +1,108 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  ScanLine,
   Images,
   BarChart3,
   Activity,
   Clock,
   Play,
   Trash2,
+  FileText,
+  History,
+  Download,
+  FileCheck,
+  Factory,
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
+import { useReportStore } from '../../store/reportStore';
+import { useAuthStore } from '../../store/authStore';
+import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
+import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
+import { ComplianceResultsPanel } from '../../components/scanner/ComplianceResultsPanel';
+import { ReadabilityAnalysisPanel } from '../../components/scanner/ReadabilityAnalysisPanel';
+import { ScanCorrelationCard } from '../../components/scanner/ScanCorrelationCard';
+import { RuleAuditView } from '../../components/scanner/RuleAuditView';
+import { RecommendationsCard } from '../../components/scanner/RecommendationsCard';
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
+import { ComplianceReportModal } from '../../components/scanner/ComplianceReportModal';
+import { ReportHistoryModal } from '../../components/scanner/ReportHistoryModal';
+import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
   const {
     scans,
+    currentScan,
     uploadedImages,
     isProcessing,
     startScan,
     clearImages,
+    validationResults,
+    readabilityResults,
   } = useScanStore();
+
+  const { user } = useAuthStore();
+  const isManufacturer = user?.role === 'manufacturer';
+  const { reports, addReport } = useReportStore();
+
+  const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
+  const handleGenerateSessionReport = (options?: Partial<ReportGenerationOptions>) => {
+    const validScans = scans.filter((s) => s.status === 'completed' && s.extractedData);
+    if (validScans.length === 0) return;
+
+    const report = reportService.generateSessionInspectionReport(
+      validScans,
+      validationResults,
+      readabilityResults,
+      options
+    );
+
+    addReport(report);
+    setActiveReport(report);
+    setIsReportModalOpen(true);
+  };
+
+  const handleGenerateSingleReport = (targetScan?: typeof currentScan, options?: Partial<ReportGenerationOptions>) => {
+    const scan = targetScan || currentScan;
+    if (!scan || !scan.extractedData) return;
+
+    const valResult = validationResults[scan.id];
+    const readResult = readabilityResults[scan.id] || scan.readabilityResult;
+
+    const report = reportService.generateComplianceReport(
+      scan,
+      valResult,
+      readResult,
+      options
+    );
+
+    addReport(report);
+    setActiveReport(report);
+    setIsReportModalOpen(true);
+  };
+
+  const handleRegenerateReport = (options?: Partial<ReportGenerationOptions>) => {
+    if (activeReport?.reportType === 'inspection-session') {
+      handleGenerateSessionReport(options);
+    } else {
+      handleGenerateSingleReport(currentScan || scans[0], options);
+    }
+  };
 
   const totalScans = scans.length;
   const completedScans = scans.filter((s) => s.status === 'completed');
+  const sessionTotalViolations = completedScans.reduce(
+    (sum, s) => sum + (validationResults[s.id]?.violationCount || 0),
+    0
+  );
   const avgConfidence =
     completedScans.length > 0
       ? Math.round(
@@ -41,53 +116,159 @@ export const ProductScanner: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
-            <ScanLine className="h-3.5 w-3.5" />
-            <span>OCR Label Scanning Engine</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
-            Product Scanner
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            {isManufacturer ? 'Product Packaging & Declaration Upload' : 'Product Scanner'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.
+            {isManufacturer
+              ? 'Upload product packaging front & back label images to verify that all mandatory declarations (MRP, Net Quantity, Best Before, Consumer Care, Manufacturer Address) are present and free of false or misleading claims.'
+              : 'Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.'}
           </p>
         </div>
+
+        {/* Top Header Report Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {isManufacturer && (
+            <Link to="/dashboard/factory-certification">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-300 dark:hover:bg-indigo-950/40"
+              >
+                <Factory className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span>Factory Hygiene Proof</span>
+              </Button>
+            </Link>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="text-xs gap-1.5 border-slate-200"
+          >
+            <History className="h-3.5 w-3.5 text-slate-600" />
+            <span>{isManufacturer ? 'Compliance Report Archive' : 'Report Archive'}</span>
+            {reports.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
+                {reports.length}
+              </span>
+            )}
+          </Button>
+
+          {completedScans.length > 0 && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleGenerateSessionReport()}
+              className={`text-xs gap-1.5 shadow-sm font-semibold ${
+                isManufacturer
+                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              <FileCheck className="h-3.5 w-3.5" />
+              <span>
+                {isManufacturer
+                  ? `Generate Compliance Report (${completedScans.length})`
+                  : `Generate Inspection Report (${completedScans.length} ${completedScans.length === 1 ? 'Product' : 'Products'})`}
+              </span>
+            </Button>
+          )}
+        </div>
       </div>
+
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Scans"
+          title={isManufacturer ? 'Products Audited' : 'Total Scans'}
           value={totalScans}
           icon={BarChart3}
           variant="accent"
-          description="All-time processed"
+          description={isManufacturer ? 'All-time verified products' : 'All-time processed'}
         />
         <StatCard
-          title="Avg Confidence"
+          title={isManufacturer ? 'Declaration Accuracy' : 'Avg Confidence'}
           value={avgConfidence > 0 ? `${avgConfidence}%` : '—'}
           icon={Activity}
           variant={avgConfidence >= 90 ? 'success' : avgConfidence >= 70 ? 'warning' : 'default'}
-          description="Across completed scans"
+          description={isManufacturer ? 'Mandatory declaration score' : 'Across completed scans'}
         />
         <StatCard
-          title="Images Queued"
+          title={isManufacturer ? 'Labels Queued' : 'Images Queued'}
           value={uploadedImages.length}
           icon={Images}
           variant="default"
-          description="Ready for processing"
+          description={isManufacturer ? 'Ready for declaration check' : 'Ready for processing'}
         />
         <StatCard
-          title="Last Scan"
+          title="Last Verification"
           value={lastScanTime === 'Never' ? '—' : lastScanTime.split(',')[0] || '—'}
           icon={Clock}
           variant="default"
-          description={lastScanTime === 'Never' ? 'No scans yet' : lastScanTime}
+          description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
         />
       </div>
 
-      {/* Upload Section */}
-      <ImageUploader />
+      {/* Active Inspection Session Banner (Feature: All products in session treated as 1 unified inspection) */}
+      {completedScans.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className={`h-10 w-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-xs ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-[10px] font-bold font-mono uppercase text-white px-2 py-0.5 rounded ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
+                  {isManufacturer ? 'Pre-Market Compliance Audit' : 'Unified Inspection Session'}
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                  {completedScans.length}{' '}
+                  {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
+                </span>
+                {sessionTotalViolations > 0 ? (
+                  <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
+                    {sessionTotalViolations} {isManufacturer ? 'Defects Flagged' : 'Violations Flagged'}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold font-mono uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900">
+                    All Declarations Compliant
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                {isManufacturer
+                  ? 'All packaging labels verified during this audit session are compiled into a comprehensive pre-market Compliance Report with regulatory declaration breakdown.'
+                  : 'All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation matrix and compounding fine ledger.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleGenerateSessionReport()}
+              className={`text-xs gap-1.5 shadow-xs font-bold ${
+                isManufacturer
+                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              <FileCheck className="h-3.5 w-3.5" />
+              <span>
+                {isManufacturer
+                  ? `Generate Compliance Report (${completedScans.length})`
+                  : `Generate Inspection Report (${completedScans.length})`}
+              </span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Capture/Upload Section */}
+      {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
+
 
       {/* Image Previews + Actions */}
       <ImagePreviewPanel />
@@ -128,11 +309,58 @@ export const ProductScanner: React.FC = () => {
       {/* Processing Status */}
       <OCRProcessingCard />
 
-      {/* Results */}
-      <OCRResultsPanel />
+      {/* Side-by-Side: Statutory Declarations (Left) & Compliance Validation (Right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+        {/* OCR Extraction Results */}
+        <OCRResultsPanel />
+
+        {/* Compliance Validation Results */}
+        <ComplianceResultsPanel />
+      </div>
+
+      {/* Feature 4: Font Size & Optical Readability Analysis Panel */}
+      {currentScan?.status === 'completed' && <ReadabilityAnalysisPanel />}
+
+      {/* RAG Discrepancy Mapping & Complaint Verification Panel */}
+      {currentScan?.status === 'completed' && <ScanCorrelationCard />}
+
+      {/* Two-Column: Rule Audit Trail (Left ~75%) & Recommendations (Right ~25%) */}
+      {currentScan?.status === 'completed' && currentScan?.extractedData && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-8 xl:col-span-9 h-full">
+            <RuleAuditView />
+          </div>
+          <div className="lg:col-span-4 xl:col-span-3 h-full">
+            <RecommendationsCard />
+          </div>
+        </div>
+      )}
 
       {/* Scan History */}
       <ScanHistoryTable />
+
+      {/* Feature 5: Compliance Inspection Report Modal */}
+      {activeReport && (
+        <ComplianceReportModal
+          report={activeReport}
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          onRegenerate={(opts) => handleRegenerateReport(opts)}
+        />
+      )}
+
+
+      {/* Feature 5: Compliance Reports History Modal */}
+      <ReportHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        onSelectReport={(report) => {
+          setActiveReport(report);
+          setIsHistoryModalOpen(false);
+          setIsReportModalOpen(true);
+        }}
+      />
     </div>
   );
 };
+

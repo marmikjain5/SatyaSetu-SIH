@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Package,
   Search,
@@ -8,16 +9,17 @@ import {
   AlertTriangle,
   ExternalLink,
   ChevronRight,
-  Scan,
   Sparkles,
   Download,
   Plus,
+  ScanLine,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Product, PlatformType, ComplianceStatus } from '../../types/compliance';
 import { ProductDetailModal } from './ProductDetailModal';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { formatCurrency } from '../../lib/utils';
@@ -66,11 +68,7 @@ export const ProductsIntelligence: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 w-fit">
-            <Scan className="h-3.5 w-3.5" />
-            <span>Marketplace Catalog Optical Telemetry</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Products Compliance Intelligence
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -78,11 +76,13 @@ export const ProductsIntelligence: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-xs gap-1.5">
-            <Download className="h-3.5 w-3.5 text-slate-600" />
-            <span>Export CSV</span>
-          </Button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Link to="/dashboard/scanner">
+            <Button variant="primary" size="sm" className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+              <ScanLine className="h-3.5 w-3.5" />
+              <span>Scan New Packaging (OCR)</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -141,7 +141,6 @@ export const ProductsIntelligence: React.FC = () => {
             <Package className="h-4 w-4 text-slate-700" />
             <span>Scanned Product Repository ({filteredProducts.length})</span>
           </CardTitle>
-          <span className="text-xs font-mono text-slate-500">Auto-Refreshed 4 mins ago</span>
         </CardHeader>
 
         <div className="overflow-x-auto">
@@ -216,20 +215,7 @@ export const ProductsIntelligence: React.FC = () => {
                   </td>
 
                   <td className="px-3 py-3">
-                    <Badge
-                      variant={
-                        product.status === 'compliant'
-                          ? 'success'
-                          : product.status === 'notice-issued'
-                          ? 'danger'
-                          : product.status === 'non-compliant'
-                          ? 'danger'
-                          : 'warning'
-                      }
-                      size="sm"
-                    >
-                      {product.status.replace('-', ' ')}
-                    </Badge>
+                    <StatusBadge status={product.status} />
                   </td>
 
                   <td className="px-4 py-3 text-right">

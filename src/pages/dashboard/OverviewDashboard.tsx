@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Package,
@@ -15,6 +15,8 @@ import {
   ExternalLink,
   ChevronRight,
   Gavel,
+  MapPin,
+  Factory,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -31,7 +33,9 @@ import {
 import { StatCard } from '../../components/ui/StatCard';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
+import { NationalComplianceTrajectoryChart } from '../../components/dashboard/NationalComplianceTrajectoryChart';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -40,12 +44,42 @@ import {
   STATE_COMPLIANCE_METRICS,
   NATIONAL_STATS,
 } from '../../data/mockComplianceData';
+import { computeBengaluruZonalRisk } from '../../data/mockManufacturers';
 import { formatCurrency, formatNumber } from '../../lib/utils';
 
 export const OverviewDashboard: React.FC = () => {
   const { user } = useAuthStore();
-  const { products, violations, setSelectedProduct, setSelectedViolation } = useComplianceStore();
+  const { products, violations, manufacturers, setSelectedProduct, setSelectedViolation } =
+    useComplianceStore();
   const navigate = useNavigate();
+
+  const [timeRange, setTimeRange] = useState<'3M' | '6M' | 'All'>('6M');
+  const [zoneFilter, setZoneFilter] = useState<string>('All');
+  const [matrixView, setMatrixView] = useState<'bengaluru' | 'national'>('bengaluru');
+
+  const filteredTrends =
+    timeRange === '3M'
+      ? COMPLIANCE_TRENDS.slice(-3)
+      : timeRange === '6M'
+      ? COMPLIANCE_TRENDS.slice(-6)
+      : COMPLIANCE_TRENDS;
+
+  // Compute live Bengaluru zonal metrics directly from the Manufacturer tab data
+  const bengaluruZones = useMemo(() => computeBengaluruZonalRisk(manufacturers), [manufacturers]);
+
+  const filteredBengaluruZones = bengaluruZones.filter((z) => {
+    if (zoneFilter === 'High Risk') return z.riskScore >= 60;
+    if (zoneFilter === 'Compliant') return z.compliancePercentage >= 85;
+    if (zoneFilter !== 'All') return z.code === zoneFilter || z.zone === zoneFilter;
+    return true;
+  });
+
+  const filteredStates = STATE_COMPLIANCE_METRICS.filter((s) => {
+    if (zoneFilter === 'High Risk') return s.riskScore >= 60;
+    if (zoneFilter === 'Compliant') return s.compliancePercentage >= 85;
+    if (zoneFilter !== 'All') return s.code === zoneFilter || s.state === zoneFilter;
+    return true;
+  });
 
   const handleInspectProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
@@ -68,23 +102,14 @@ export const OverviewDashboard: React.FC = () => {
       {/* Top Banner / Role Welcome */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
-              {user?.department || 'CCPA Regulatory Intelligence'}
-            </span>
-            <span className="text-slate-400">•</span>
-            <span className="text-xs font-mono text-slate-500">
-              National Metrology Grid v4.8
-            </span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Welcome, {user?.name || 'Administrator'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             {user?.role === 'admin'
               ? 'Authorized to issue statutory Show Cause Notices under Section 36 & review gazette rules.'
               : user?.role === 'inspector'
-              ? 'Assigned to North-Zone Field Inspections & optical packaging evidence verification.'
+              ? 'Assigned to Bengaluru City Circle (BBMP) Field Packaging Audits & optical evidence verification.'
               : 'Registered citizen representative for national product vigilance & grievance tracking.'}
           </p>
         </div>
@@ -128,10 +153,10 @@ export const OverviewDashboard: React.FC = () => {
         />
         <StatCard
           title="High-Risk Manufacturers"
-          value={formatNumber(NATIONAL_STATS.highRiskManufacturers)}
-          change="-2.4%"
+          value={formatNumber(manufacturers.filter((m) => m.riskScore >= 60).length)}
+          change="Live Sync"
           trend="down"
-          trendLabel="In Repeat Registry"
+          trendLabel="Bengaluru Industrial Hubs"
           icon={Building2}
           variant="warning"
         />
@@ -148,71 +173,9 @@ export const OverviewDashboard: React.FC = () => {
 
       {/* Main Charts & Live Ticker Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: National Compliance Ingestion Area Chart */}
-        <div className="lg:col-span-8">
-          <Card className="h-full flex flex-col justify-between">
-            <CardHeader>
-              <div>
-                <CardTitle>
-                  <TrendingUp className="h-4 w-4 text-blue-600" />
-                  <span>National Product Compliance & Violation Trajectory</span>
-                </CardTitle>
-                <CardDescription>
-                  Monthly telemetry of automated SKU scans vs confirmed Legal Metrology & CCPA violations.
-                </CardDescription>
-              </div>
-              <Badge variant="primary" size="sm">
-                Last 6 Months
-              </Badge>
-            </CardHeader>
-
-            <CardContent className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={COMPLIANCE_TRENDS} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorScanned" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorViolations" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#DC2626" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                  <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0F172A',
-                      borderColor: '#1E293B',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '11px',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="scanned"
-                    name="Scanned SKUs"
-                    stroke="#2563EB"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorScanned)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="violations"
-                    name="Violations Detected"
-                    stroke="#DC2626"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorViolations)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        {/* National Compliance Trajectory Dual-Axis Chart */}
+        <div className="lg:col-span-12">
+          <NationalComplianceTrajectoryChart data={filteredTrends} />
         </div>
 
         {/* Right: Category Risk Distribution Bar Chart */}
@@ -278,7 +241,7 @@ export const OverviewDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Row: Priority Cases & State-Wise Matrix */}
+      {/* Bottom Row: Priority Cases & Zonal Risk Matrix */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Priority Cases Ledger Preview */}
         <div className="lg:col-span-7">
@@ -334,18 +297,7 @@ export const OverviewDashboard: React.FC = () => {
                       </div>
                       <div className="text-[10px] text-slate-400">Est. Section 36 Penalty</div>
                     </div>
-                    <Badge
-                      variant={
-                        violation.severity === 'critical'
-                          ? 'danger'
-                          : violation.severity === 'high'
-                          ? 'warning'
-                          : 'neutral'
-                      }
-                      size="sm"
-                    >
-                      {violation.status}
-                    </Badge>
+                    <StatusBadge status={violation.status} />
                     <ChevronRight className="h-4 w-4 text-slate-400" />
                   </div>
                 </div>
@@ -354,70 +306,248 @@ export const OverviewDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* State-Wise Enforcement Matrix */}
+        {/* Bengaluru Zonal & Industrial Risk Matrix */}
         <div className="lg:col-span-5">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <CardTitle>
-                  <Building2 className="h-4 w-4 text-slate-700" />
-                  <span>State Zonal Compliance Matrix</span>
+                <CardTitle className="flex items-center gap-1.5">
+                  <Building2 className="h-4 w-4 text-blue-600" />
+                  <span>
+                    {matrixView === 'bengaluru'
+                      ? 'Bengaluru Zonal Risk Matrix'
+                      : 'National State Matrix'}
+                  </span>
                 </CardTitle>
-                <CardDescription>Zonal Legal Metrology inspection performance</CardDescription>
+                <CardDescription>
+                  {matrixView === 'bengaluru'
+                    ? 'Aggregated from registered industries in the Manufacturer directory'
+                    : 'Zonal Legal Metrology inspection performance'}
+                </CardDescription>
               </div>
-              <Badge variant="secondary" size="sm" className="font-mono text-[10px]">
-                7 Zones Active
-              </Badge>
+
+              {/* View Switcher & Dynamic Zone Filter */}
+              <div className="flex items-center gap-2">
+                {user?.role === 'admin' && (
+                  <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-[10px] font-semibold">
+                    <button
+                      onClick={() => {
+                        setMatrixView('bengaluru');
+                        setZoneFilter('All');
+                      }}
+                      className={`px-2 py-0.5 rounded ${
+                        matrixView === 'bengaluru'
+                          ? 'bg-white shadow-xs text-blue-700 font-bold'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      Bengaluru
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMatrixView('national');
+                        setZoneFilter('All');
+                      }}
+                      className={`px-2 py-0.5 rounded ${
+                        matrixView === 'national'
+                          ? 'bg-white shadow-xs text-blue-700 font-bold'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      National
+                    </button>
+                  </div>
+                )}
+
+                <select
+                  value={zoneFilter}
+                  onChange={(e) => setZoneFilter(e.target.value)}
+                  className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] font-mono text-slate-800 focus:border-blue-600 focus:outline-none max-w-[140px]"
+                >
+                  <option value="All">
+                    All {matrixView === 'bengaluru' ? 'Areas' : 'States'} (
+                    {matrixView === 'bengaluru' ? bengaluruZones.length : STATE_COMPLIANCE_METRICS.length})
+                  </option>
+                  <option value="High Risk">High Risk (Risk ≥ 60)</option>
+                  <option value="Compliant">High Compliance (≥ 85%)</option>
+                  {matrixView === 'bengaluru'
+                    ? bengaluruZones.map((z) => (
+                        <option key={z.code} value={z.code}>
+                          {z.code} – {z.zone.split(' ')[0]}
+                        </option>
+                      ))
+                    : STATE_COMPLIANCE_METRICS.map((st) => (
+                        <option key={st.code} value={st.code}>
+                          {st.state} ({st.code})
+                        </option>
+                      ))}
+                </select>
+              </div>
             </CardHeader>
 
             <div className="p-0 overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
-                  <tr>
-                    <th className="px-4 py-2.5">State / Zone</th>
-                    <th className="px-3 py-2.5">Active Cases</th>
-                    <th className="px-3 py-2.5">Compliance</th>
-                    <th className="px-4 py-2.5 text-right">Risk Index</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {STATE_COMPLIANCE_METRICS.slice(0, 5).map((state) => (
-                    <tr key={state.code} className="hover:bg-slate-50/80">
-                      <td className="px-4 py-3 font-medium text-slate-900 flex items-center gap-2">
-                        <span className="w-6 h-4 bg-slate-200 text-slate-700 rounded text-[10px] font-mono flex items-center justify-center font-bold">
-                          {state.code}
-                        </span>
-                        <span>{state.state}</span>
-                      </td>
-                      <td className="px-3 py-3 font-mono text-slate-700">{formatNumber(state.activeCases)}</td>
-                      <td className="px-3 py-3 font-mono">
-                        <span
-                          className={
-                            state.compliancePercentage >= 85
-                              ? 'text-emerald-700 font-semibold'
-                              : 'text-amber-700 font-semibold'
-                          }
-                        >
-                          {state.compliancePercentage}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right font-mono">
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                            state.riskScore >= 70
-                              ? 'bg-red-50 text-red-700'
-                              : state.riskScore >= 40
-                              ? 'bg-amber-50 text-amber-700'
-                              : 'bg-emerald-50 text-emerald-700'
-                          }`}
-                        >
-                          {state.riskScore}/100
-                        </span>
-                      </td>
+              {matrixView === 'bengaluru' ? (
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                    <tr>
+                      <th className="px-3.5 py-2.5">Industrial Zone / Area</th>
+                      <th className="px-2.5 py-2.5">Facilities</th>
+                      <th className="px-2.5 py-2.5">Compliance</th>
+                      <th className="px-3.5 py-2.5 text-right">Zonal Risk</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredBengaluruZones.map((zone) => (
+                      <tr
+                        key={zone.code}
+                        onClick={() => navigate('/dashboard/manufacturers')}
+                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                        title="Click to view industries in this zone"
+                      >
+                        <td className="px-3.5 py-2.5 text-slate-900">
+                          <div className="flex items-start gap-2">
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold shrink-0 mt-0.5 ${
+                                zone.riskTier === 'Critical'
+                                  ? 'bg-red-100 text-red-800 border border-red-200'
+                                  : zone.riskTier === 'High'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                  : zone.riskTier === 'Moderate'
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                              }`}
+                            >
+                              {zone.code}
+                            </span>
+                            <div>
+                              <div className="font-semibold text-slate-900 text-[11px] leading-tight">
+                                {zone.zone}
+                              </div>
+                              <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                                {zone.keyFacilities.length > 0
+                                  ? zone.keyFacilities.join(', ')
+                                  : zone.keyIndustries}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-2.5 py-2.5 font-mono text-slate-700 text-[11px]">
+                          <span className="font-semibold text-slate-900">{zone.facilitiesCount}</span> Units
+                          {zone.activeCases > 0 && (
+                            <span className="ml-1.5 text-[10px] text-red-600 font-semibold">
+                              ({zone.activeCases} {zone.activeCases === 1 ? 'alert' : 'alerts'})
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-2.5 py-2.5 font-mono">
+                          <span
+                            className={
+                              zone.compliancePercentage >= 85
+                                ? 'text-emerald-700 font-semibold'
+                                : zone.compliancePercentage >= 70
+                                ? 'text-amber-700 font-semibold'
+                                : 'text-red-700 font-semibold'
+                            }
+                          >
+                            {zone.compliancePercentage}%
+                          </span>
+                        </td>
+                        <td className="px-3.5 py-2.5 text-right font-mono">
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              zone.riskScore >= 70
+                                ? 'bg-red-50 text-red-700 border border-red-200'
+                                : zone.riskScore >= 40
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            }`}
+                          >
+                            {zone.riskScore}/100
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredBengaluruZones.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                          No Bengaluru industrial zones matching the selected filter.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                    <tr>
+                      <th className="px-4 py-2.5">State / Zone</th>
+                      <th className="px-3 py-2.5">Active Cases</th>
+                      <th className="px-3 py-2.5">Compliance</th>
+                      <th className="px-4 py-2.5 text-right">Risk Index</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredStates.map((state) => (
+                      <tr key={state.code} className="hover:bg-slate-50/80">
+                        <td className="px-4 py-3 font-medium text-slate-900 flex items-center gap-2">
+                          <span className="w-6 h-4 bg-slate-200 text-slate-700 rounded text-[10px] font-mono flex items-center justify-center font-bold">
+                            {state.code}
+                          </span>
+                          <span>{state.state}</span>
+                        </td>
+                        <td className="px-3 py-3 font-mono text-slate-700">
+                          {formatNumber(state.activeCases)}
+                        </td>
+                        <td className="px-3 py-3 font-mono">
+                          <span
+                            className={
+                              state.compliancePercentage >= 85
+                                ? 'text-emerald-700 font-semibold'
+                                : 'text-amber-700 font-semibold'
+                            }
+                          >
+                            {state.compliancePercentage}%
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono">
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              state.riskScore >= 70
+                                ? 'bg-red-50 text-red-700'
+                                : state.riskScore >= 40
+                                ? 'bg-amber-50 text-amber-700'
+                                : 'bg-emerald-50 text-emerald-700'
+                            }`}
+                          >
+                            {state.riskScore}/100
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredStates.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                          No states matching the selected filter.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span className="flex items-center gap-1 font-mono">
+                <MapPin className="h-3.5 w-3.5 text-blue-600" />
+                Bengaluru City Circle (BBMP)
+              </span>
+              <Link
+                to="/dashboard/manufacturers"
+                className="text-blue-600 font-semibold hover:underline flex items-center gap-1"
+              >
+                <span>View Manufacturer Tab ({manufacturers.length} Units)</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </Card>
         </div>

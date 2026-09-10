@@ -53,3 +53,6 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.db
+__pycache__/
+*.pyc

@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { History, Search, Eye, Trash2, Clock } from 'lucide-react';
+import { History, Search, Eye, Trash2, Clock, FileCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useScanStore } from '../../store/scanStore';
+import { useReportStore } from '../../store/reportStore';
+import { reportService } from '../../lib/reportService';
+import { ComplianceReportModal } from './ComplianceReportModal';
 import type { ScanRecord } from '../../types/scan';
+import type { ComplianceInspectionReport } from '../../types/report';
 
 export const ScanHistoryTable: React.FC = () => {
-  const { scans, viewScan, deleteScan, clearHistory } = useScanStore();
+  const { scans, viewScan, deleteScan, clearHistory, validationResults, readabilityResults } = useScanStore();
+  const { addReport } = useReportStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  const handleOpenReport = (scan: ScanRecord) => {
+    const valResult = validationResults[scan.id];
+    const readResult = readabilityResults[scan.id] || scan.readabilityResult;
+    const report = reportService.generateComplianceReport(scan, valResult, readResult);
+    addReport(report);
+    setActiveReport(report);
+    setIsReportOpen(true);
+  };
 
   const filteredScans = scans.filter((scan) =>
     scan.imageName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -44,6 +60,20 @@ export const ScanHistoryTable: React.FC = () => {
     return 'bg-red-600';
   };
 
+  const completedScans = scans.filter((s) => s.status === 'completed' && s.extractedData);
+
+  const handleOpenSessionReport = () => {
+    if (completedScans.length === 0) return;
+    const report = reportService.generateSessionInspectionReport(
+      completedScans,
+      validationResults,
+      readabilityResults
+    );
+    addReport(report);
+    setActiveReport(report);
+    setIsReportOpen(true);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -52,6 +82,17 @@ export const ScanHistoryTable: React.FC = () => {
           <span>Scan History ({scans.length})</span>
         </CardTitle>
         <div className="flex items-center gap-2">
+          {completedScans.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenSessionReport}
+              className="text-xs h-7 gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-900/60 dark:text-blue-300"
+            >
+              <FileCheck className="h-3 w-3" />
+              <span>Session Report ({completedScans.length})</span>
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={clearHistory} className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50">
             <Trash2 className="h-3.5 w-3.5" />
             <span>Clear All</span>
@@ -123,11 +164,11 @@ export const ScanHistoryTable: React.FC = () => {
                       <div className="w-12 bg-slate-200 rounded-full h-1.5">
                         <div
                           className={`h-1.5 rounded-full ${getConfidenceBarColor(scan.confidence)}`}
-                          style={{ width: `${scan.confidence}%` }}
+                          style={{ width: `${Math.min(100, scan.confidence)}%` }}
                         />
                       </div>
-                      <span className={`font-semibold ${getConfidenceColor(scan.confidence)}`}>
-                        {scan.confidence}%
+                      <span className={`font-semibold text-[11px] ${getConfidenceColor(scan.confidence)}`}>
+                        {Math.round(scan.confidence)}%
                       </span>
                     </div>
                   ) : (
@@ -140,17 +181,29 @@ export const ScanHistoryTable: React.FC = () => {
                 </td>
 
                 <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="flex items-center justify-end gap-1.5">
                     {scan.status === 'completed' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => viewScan(scan)}
-                        className="h-7 text-xs text-blue-600 gap-1"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span>View</span>
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenReport(scan)}
+                          className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 gap-1"
+                          title="Generate Single Product Report"
+                        >
+                          <FileCheck className="h-3 w-3" />
+                          <span>Report</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => viewScan(scan)}
+                          className="h-7 text-xs text-slate-600 hover:text-slate-900 gap-1"
+                        >
+                          <Eye className="h-3 w-3" />
+                          <span>View</span>
+                        </Button>
+                      </>
                     )}
                     <Button
                       variant="ghost"
@@ -175,6 +228,36 @@ export const ScanHistoryTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Compliance Inspection Report Modal */}
+      {activeReport && (
+        <ComplianceReportModal
+          report={activeReport}
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          onRegenerate={(opts) => {
+            if (activeReport.reportType === 'inspection-session') {
+              const updated = reportService.generateSessionInspectionReport(
+                completedScans,
+                validationResults,
+                readabilityResults,
+                opts
+              );
+              addReport(updated);
+              setActiveReport(updated);
+            } else {
+              const scan = scans.find((s) => s.id === activeReport.scanId);
+              if (scan) {
+                const valResult = validationResults[scan.id];
+                const readResult = readabilityResults[scan.id] || scan.readabilityResult;
+                const updated = reportService.generateComplianceReport(scan, valResult, readResult, opts);
+                addReport(updated);
+                setActiveReport(updated);
+              }
+            }
+          }}
+        />
+      )}
     </Card>
   );
 };

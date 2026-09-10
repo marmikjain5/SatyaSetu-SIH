@@ -37,10 +37,11 @@ export const OCRProcessingCard: React.FC = () => {
     : 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          <Cpu className="h-4 w-4 text-slate-700" />
+    <Card className="border border-slate-200/90 shadow-subtle">
+      {/* Header */}
+      <CardHeader className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+        <CardTitle className="text-sm font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+          <Cpu className="h-4 w-4 text-slate-600" />
           <span>Legal Metrology Extraction Engine</span>
         </CardTitle>
         <div className="flex items-center gap-2">
@@ -68,132 +69,187 @@ export const OCRProcessingCard: React.FC = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="p-5 space-y-5">
-        {/* Current file info */}
+      <CardContent className="p-4 sm:p-5 space-y-3">
+        {/* Compact Horizontal Scan Summary Row */}
         {currentScan && (
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
-              <img
-                src={currentScan.imageDataUrl}
-                alt={currentScan.imageName}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900 truncate">{currentScan.imageName}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{currentScan.timestamp}</p>
+          <div className="rounded-lg border border-slate-200/80 bg-slate-50/60 p-2.5 sm:p-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {/* Left: Thumbnail & File Metadata */}
+              <div className="flex items-center gap-2.5 min-w-0 sm:w-5/12 shrink-0">
+                <div className="h-9 w-9 rounded-md border border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center">
+                  <img
+                    src={currentScan.imageDataUrl}
+                    alt={currentScan.imageName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="text-xs font-semibold text-slate-900 truncate leading-snug"
+                    title={currentScan.imageName}
+                  >
+                    {currentScan.imageName}
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-normal leading-tight mt-0.5">
+                    {currentScan.timestamp}
+                  </p>
+                </div>
+              </div>
+
+              {/* Subtle separator on sm+ screens */}
+              <div className="hidden sm:block h-7 w-px bg-slate-200 shrink-0" />
+
+              {/* Right: Extraction Status & Progress */}
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="font-medium text-slate-700 flex items-center gap-1.5 truncate text-[11px]">
+                    {isProcessing && <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600 shrink-0" />}
+                    {isComplete && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />}
+                    {isError && <AlertCircle className="h-3.5 w-3.5 text-red-600 shrink-0" />}
+                    <span className="truncate">
+                      {currentStatusMessage || 'Initializing engine...'}
+                    </span>
+                  </span>
+                  <span className="font-mono font-semibold text-slate-800 text-[11px] shrink-0">
+                    {currentProgress}%
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-all duration-300 ease-out',
+                      isError
+                        ? 'bg-red-500'
+                        : isComplete
+                        ? 'bg-emerald-500'
+                        : 'bg-blue-600'
+                    )}
+                    style={{ width: `${currentProgress}%` }}
+                  />
+                </div>
+
+                {/* Multi-pass progress dots when processing */}
+                {isProcessing && totalPasses > 0 && (
+                  <div className="flex items-center gap-1 mt-1">
+                    {Array.from({ length: totalPasses }, (_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          'h-1 flex-1 rounded-full transition-colors',
+                          i < currentPass
+                            ? 'bg-blue-600'
+                            : i === currentPass - 1
+                            ? 'bg-blue-400 animate-pulse'
+                            : 'bg-slate-200'
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-slate-700 flex items-center gap-1.5">
-              {isProcessing && <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />}
-              {isComplete && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
-              {isError && <AlertCircle className="h-3.5 w-3.5 text-red-600" />}
-              <span>{currentStatusMessage || 'Initializing engine...'}</span>
-            </span>
-            <span className="font-mono font-bold text-slate-800">{currentProgress}%</span>
-          </div>
-
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div
-              className={cn(
-                'h-full rounded-full transition-all duration-300 ease-out',
-                isError
-                  ? 'bg-red-500'
-                  : isComplete
-                  ? 'bg-emerald-500'
-                  : 'bg-blue-600'
-              )}
-              style={{ width: `${currentProgress}%` }}
-            />
-          </div>
-
-          {/* Multi-pass progress dots */}
-          {isProcessing && totalPasses > 0 && (
-            <div className="flex items-center gap-1.5 mt-1">
-              {Array.from({ length: totalPasses }, (_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'h-1.5 flex-1 rounded-full transition-colors',
-                    i < currentPass
-                      ? 'bg-blue-600'
-                      : i === currentPass - 1
-                      ? 'bg-blue-400 animate-pulse'
-                      : 'bg-slate-200'
-                  )}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Compliance & Confidence Summary Card */}
+        {/* Score Summary Row */}
         {isComplete && confidence > 0 && (
-          <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-3.5">
-            <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Overall Compliance & Extraction Score
-              </p>
-              <p className="text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200/90 bg-white px-4 py-2.5">
+            {/* Left: Prominent compact score and label */}
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-2xl font-bold font-mono tracking-tight text-slate-900 leading-none">
                 {confidence}%
-              </p>
+              </span>
+              <span className="text-xs font-medium text-slate-500 border-l border-slate-200 pl-2.5 py-0.5">
+                Compliance Score
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="success" size="sm" className="gap-1">
-                <ShieldCheck className="h-3.5 w-3.5" />
+
+            {/* Right: Key metric badges */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="success" size="sm" className="gap-1 font-medium">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                 <span>{compliantCount} Compliant</span>
               </Badge>
-              <Badge variant="neutral" size="sm">
+              <Badge variant="neutral" size="sm" className="font-medium text-slate-600">
                 {detectedDeclarationsCount}/{totalDeclarationsCount} Declarations
               </Badge>
-              <Badge variant={confidenceVariant} size="lg">
+              <Badge variant={confidenceVariant} size="sm" className="font-semibold">
                 {confidence >= 80 ? 'High Confidence' : confidence >= 50 ? 'Moderate' : 'Low'}
               </Badge>
             </div>
           </div>
         )}
 
-        {/* Pass Confidence Breakdown Bar */}
+        {/* Optical Pass Confidence Breakdown */}
         {isComplete && extractedData?.ocrPassResults && extractedData.ocrPassResults.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-              Optical Pass Confidence Breakdown
-            </p>
-            <div className="flex items-end gap-1.5 h-10">
-              {extractedData.ocrPassResults.map((pass) => (
-                <div
-                  key={pass.name}
-                  className="flex-1 flex flex-col items-center gap-0.5"
-                  title={`${pass.description}: ${pass.confidence}%`}
-                >
+          <div className="space-y-2 pt-0.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
+                Optical Pass Confidence Breakdown
+              </p>
+              <span className="text-[10px] text-slate-400 font-medium">
+                6-Pass Multi-Spectral Analysis
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+              {extractedData.ocrPassResults.map((pass, index) => {
+                const passConf = pass.confidence ?? 0;
+                const passBarColor =
+                  passConf >= 80
+                    ? 'bg-emerald-500'
+                    : passConf >= 50
+                    ? 'bg-amber-500'
+                    : 'bg-red-500';
+                const passTextColor =
+                  passConf >= 80
+                    ? 'text-emerald-700'
+                    : passConf >= 50
+                    ? 'text-amber-700'
+                    : 'text-red-700';
+
+                return (
                   <div
-                    className={cn(
-                      'w-full rounded-t transition-all',
-                      pass.confidence >= 80
-                        ? 'bg-emerald-500'
-                        : pass.confidence >= 50
-                        ? 'bg-amber-500'
-                        : 'bg-red-400'
+                    key={pass.name || index}
+                    className="rounded-md border border-slate-200/80 bg-slate-50/50 p-2 space-y-1.5 transition-colors hover:bg-slate-50"
+                    title={`${pass.description || pass.name || `Pass ${index + 1}`}: ${passConf}%`}
+                  >
+                    {/* Header: Pass Index & Percentage */}
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">
+                        Pass {index + 1}
+                      </span>
+                      <span className={cn('text-xs font-bold font-mono', passTextColor)}>
+                        {passConf > 0 ? `${passConf}%` : '—'}
+                      </span>
+                    </div>
+
+                    {/* Horizontal Confidence Bar */}
+                    <div className="w-full bg-slate-200/70 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-full transition-all duration-300', passBarColor)}
+                        style={{ width: `${Math.min(100, Math.max(0, passConf))}%` }}
+                      />
+                    </div>
+
+                    {/* Subtle Pass Variant Name if available */}
+                    {pass.name && (
+                      <p className="text-[9px] text-slate-500 truncate font-mono capitalize leading-tight">
+                        {pass.name.replace(/_/g, ' ')}
+                      </p>
                     )}
-                    style={{ height: `${Math.max(4, (pass.confidence / 100) * 32)}px` }}
-                  />
-                  <span className="text-[8px] text-slate-400 font-mono truncate w-full text-center">
-                    {pass.confidence > 0 ? `${pass.confidence}%` : '—'}
-                  </span>
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Error display */}
         {isError && currentScan?.errorMessage && (
-          <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+          <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-3.5 py-2.5">
             <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
             <p className="text-xs text-red-700 font-medium">{currentScan.errorMessage}</p>
           </div>
@@ -202,3 +258,4 @@ export const OCRProcessingCard: React.FC = () => {
     </Card>
   );
 };
+

@@ -23,7 +23,7 @@ export const PlatformPreviewSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'inspector' | 'consumer' | 'complaints' | 'risk'>('inspector');
 
   return (
-    <section id="preview" className="py-20 bg-[#F8FAFC]">
+    <section id="preview" className="py-20 bg-[#F8FAFC] scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
@@ -32,20 +32,20 @@ export const PlatformPreviewSection: React.FC = () => {
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-3">
             Multi-Stakeholder Intelligence Architecture
           </h2>
-          <p className="text-sm text-slate-600 mt-2">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
             Tailored interfaces for senior regulators, field inspection teams, grievance officers, and the general public.
           </p>
         </div>
 
         {/* Showcase Tab Selector */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs gap-1 max-w-full overflow-x-auto">
+          <div className="inline-flex p-1.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs gap-1 max-w-full overflow-x-auto">
             <button
               onClick={() => setActiveTab('inspector')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'inspector'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <Scale className="h-4 w-4" />
@@ -54,10 +54,10 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('consumer')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'consumer'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <UserCheck className="h-4 w-4" />
@@ -66,10 +66,10 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('complaints')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'complaints'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <MessageSquareWarning className="h-4 w-4" />
@@ -78,14 +78,14 @@ export const PlatformPreviewSection: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('risk')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'risk'
-                  ? 'bg-[#0F172A] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0F172A] dark:bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <LineChart className="h-4 w-4" />
-              <span>Risk Analytics Suite</span>
+              <span>Risk & Entity Analytics</span>
             </button>
           </div>
         </div>
@@ -167,16 +167,16 @@ export const PlatformPreviewSection: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              OptiMax Whey 2kg - Weight Shortfall (8% Deficiency)
+                              Cadbury Bournvita 500g — High Sugar "Health Drink" Claim Advisory
                             </div>
                             <div className="text-slate-500 text-[11px]">
-                              Apex BioNutra Ltd • Amazon India • Case #CCPA/ENF/2025/NZ-0891
+                              Mondelez India Foods Pvt Ltd • Amazon India • Case #CCPA/ENF/2025/NZ-0891
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="danger" size="sm">Critical</Badge>
-                          <span className="font-mono text-slate-700 font-semibold">₹50,000 Fine</span>
+                          <span className="font-mono text-slate-700 font-semibold">₹25,000 SCN</span>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
                         </div>
                       </div>
@@ -188,16 +188,16 @@ export const PlatformPreviewSection: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              AuraSound ANC Headphones - False Country of Origin Declaration
+                              Fortune Sunlite Oil 1L — Missing Unit Sale Price & Font Shortfall
                             </div>
                             <div className="text-slate-500 text-[11px]">
-                              AuraTech Electronics Pvt Ltd • Flipkart • Case #CCPA/ENF/2025/HQ-0112
+                              Adani Wilmar Ltd • Pan-India Retail • Case #LM/ENF/2025/HQ-0112
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="warning" size="sm">High Risk</Badge>
-                          <span className="font-mono text-slate-700 font-semibold">₹1,00,000 Fine</span>
+                          <span className="font-mono text-slate-700 font-semibold">₹20,000 SCN</span>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
                         </div>
                       </div>
@@ -220,7 +220,7 @@ export const PlatformPreviewSection: React.FC = () => {
                       <div>
                         <h4 className="text-base font-bold text-slate-900">Citizen Product Trust Verifier</h4>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          Enter barcode number or upload product label picture to verify statutory compliance.
+                          Enter SKU / product name or upload product label picture to verify statutory compliance.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -228,7 +228,7 @@ export const PlatformPreviewSection: React.FC = () => {
                           <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
                           <input
                             type="text"
-                            defaultValue="8901030998124"
+                            defaultValue="SKU-AMZ-WHEY-2KG"
                             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 font-mono focus:border-blue-600 focus:outline-none"
                           />
                         </div>
@@ -376,7 +376,7 @@ export const PlatformPreviewSection: React.FC = () => {
 
                         <div>
                           <div className="flex justify-between font-medium text-slate-700 mb-1">
-                            <span>Ayurvedic & Cosmetics</span>
+                            <span>Personal Care & Cosmetics</span>
                             <span className="font-mono text-amber-600 font-bold">18.2% Non-Compliant</span>
                           </div>
                           <div className="w-full bg-slate-100 rounded-full h-2">
