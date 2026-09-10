@@ -164,7 +164,7 @@ export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = (
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <div className="text-[10px] text-slate-400 font-semibold uppercase">Hygiene Score</div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase">Compliance Score</div>
               <span
                 className={`text-lg font-bold ${
                   factory.overallScore >= 80
