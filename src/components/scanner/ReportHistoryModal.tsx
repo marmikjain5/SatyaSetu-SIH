@@ -71,7 +71,7 @@ export const ReportHistoryModal: React.FC<ReportHistoryModalProps> = ({
                 Compliance Reports History
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Archived Legal Metrology inspection reports with cryptographic verification.
+                Archived Legal Metrology packaging compliance & audit reports with cryptographic verification.
               </p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export const ReportHistoryModal: React.FC<ReportHistoryModalProps> = ({
               <FileText className="h-10 w-10 mx-auto text-slate-400 opacity-40" />
               <p className="text-sm font-semibold">No Compliance Reports Found</p>
               <p className="text-xs max-w-md mx-auto">
-                Generate inspection reports from any completed packaging scan using the "Generate Compliance Report" action.
+                Generate compliance reports from any completed packaging scan using the "Generate Compliance Report" action.
               </p>
             </div>
           ) : (

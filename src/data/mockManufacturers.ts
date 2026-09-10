@@ -24,7 +24,7 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
   },
   {
     id: 'MFG-KA-002',
-    name: 'Himalaya Drug Company Private Limited',
+    name: 'Himalaya Wellness Company (Makali Complex)',
     cin: 'U24232KA1997PTC022261',
     gstin: '29AADFT3025B2ZK',
     registeredAddress: 'Himalaya House, No. 8, Bellary Road, Makali, Tumkur Road, Bengaluru – 562162, Karnataka',
@@ -34,9 +34,9 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     activeViolations: 1,
     repeatOffenderFlag: false,
     noticesIssued: 1,
-    brands: ['Himalaya', 'Himalaya Wellness'],
-    primaryCategory: 'Ayurvedic & Herbal Personal Care',
-    topOffenseTypes: ['Unsubstantiated health claim on Liv.52 label'],
+    brands: ['Himalaya', 'Himalaya Wellness', 'Himalaya BabyCare'],
+    primaryCategory: 'FMCG & Personal Care',
+    topOffenseTypes: ['Net quantity numeral font height below statutory 4mm', 'Customer care email obfuscation'],
     lastAuditDate: '05 Feb 2025',
     coordinates: { lat: 13.0356, lng: 77.5340 },
     facilityType: 'R&D & Manufacturing Campus',
@@ -169,4 +169,158 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     zone: 'Whitefield EPIP Zone, East Bengaluru',
     fssaiLicenseNo: '21418002000719',
   },
+  {
+    id: 'MFG-KA-009',
+    name: 'Karnataka Soaps & Detergents Limited (Mysore Sandal Factory)',
+    cin: 'U24241KA1980SGC003881',
+    gstin: '29AACCK2880F1ZV',
+    registeredAddress: 'Bengaluru-Pune Highway, P.B. No. 5531, Rajajinagar Industrial Suburb, Bengaluru – 560055, Karnataka',
+    riskScore: 18,
+    riskTier: 'Low',
+    totalProductsScanned: 310,
+    activeViolations: 0,
+    repeatOffenderFlag: false,
+    noticesIssued: 0,
+    brands: ['Mysore Sandal Soap', 'Mysore Sandal Gold', 'Wave Soap'],
+    primaryCategory: 'Toilet Soaps & Personal Hygiene Commodities',
+    topOffenseTypes: ['All statutory declarations verified under Rule 6(1)'],
+    lastAuditDate: '28 Feb 2025',
+    coordinates: { lat: 13.0031, lng: 77.5510 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Rajajinagar Industrial Suburb',
+    fssaiLicenseNo: '10015043000882',
+  },
+  {
+    id: 'MFG-KA-010',
+    name: 'Tata Consumer Products Limited – Beverages Packaging Unit',
+    cin: 'L15491WB1962PLC031425',
+    gstin: '29AAACT2727Q1ZT',
+    registeredAddress: 'Plot No. 44, Electronic City Phase 2, Hosur Road, Bengaluru – 560100, Karnataka',
+    riskScore: 24,
+    riskTier: 'Low',
+    totalProductsScanned: 290,
+    activeViolations: 0,
+    repeatOffenderFlag: false,
+    noticesIssued: 0,
+    brands: ['Tata Tea', 'Tetley', 'Tata Salt', 'Tata Sampann'],
+    primaryCategory: 'Packaged Tea, Salt & Food Grains',
+    topOffenseTypes: ['Minor batch coding font alignment under review'],
+    lastAuditDate: '12 Jan 2025',
+    coordinates: { lat: 12.8390, lng: 77.6770 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Electronic City Phase 2',
+    fssaiLicenseNo: '10012011000348',
+  },
 ];
+
+export interface ZonalRiskMetric {
+  zone: string;
+  code: string;
+  activeCases: number;
+  totalAudited: number;
+  compliancePercentage: number;
+  riskScore: number;
+  riskTier: 'Critical' | 'High' | 'Moderate' | 'Low';
+  facilitiesCount: number;
+  keyFacilities: string[];
+  keyIndustries: string;
+}
+
+export function computeBengaluruZonalRisk(manufacturers: Manufacturer[]): ZonalRiskMetric[] {
+  const zoneClusters: {
+    zone: string;
+    code: string;
+    matcher: (m: Manufacturer) => boolean;
+    keyIndustries: string;
+  }[] = [
+    {
+      zone: 'Bommasandra & Jigani Industrial Corridor',
+      code: 'BOMMA',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('bommasandra') ||
+        m.zone.toLowerCase().includes('jigani') ||
+        m.registeredAddress.toLowerCase().includes('bommasandra'),
+      keyIndustries: 'Food Processing, Dark Stores & Logistics',
+    },
+    {
+      zone: 'Peenya Industrial Area (Phase I–IV)',
+      code: 'PEENYA',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('peenya') ||
+        m.registeredAddress.toLowerCase().includes('peenya'),
+      keyIndustries: 'Organic Foods & Packaging Units',
+    },
+    {
+      zone: 'Whitefield EPIP & Mahadevapura Zone',
+      code: 'WHTFLD',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('whitefield') ||
+        m.zone.toLowerCase().includes('epip') ||
+        m.registeredAddress.toLowerCase().includes('whitefield'),
+      keyIndustries: 'Nutraceuticals & Import Logistics',
+    },
+    {
+      zone: 'Bidadi Industrial Area & Agro Corridor',
+      code: 'BIDADI',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('bidadi') ||
+        m.registeredAddress.toLowerCase().includes('bidadi'),
+      keyIndustries: 'Bakery, Dairy & Agro-Fresh Processing',
+    },
+    {
+      zone: 'Tumkur Road Industrial Corridor',
+      code: 'TMKR-RD',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('tumkur') ||
+        m.registeredAddress.toLowerCase().includes('tumkur') ||
+        m.registeredAddress.toLowerCase().includes('makali'),
+      keyIndustries: 'Personal Care & Consumer Goods Campus',
+    },
+    {
+      zone: 'Rajajinagar & Central Industrial Circle',
+      code: 'CENTRAL',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('rajajinagar') ||
+        m.zone.toLowerCase().includes('cox town') ||
+        m.registeredAddress.toLowerCase().includes('rajajinagar') ||
+        m.registeredAddress.toLowerCase().includes('cox town'),
+      keyIndustries: 'Soaps, Packaged FMCG & Staples',
+    },
+    {
+      zone: 'Electronic City Industrial Zone',
+      code: 'ECITY',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('electronic city') ||
+        m.registeredAddress.toLowerCase().includes('electronic city'),
+      keyIndustries: 'Beverages, Salt & High-Tech Packaging',
+    },
+  ];
+
+  return zoneClusters.map((cluster) => {
+    const matched = manufacturers.filter(cluster.matcher);
+    const facilitiesCount = matched.length;
+    const totalAudited = matched.reduce((acc, m) => acc + m.totalProductsScanned, 0);
+    const activeCases = matched.reduce((acc, m) => acc + m.activeViolations, 0);
+    const avgRisk =
+      facilitiesCount > 0
+        ? Math.round(matched.reduce((acc, m) => acc + m.riskScore, 0) / facilitiesCount)
+        : 25;
+    const compliancePercentage = Math.max(10, 100 - avgRisk);
+    const riskTier =
+      avgRisk >= 80 ? 'Critical' : avgRisk >= 60 ? 'High' : avgRisk >= 40 ? 'Moderate' : 'Low';
+    const keyFacilities = matched.map((m) => m.name.replace(/\(.*?\)/g, '').trim());
+
+    return {
+      zone: cluster.zone,
+      code: cluster.code,
+      activeCases,
+      totalAudited,
+      compliancePercentage,
+      riskScore: avgRisk,
+      riskTier,
+      facilitiesCount,
+      keyFacilities,
+      keyIndustries: cluster.keyIndustries,
+    };
+  });
+}

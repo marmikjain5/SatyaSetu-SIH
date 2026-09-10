@@ -188,10 +188,10 @@ export const PlatformPreviewSection: React.FC = () => {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              Patanjali Dant Kanti 200g — Unsubstantiated Therapeutic Claim
+                              Fortune Sunlite Oil 1L — Missing Unit Sale Price & Font Shortfall
                             </div>
                             <div className="text-slate-500 text-[11px]">
-                              Patanjali Ayurved Ltd • Pan-India Retail • Case #CCPA/ENF/2025/HQ-0112
+                              Adani Wilmar Ltd • Pan-India Retail • Case #LM/ENF/2025/HQ-0112
                             </div>
                           </div>
                         </div>
@@ -376,7 +376,7 @@ export const PlatformPreviewSection: React.FC = () => {
 
                         <div>
                           <div className="flex justify-between font-medium text-slate-700 mb-1">
-                            <span>Ayurvedic & Cosmetics</span>
+                            <span>Personal Care & Cosmetics</span>
                             <span className="font-mono text-amber-600 font-bold">18.2% Non-Compliant</span>
                           </div>
                           <div className="w-full bg-slate-100 rounded-full h-2">

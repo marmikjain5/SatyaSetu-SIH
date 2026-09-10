@@ -26,6 +26,7 @@ import {
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { useReportStore } from '../../store/reportStore';
+import { useAuthStore } from '../../store/authStore';
 import { reportService } from '../../lib/reportService';
 import { exportReportToPdf, exportReportToDocx, downloadReportAsPdf } from '../../lib/reportExporter';
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
@@ -45,6 +46,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
   onRegenerate,
 }) => {
   const { addReport } = useReportStore();
+  const { user } = useAuthStore();
+  const isManufacturer = user?.role === 'manufacturer';
   const [activeTab, setActiveTab] = useState<'report' | 'customize'>('report');
   const [copiedHash, setCopiedHash] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -133,15 +136,19 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold font-mono tracking-widest text-blue-700 dark:text-blue-400 uppercase bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-900/60">
-                  OFFICIAL STATUTORY INSPECTION RECORD
+                <span className={`text-[10px] font-bold font-mono tracking-widest uppercase px-2 py-0.5 rounded border ${
+                  isManufacturer
+                    ? 'text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-900/60'
+                    : 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900/60'
+                }`}>
+                  {isManufacturer ? 'PRE-MARKET COMPLIANCE AUDIT RECORD' : 'OFFICIAL STATUTORY INSPECTION RECORD'}
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
                   {report.reportId}
                 </span>
               </div>
               <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
-                Compliance Inspection Report Generator
+                {isManufacturer ? 'Product Packaging Compliance Report' : 'Compliance Inspection Report Generator'}
               </h2>
             </div>
           </div>
@@ -170,7 +177,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 )}
               >
                 <Edit3 className="h-3 w-3" />
-                <span>Inspector Sign-Off</span>
+                <span>{isManufacturer ? 'Sign-Off & Notes' : 'Inspector Sign-Off'}</span>
               </button>
             </div>
 
@@ -225,9 +232,13 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl p-4 text-xs text-blue-800 dark:text-blue-300 flex items-start gap-3">
                 <UserCheck className="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
                 <div>
-                  <h4 className="font-bold">Inspector Authentication &amp; Customization</h4>
+                  <h4 className="font-bold">
+                    {isManufacturer ? 'Compliance Officer Authentication & Remarks' : 'Inspector Authentication & Customization'}
+                  </h4>
                   <p className="mt-0.5 text-blue-700 dark:text-blue-400">
-                    Modify inspecting officer credentials, legal department jurisdiction, and enforcement directives before exporting the official document.
+                    {isManufacturer
+                      ? 'Modify internal QA / Compliance Officer credentials and remarks before generating the final compliance report.'
+                      : 'Modify inspecting officer credentials, legal department jurisdiction, and enforcement directives before exporting the official document.'}
                   </p>
                 </div>
               </div>
@@ -329,7 +340,9 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span>MINISTRY OF CONSUMER AFFAIRS</span>
                 </div>
                 <h1 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
-                  Comprehensive Multi-Commodity Inspection Session Report
+                  {isManufacturer
+                    ? 'Comprehensive Multi-Product Packaging Compliance Report'
+                    : 'Comprehensive Multi-Commodity Inspection Session Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards • {report.auditedProducts?.length || 0} Products Audited
@@ -339,7 +352,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               {/* Identification Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-mono">
                 <div>
-                  <span className="text-slate-500">INSPECTION SESSION ID: </span>
+                  <span className="text-slate-500">{isManufacturer ? 'AUDIT SESSION ID: ' : 'INSPECTION SESSION ID: '}</span>
                   <span className="font-bold text-blue-700 dark:text-blue-400">{coverPage.reportId}</span>
                 </div>
                 <div>
@@ -646,7 +659,9 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span>MINISTRY OF CONSUMER AFFAIRS</span>
                 </div>
                 <h1 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
-                  Statutory Packaged Commodity Inspection Report
+                  {isManufacturer
+                    ? 'Statutory Packaged Commodity Compliance Report'
+                    : 'Statutory Packaged Commodity Inspection Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards
@@ -660,7 +675,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span className="font-bold text-blue-700 dark:text-blue-400">{coverPage.reportId}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">INSPECTION DATE: </span>
+                  <span className="text-slate-500">{isManufacturer ? 'AUDIT DATE: ' : 'INSPECTION DATE: '}</span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">{coverPage.formattedDate}</span>
                 </div>
               </div>

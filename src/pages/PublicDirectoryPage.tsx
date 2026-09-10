@@ -46,7 +46,7 @@ export const PublicDirectoryPage: React.FC = () => {
     'Personal Care & Soaps',
     'Hair Care & Cosmetics',
     'Edible Oils & Hair Care',
-    'Ayurvedic Oral Care',
+    'Edible Oils & Cooking Essentials',
     'Packaged Tea & Beverages',
   ];
 

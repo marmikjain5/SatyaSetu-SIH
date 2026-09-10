@@ -242,7 +242,7 @@ export const COMPLIANCE_TRENDS: ComplianceTrendPoint[] = [
 export const CATEGORY_RISK_METRICS: CategoryRiskMetric[] = [
   { category: 'Health Supplements & Protein', totalProducts: 34200, violationRate: 28.4, topViolation: 'Protein Shortfall & False Claims', riskLevel: 'Critical' },
   { category: 'Consumer Electronics & Audio', totalProducts: 89400, violationRate: 21.6, topViolation: 'Origin Obfuscation', riskLevel: 'High' },
-  { category: 'Ayurvedic & Cosmetics', totalProducts: 54100, violationRate: 18.2, topViolation: 'Magic Cure / Misleading Timelines', riskLevel: 'High' },
+  { category: 'Cosmetics & Personal Care', totalProducts: 54100, violationRate: 18.2, topViolation: 'Misleading Efficacy Timelines', riskLevel: 'High' },
   { category: 'Apparel & Fast Fashion', totalProducts: 112000, violationRate: 14.8, topViolation: 'Missing MRP / Packer Info', riskLevel: 'Medium' },
   { category: 'Packaged FMCG Groceries', totalProducts: 198000, violationRate: 4.2, topViolation: 'Font Size & Date Format', riskLevel: 'Low' },
 ];

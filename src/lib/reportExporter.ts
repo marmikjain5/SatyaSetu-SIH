@@ -56,7 +56,7 @@ function generateSingleProductReportHtml(report: ComplianceInspectionReport): st
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${report.reportId} - Compliance Inspection Report</title>
+  <title>${report.reportId} - Packaging Compliance Report</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 

@@ -1,18 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, RefreshCw, X, AlertCircle, Sparkles } from 'lucide-react';
+import { Camera, RefreshCw, X, AlertCircle, Sparkles, Upload, Package, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
+import { SAMPLE_PACKAGE_OPTIONS, SamplePackageOption } from '../../data/mockScans';
 
 export const LiveProductCapture: React.FC = () => {
-  const { addImages, isProcessing, uploadedImages } = useScanStore();
+  const { addImages, isProcessing, uploadedImages, loadSampleImage } = useScanStore();
 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [loadingSampleId, setLoadingSampleId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Stop all camera tracks helper
   const stopCamera = useCallback(() => {
@@ -52,7 +55,7 @@ export const LiveProductCapture: React.FC = () => {
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setCameraError(
-        'Camera API is not supported or requires a secure context (HTTPS or localhost). If testing on a mobile device over HTTP, please enable insecure origins in browser flags or use HTTPS.'
+        'Camera API is not supported or requires HTTPS. You can also browse/upload label files directly below or select a sample package.'
       );
       setIsInitializing(false);
       return;
@@ -84,9 +87,9 @@ export const LiveProductCapture: React.FC = () => {
       setIsInitializing(false);
       setIsCameraActive(false);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera permission was denied. Please allow camera access in your browser to take a live photo.');
+        setCameraError('Camera permission was denied. You can browse/upload label files or choose a sample package below.');
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setCameraError('No camera found on this device.');
+        setCameraError('No camera found on this device. You can browse/upload files below.');
       } else {
         setCameraError(`Unable to access camera: ${err.message || 'Unknown error'}`);
       }
@@ -125,9 +128,25 @@ export const LiveProductCapture: React.FC = () => {
     stopCamera();
   };
 
+  const handleSelectSample = async (sample: SamplePackageOption) => {
+    setLoadingSampleId(sample.id);
+    try {
+      await loadSampleImage(sample.imagePath, `${sample.id}.jpg`);
+    } finally {
+      setLoadingSampleId(null);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addImages(Array.from(e.target.files));
+      e.target.value = '';
+    }
+  };
+
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-6 space-y-6">
         {!isCameraActive ? (
           <div className="flex flex-col items-center justify-center text-center p-8 rounded-xl border-2 border-dashed border-indigo-300 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-4">
             <div className="h-14 w-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs">
@@ -136,20 +155,20 @@ export const LiveProductCapture: React.FC = () => {
 
             <div className="max-w-md space-y-1.5">
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Live Product Capture
+                Live Product Packaging Verification
               </h2>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Take a live photo of your product packaging for declaration verification.
+                Take a live photo or upload packaging labels to verify mandatory Legal Metrology & FSSAI statutory declarations.
               </p>
             </div>
 
-            {/* ONE Primary Action Button */}
-            <div className="pt-2">
+            {/* Action Buttons */}
+            <div className="pt-2 flex items-center gap-3 flex-wrap justify-center">
               <Button
                 variant="primary"
                 onClick={handleStartCamera}
                 disabled={isInitializing || isProcessing}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 shadow-sm text-xs gap-2"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 shadow-sm text-xs gap-2"
               >
                 {isInitializing ? (
                   <>
@@ -163,11 +182,31 @@ export const LiveProductCapture: React.FC = () => {
                   </>
                 )}
               </Button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isProcessing}
+                className="border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800 text-xs gap-2 px-5 py-2.5 font-medium"
+              >
+                <Upload className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                <span>Upload Packaging File</span>
+              </Button>
             </div>
 
             {uploadedImages.length > 0 && (
-              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium pt-1">
-                ✓ {uploadedImages.length} live {uploadedImages.length === 1 ? 'photo' : 'photos'} captured and ready for verification
+              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium pt-1 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>{uploadedImages.length} {uploadedImages.length === 1 ? 'label' : 'labels'} queued and ready for declaration verification</span>
               </div>
             )}
           </div>
@@ -233,11 +272,60 @@ export const LiveProductCapture: React.FC = () => {
 
         {/* Camera Error Alert */}
         {cameraError && (
-          <div className="flex items-start gap-2.5 mt-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 text-xs text-red-700 dark:text-red-300">
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+          <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 text-xs text-amber-800 dark:text-amber-300">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
             <div>
-              <div className="font-semibold">Camera Access Notice</div>
+              <div className="font-semibold">Camera Notice</div>
               <div className="mt-0.5">{cameraError}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Sample Packaging Declarations */}
+        {!isCameraActive && (
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+                <span>Or Test With Sample Manufacturer Declaration Packs</span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono">1-Click Load</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {SAMPLE_PACKAGE_OPTIONS.map((sample) => (
+                <button
+                  key={sample.id}
+                  type="button"
+                  onClick={() => handleSelectSample(sample)}
+                  disabled={isProcessing || loadingSampleId === sample.id}
+                  className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-xs text-left transition-all group disabled:opacity-50"
+                >
+                  <img
+                    src={sample.imagePath}
+                    alt={sample.name}
+                    className="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-200 dark:border-slate-700"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 line-clamp-1 transition-colors">
+                      {sample.name}
+                    </div>
+                    <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                      {sample.category}
+                    </div>
+                    <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono mt-1 font-semibold flex items-center gap-1">
+                      {loadingSampleId === sample.id ? (
+                        <>
+                          <RefreshCw className="h-3 w-3 animate-spin" />
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <span>Load Sample Pack →</span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -245,3 +333,4 @@ export const LiveProductCapture: React.FC = () => {
     </Card>
   );
 };
+

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Images,
@@ -148,7 +148,7 @@ export const ProductScanner: React.FC = () => {
             className="text-xs gap-1.5 border-slate-200"
           >
             <History className="h-3.5 w-3.5 text-slate-600" />
-            <span>{isManufacturer ? 'Self-Audit Archive' : 'Report Archive'}</span>
+            <span>{isManufacturer ? 'Compliance Report Archive' : 'Report Archive'}</span>
             {reports.length > 0 && (
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
                 {reports.length}
@@ -170,7 +170,7 @@ export const ProductScanner: React.FC = () => {
               <FileCheck className="h-3.5 w-3.5" />
               <span>
                 {isManufacturer
-                  ? `Generate Session Self-Certificate (${completedScans.length})`
+                  ? `Generate Compliance Report (${completedScans.length})`
                   : `Generate Inspection Report (${completedScans.length} ${completedScans.length === 1 ? 'Product' : 'Products'})`}
               </span>
             </Button>
@@ -190,7 +190,7 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title={isManufacturer ? 'Declaration Accuracy' : 'Avg Confidence'}
-          value={avgConfidence > 0 ? `${avgConfidence}%` : 'â€”'}
+          value={avgConfidence > 0 ? `${avgConfidence}%` : '—'}
           icon={Activity}
           variant={avgConfidence >= 90 ? 'success' : avgConfidence >= 70 ? 'warning' : 'default'}
           description={isManufacturer ? 'Mandatory declaration score' : 'Across completed scans'}
@@ -204,7 +204,7 @@ export const ProductScanner: React.FC = () => {
         />
         <StatCard
           title="Last Verification"
-          value={lastScanTime === 'Never' ? 'â€”' : lastScanTime.split(',')[0] || 'â€”'}
+          value={lastScanTime === 'Never' ? '—' : lastScanTime.split(',')[0] || '—'}
           icon={Clock}
           variant="default"
           description={lastScanTime === 'Never' ? 'No verifications yet' : lastScanTime}
@@ -215,13 +215,13 @@ export const ProductScanner: React.FC = () => {
       {completedScans.length > 0 && (
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
           <div className="flex items-start sm:items-center gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className={`h-10 w-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-xs ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
               <FileText className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-bold font-mono uppercase bg-blue-600 text-white px-2 py-0.5 rounded">
-                  Unified Inspection Session
+                <span className={`text-[10px] font-bold font-mono uppercase text-white px-2 py-0.5 rounded ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
+                  {isManufacturer ? 'Pre-Market Compliance Audit' : 'Unified Inspection Session'}
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
                   {completedScans.length}{' '}
@@ -229,16 +229,18 @@ export const ProductScanner: React.FC = () => {
                 </span>
                 {sessionTotalViolations > 0 ? (
                   <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
-                    {sessionTotalViolations} Violations Flagged
+                    {sessionTotalViolations} {isManufacturer ? 'Defects Flagged' : 'Violations Flagged'}
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold font-mono uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900">
-                    All Products Compliant
+                    All Declarations Compliant
                   </span>
                 )}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation matrix and compounding fine ledger.
+                {isManufacturer
+                  ? 'All packaging labels verified during this audit session are compiled into a comprehensive pre-market Compliance Report with regulatory declaration breakdown.'
+                  : 'All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation matrix and compounding fine ledger.'}
               </p>
             </div>
           </div>
@@ -247,10 +249,18 @@ export const ProductScanner: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => handleGenerateSessionReport()}
-              className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs font-bold"
+              className={`text-xs gap-1.5 shadow-xs font-bold ${
+                isManufacturer
+                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
             >
               <FileCheck className="h-3.5 w-3.5" />
-              <span>Generate Inspection Report ({completedScans.length})</span>
+              <span>
+                {isManufacturer
+                  ? `Generate Compliance Report (${completedScans.length})`
+                  : `Generate Inspection Report (${completedScans.length})`}
+              </span>
             </Button>
           </div>
         </div>
