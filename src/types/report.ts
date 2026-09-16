@@ -3,7 +3,6 @@
  *
  * Professional inspection-grade statutory report data schema under:
  * - Legal Metrology (Packaged Commodities) Rules, 2011 & Amendments
- * - Food Safety and Standards (Packaging and Labelling) Regulations, 2011
  * - Bureau of Indian Standards (BIS) & Metrology Standards
  */
 
@@ -61,7 +60,6 @@ export interface ReportProductInfoData {
   packingDate: string;
   expiryDate: string;
   customerCare: string;
-  fssaiLicense: string;
   barcode: string;
 }
 

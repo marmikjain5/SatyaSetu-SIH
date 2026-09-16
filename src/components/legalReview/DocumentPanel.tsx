@@ -28,7 +28,7 @@ export const DocumentPanel: React.FC = () => {
     selectDocument,
   } = useLegalReviewStore();
 
-  // Check if the selected document is an external (hygiene-generated) one
+  // Check if the selected document is an external one
   const isExternalDocument = selectedDocument
     ? !documents.some((d) => d.id === selectedDocument.id)
     : false;
@@ -85,12 +85,12 @@ export const DocumentPanel: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Hygiene Source Banner (when viewing an external document) */}
+        {/* External Source Banner (when viewing an external document) */}
         {isExternalDocument && selectedDocument && (
           <div className="p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg flex items-center gap-2">
             <Scale className="h-4 w-4 text-indigo-500 shrink-0" />
             <p className="text-[11px] text-indigo-700 leading-tight">
-              <span className="font-semibold">Source: Factory Hygiene Monitoring</span> — This document was generated from a hygiene violation record for AI legal review.
+              <span className="font-semibold">Source: External Regulatory Record</span> — This document was imported for statutory AI legal review.
             </p>
           </div>
         )}
@@ -116,7 +116,7 @@ export const DocumentPanel: React.FC = () => {
               ))}
               {isExternalDocument && selectedDocument && (
                 <option key={selectedDocument.id} value={selectedDocument.id}>
-                  ⚖ {selectedDocument.title} (from Hygiene)
+                  ⚖ {selectedDocument.title} (External Record)
                 </option>
               )}
             </select>

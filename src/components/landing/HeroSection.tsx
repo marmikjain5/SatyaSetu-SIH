@@ -78,7 +78,7 @@ export const HeroSection: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="relative z-10"
             >
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-[0.2em] sm:tracking-[0.25em] uppercase drop-shadow-[0_0_25px_rgba(37,99,235,0.15)] dark:drop-shadow-[0_0_35px_rgba(59,130,246,0.3)] leading-tight">
+              <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-[0.14em] sm:tracking-[0.25em] uppercase drop-shadow-[0_0_25px_rgba(37,99,235,0.15)] dark:drop-shadow-[0_0_35px_rgba(59,130,246,0.3)] leading-tight break-words">
                 SATYADRISHTI
               </h1>
 

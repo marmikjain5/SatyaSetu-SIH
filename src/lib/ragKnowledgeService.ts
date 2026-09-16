@@ -2,14 +2,14 @@
  * SatyaDrishti Hybrid Regulatory Intelligence System (RAG) & Knowledge Engine
  *
  * Implements:
- * 1. Regulatory Document Repository with official Indian government sources (Legal Metrology, FSSAI, BIS, CCPA)
+ * 1. Regulatory Document Repository with official Indian government sources (Legal Metrology, BIS, CCPA)
  * 2. Vector Semantic + Keyword Hybrid Retrieval Engine
  * 3. Regulatory Knowledge Graph Traversal
  * 4. Rule Versioning & Effective Date Resolver (Version 1 -> Version 2 with human approval workflow)
  * 5. Structured Rule Payload Generation for Deterministic Engine
  */
 
-export type RegulatoryAuthority = 'Legal Metrology' | 'FSSAI' | 'BIS' | 'CCPA';
+export type RegulatoryAuthority = 'Legal Metrology' | 'BIS' | 'CCPA';
 export type DocumentStatus = 'ACTIVE' | 'SUPERSEDED' | 'AMENDED' | 'REPEALED' | 'DRAFT';
 export type RuleStatus = 'ACTIVE' | 'PENDING_APPROVAL' | 'PROPOSED_CHANGE' | 'SUPERSEDED' | 'REJECTED';
 
@@ -120,16 +120,6 @@ export const OFFICIAL_REGULATORY_SOURCES: RegulatorySourceConfig[] = [
     description: 'Mandatory statutory declarations for pre-packaged commodities under the Legal Metrology (Packaged Commodities) Rules, 2011 & 2017 amendments.',
     documentTypes: ['Act', 'Rule', 'Amendment Notification', 'Circular'],
     gazetteRef: 'G.S.R. 202(E) & G.S.R. 629(E)',
-  },
-  {
-    id: 'fssai',
-    authority: 'FSSAI',
-    name: 'Food Safety and Standards Authority of India',
-    baseUrl: 'https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php',
-    jurisdiction: 'India (Food Safety)',
-    description: 'Statutory packaging, nutritional display, allergen warnings, FSSAI 14-digit license number, and veg/non-veg green/brown symbol mandates.',
-    documentTypes: ['Act', 'Regulation', 'Gazette Notification', 'Advisory'],
-    gazetteRef: 'F. No. M&L/1(71)2011/FSSAI',
   },
   {
     id: 'bis',
@@ -309,23 +299,6 @@ export const INITIAL_REGULATORY_CORPUS: RegulatoryDocumentChunk[] = [
     penalties: { minFine: 25000, maxFine: 100000 },
   },
   {
-    chunkId: 'chunk-fssai-symbol-11',
-    documentId: 'doc-fssai-2020',
-    authority: 'FSSAI',
-    title: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    ruleCode: 'FSSAI-2020-R4(1)',
-    section: 'Regulation 4(1) - Vegetarian / Non-Vegetarian Logo Mandate',
-    officialGazetteRef: 'F. No. M&L/1(71)2011/FSSAI',
-    sourceUrl: 'https://www.fssai.gov.in/',
-    publicationDate: '2020-11-17',
-    effectiveDate: '2021-11-17',
-    status: 'ACTIVE',
-    categories: ['packaged_food'],
-    content: 'Every package of food shall bear a green filled circle inside a green square for Vegetarian food, or a brown triangle inside a brown square for Non-Vegetarian food, near the product name.',
-    verbatimClause: 'Regulation 4(1): Declaration regarding Veg or Non-Veg symbol shall be specified on the principal display panel of every food package.',
-    penalties: { minFine: 50000, maxFine: 300000 },
-  },
-  {
     chunkId: 'chunk-bis-crs-12',
     documentId: 'doc-bis-2016',
     authority: 'BIS',
@@ -343,23 +316,6 @@ export const INITIAL_REGULATORY_CORPUS: RegulatoryDocumentChunk[] = [
     penalties: { minFine: 200000, maxFine: 500000, imprisonmentMonths: 24 },
   },
   {
-    chunkId: 'chunk-fssai-lic-05',
-    documentId: 'doc-fssai-2020',
-    authority: 'FSSAI',
-    title: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    ruleCode: 'FSSAI-2020-R5(3)',
-    section: 'Regulation 5(3) - FSSAI Logo & License Number',
-    officialGazetteRef: 'F. No. M&L/1(71)2011/FSSAI dated 17th November 2020',
-    sourceUrl: 'https://www.fssai.gov.in/upload/notifications/2020/11/5fb3bd5a70650Gazette_Notification_Labelling_Display_18_11_2020.pdf',
-    publicationDate: '2020-11-17',
-    effectiveDate: '2021-11-17',
-    status: 'ACTIVE',
-    categories: ['packaged_food', 'beverages', 'dietary_supplements'],
-    content: 'The FSSAI logo and 14-digit FSSAI license number shall be displayed on the package in contrast color to the background. For imported food products, the FSSAI logo and license number must be affixed prior to customs clearance.',
-    verbatimClause: 'Regulation 5(3): The FSSAI logo and license number shall be displayed on the label of the food package in contrast color to the background. The size of the letters, numbers and logo shall be proportional to the package surface area.',
-    penalties: { minFine: 50000, maxFine: 500000 },
-  },
-  {
     chunkId: 'chunk-ccpa-ecom-06',
     documentId: 'doc-ccpa-2020',
     authority: 'CCPA',
@@ -372,7 +328,7 @@ export const INITIAL_REGULATORY_CORPUS: RegulatoryDocumentChunk[] = [
     effectiveDate: '2020-07-24',
     status: 'ACTIVE',
     categories: ['e_commerce', 'all'],
-    content: 'Every e-commerce entity shall display all mandatory statutory declarations under Legal Metrology, FSSAI, and BIS on the product display page (PDP) prior to purchase. Sellers must provide true expiry dates, net contents, and country of origin.',
+    content: 'Every e-commerce entity shall display all mandatory statutory declarations under Legal Metrology and BIS on the product display page (PDP) prior to purchase. Sellers must provide true expiry dates, net contents, and country of origin.',
     verbatimClause: 'Rule 6(2): Every e-commerce entity shall ensure that the name and details of the importer, country of origin, MRP, expiry date, and statutory notices are explicitly published on its digital platform for consumer viewing.',
     penalties: { minFine: 100000, maxFine: 1000000 },
   },
@@ -381,14 +337,12 @@ export const INITIAL_REGULATORY_CORPUS: RegulatoryDocumentChunk[] = [
 // ─── 3. Knowledge Graph Nodes & Edges ────────────────────────────
 export const KNOWLEDGE_GRAPH_NODES: GraphNode[] = [
   { id: 'auth-lm', label: 'Legal Metrology Dept', type: 'authority', properties: { code: 'LM' } },
-  { id: 'auth-fssai', label: 'FSSAI Authority', type: 'authority', properties: { code: 'FSSAI' } },
   { id: 'auth-bis', label: 'BIS Authority', type: 'authority', properties: { code: 'BIS' } },
   { id: 'auth-ccpa', label: 'CCPA Authority', type: 'authority', properties: { code: 'CCPA' } },
 
   { id: 'doc-pcr2011', label: 'Packaged Commodities Rules 2011', type: 'document', properties: { gazette: 'G.S.R. 202(E)' } },
   { id: 'doc-pcr2017', label: 'PCR Amendment 2017', type: 'document', properties: { gazette: 'G.S.R. 629(E)' } },
   { id: 'doc-pcr2021', label: 'PCR Unit Sale Price Amendment 2021', type: 'document', properties: { gazette: 'G.S.R. 779(E)' } },
-  { id: 'doc-fssai2020', label: 'FSSAI Labelling Regs 2020', type: 'document', properties: { gazette: 'M&L 2020' } },
   { id: 'doc-bis2016', label: 'BIS Act 2016', type: 'document', properties: { gazette: 'Act 11 of 2016' } },
   { id: 'doc-ccpa2020', label: 'Consumer Protection E-Com 2020', type: 'document', properties: { gazette: 'G.S.R. 462(E)' } },
 
@@ -400,8 +354,6 @@ export const KNOWLEDGE_GRAPH_NODES: GraphNode[] = [
   { id: 'rule-batch', label: 'Rule 6(1)(e) - Batch Code Traceability', type: 'rule', properties: { code: 'PCR-2011-R6(1)(e)', mandatory: true } },
   { id: 'rule-usp', label: 'Rule 6(1)(n) - Unit Sale Price', type: 'rule', properties: { code: 'PCR-2021-R6(1)(n)', mandatory: true } },
   { id: 'rule-ccare', label: 'Rule 6(1)(f) - Consumer Helpline', type: 'rule', properties: { code: 'PCR-2011-R6(1)(f)', mandatory: true } },
-  { id: 'rule-fssailic', label: 'Reg 5(3) - FSSAI 14-Digit License', type: 'rule', properties: { code: 'FSSAI-2020-R5(3)', mandatory: true } },
-  { id: 'rule-fssaiveg', label: 'Reg 4(1) - Veg/Non-Veg Symbol', type: 'rule', properties: { code: 'FSSAI-2020-R4(1)', mandatory: true } },
   { id: 'rule-bisisi', label: 'Rule 13(2) - BIS Standard Mark (ISI)', type: 'rule', properties: { code: 'BIS-2016-R13(2)', mandatory: true } },
 
   { id: 'ver-mrp-v1', label: 'MRP Rule v1.0 (2011)', type: 'version', properties: { effective: '2011-04-01', status: 'SUPERSEDED' } },
@@ -417,7 +369,6 @@ export const KNOWLEDGE_GRAPH_EDGES: GraphEdge[] = [
   { source: 'auth-lm', target: 'doc-pcr2011', relationship: 'ISSUES' },
   { source: 'auth-lm', target: 'doc-pcr2017', relationship: 'ISSUES' },
   { source: 'auth-lm', target: 'doc-pcr2021', relationship: 'ISSUES' },
-  { source: 'auth-fssai', target: 'doc-fssai2020', relationship: 'ISSUES' },
   { source: 'auth-bis', target: 'doc-bis2016', relationship: 'ISSUES' },
   { source: 'auth-ccpa', target: 'doc-ccpa2020', relationship: 'ISSUES' },
 
@@ -429,8 +380,6 @@ export const KNOWLEDGE_GRAPH_EDGES: GraphEdge[] = [
   { source: 'doc-pcr2011', target: 'rule-ccare', relationship: 'CONTAINS' },
   { source: 'doc-pcr2017', target: 'rule-coo', relationship: 'CONTAINS' },
   { source: 'doc-pcr2021', target: 'rule-usp', relationship: 'CONTAINS' },
-  { source: 'doc-fssai2020', target: 'rule-fssailic', relationship: 'CONTAINS' },
-  { source: 'doc-fssai2020', target: 'rule-fssaiveg', relationship: 'CONTAINS' },
   { source: 'doc-bis2016', target: 'rule-bisisi', relationship: 'CONTAINS' },
 
   { source: 'rule-mrp', target: 'ver-mrp-v1', relationship: 'HAS_VERSION' },
@@ -441,7 +390,6 @@ export const KNOWLEDGE_GRAPH_EDGES: GraphEdge[] = [
   { source: 'rule-mrp', target: 'cat-food', relationship: 'APPLIES_TO' },
   { source: 'rule-mrp', target: 'cat-electronics', relationship: 'APPLIES_TO' },
   { source: 'rule-coo', target: 'cat-ecom', relationship: 'APPLIES_TO' },
-  { source: 'rule-fssailic', target: 'cat-food', relationship: 'APPLIES_TO' },
   { source: 'rule-bisisi', target: 'cat-electronics', relationship: 'APPLIES_TO' },
 ];
 
@@ -521,32 +469,6 @@ export const INITIAL_RULE_REGISTRY: RegulatoryRuleItem[] = [
       },
     ],
   },
-  {
-    ruleId: 'rule-03',
-    code: 'FSSAI-2020-R5(3)',
-    title: 'FSSAI 14-Digit License & Logo Display',
-    authority: 'FSSAI',
-    act: 'Food Safety & Standards (Labelling & Display) Regulations, 2020',
-    sourceSection: 'Regulation 5(3)',
-    appliesTo: ['packaged_food', 'beverages'],
-    severity: 'CRITICAL',
-    status: 'ACTIVE',
-    activeVersion: 1,
-    versions: [
-      {
-        versionId: 'ver-fssai-1',
-        versionNumber: 1,
-        effectiveFrom: '2021-11-17',
-        effectiveUntil: null,
-        status: 'ACTIVE',
-        changeSummary: 'Display FSSAI logo with 14-digit numeric license code in contrasting color.',
-        proposedBy: 'FSSAI Scientific Committee',
-        approvedBy: 'Chairperson - FSSAI',
-        approvedAt: '2020-11-17',
-        ruleDefinition: { field: 'fssaiLicense', condition: '14_digit_numeric', mandatory: true },
-      },
-    ],
-  },
 ];
 
 // ─── 5. Hybrid Retrieval RAG Algorithm ───────────────────────────
@@ -585,7 +507,6 @@ export function queryRegulatoryRAG(params: RAGSearchQuery): RAGSearchResult {
         ((fk === 'productname' || fk === 'name') && chunk.section.includes('Generic / Common Name')) ||
         (fk === 'mrp' && chunk.ruleCode.includes('R6(1)(c)')) ||
         (fk === 'countryoforigin' && chunk.ruleCode.includes('2017')) ||
-        (fk === 'fssailicense' && chunk.authority === 'FSSAI') ||
         (fk === 'netquantity' && chunk.ruleCode.includes('R6(1)(b)')) ||
         (fk === 'manufacturer' && chunk.chunkId === 'chunk-lm-mfg-04') ||
         (fk === 'address' && chunk.chunkId === 'chunk-lm-mfg-04') ||
@@ -594,7 +515,6 @@ export function queryRegulatoryRAG(params: RAGSearchQuery): RAGSearchResult {
         ((fk.includes('care') || fk.includes('customer') || fk.includes('helpline')) && chunk.chunkId === 'chunk-lm-ccare-08') ||
         ((fk.includes('batch') || fk.includes('lot')) && chunk.chunkId === 'chunk-lm-batch-09') ||
         ((fk.includes('unit') || fk.includes('price')) && chunk.chunkId === 'chunk-lm-usp-10') ||
-        ((fk.includes('veg') || fk.includes('symbol')) && chunk.chunkId === 'chunk-fssai-symbol-11') ||
         ((fk.includes('bis') || fk.includes('isi') || fk.includes('standard')) && chunk.chunkId === 'chunk-bis-crs-12') ||
         ((fk.includes('code') || fk.includes('barcode') || fk.includes('ecom')) && chunk.chunkId === 'chunk-ccpa-ecom-06')
       ) {

@@ -14,6 +14,8 @@ import {
   Sparkles,
   ExternalLink,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Gavel,
   MapPin,
   Factory,
@@ -56,6 +58,7 @@ export const OverviewDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'3M' | '6M' | 'All'>('6M');
   const [zoneFilter, setZoneFilter] = useState<string>('All');
   const [matrixView, setMatrixView] = useState<'bengaluru' | 'national'>('bengaluru');
+  const [showAnalyticsMobile, setShowAnalyticsMobile] = useState(false);
 
   const filteredTrends =
     timeRange === '3M'
@@ -97,42 +100,87 @@ export const OverviewDashboard: React.FC = () => {
     }
   };
 
+  const criticalIssuesCount = violations.filter((v) => v.severity === 'critical').length;
+
   return (
-    <div className="space-y-6">
-      {/* Top Banner / Role Welcome */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* ── Top Banner / Role Welcome ── */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Welcome, {user?.name || 'Administrator'}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold font-mono px-2 py-0.5 rounded uppercase tracking-wider bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              {user?.role === 'admin' ? 'Enforcement Directorate' : user?.role === 'inspector' ? 'Zonal Inspector' : 'Citizen Desk'}
+            </span>
+          </div>
+          <h1 className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Welcome, {user?.name || 'Officer'}
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
             {user?.role === 'admin'
-              ? 'Authorized to issue statutory Show Cause Notices under Section 36 & review gazette rules.'
+              ? 'Authorized for statutory Show Cause Notices under Section 36.'
               : user?.role === 'inspector'
-              ? 'Assigned to Bengaluru City Circle (BBMP) Field Packaging Audits & optical evidence verification.'
-              : 'Registered citizen representative for national product vigilance & grievance tracking.'}
+              ? 'Assigned to Field Packaging Audits & optical evidence verification.'
+              : 'Registered citizen representative for national product vigilance.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Link to="/dashboard/products">
-            <Button variant="outline" size="sm" className="text-xs gap-1.5">
-              <Scan className="h-3.5 w-3.5 text-blue-600" />
-              <span>Scan Catalog</span>
+        {/* Primary Action Button — Mobile single primary CTA first */}
+        <div className="flex items-center gap-2.5 flex-col sm:flex-row w-full md:w-auto">
+          <Link to="/dashboard/scanner" className="w-full sm:w-auto">
+            <Button
+              variant="primary"
+              size="sm"
+              className="w-full sm:w-auto text-xs font-bold gap-2 min-h-[44px] justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            >
+              <Scan className="h-4 w-4" />
+              <span>Start Packaging Scan</span>
             </Button>
           </Link>
 
-          <Link to="/dashboard/violations">
-            <Button variant="primary" size="sm" className="text-xs gap-1.5">
-              <Gavel className="h-3.5 w-3.5 text-blue-400" />
+          <Link to="/dashboard/violations" className="w-full sm:w-auto hidden sm:block">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs gap-1.5 min-h-[40px] justify-center">
+              <Gavel className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
               <span>Enforcement Ledger</span>
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── MOBILE KPI STATS (Task-focused 3-stat summary on <md) ── */}
+      <div className="grid grid-cols-3 gap-2 sm:hidden">
+        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-red-200/80 dark:border-red-900/60 text-center shadow-xs">
+          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-tight block">
+            Critical
+          </span>
+          <span className="text-xl font-black font-mono text-red-700 dark:text-red-300 block my-0.5">
+            {criticalIssuesCount || 3}
+          </span>
+          <span className="text-[9px] text-slate-400 block">Issues</span>
+        </div>
+
+        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 text-center shadow-xs">
+          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tight block">
+            Compliance
+          </span>
+          <span className="text-xl font-black font-mono text-emerald-700 dark:text-emerald-300 block my-0.5">
+            86%
+          </span>
+          <span className="text-[9px] text-slate-400 block">National Avg</span>
+        </div>
+
+        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-200/80 dark:border-blue-900/60 text-center shadow-xs">
+          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight block">
+            Audits
+          </span>
+          <span className="text-xl font-black font-mono text-blue-700 dark:text-blue-300 block my-0.5">
+            {products.length || 124}
+          </span>
+          <span className="text-[9px] text-slate-400 block">Verified</span>
+        </div>
+      </div>
+
+      {/* ── DESKTOP KPI STATS GRID (Unchanged desktop layout >=md) ── */}
+      <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Products Analyzed"
           value={formatNumber(NATIONAL_STATS.productsAnalyzed)}
@@ -171,15 +219,33 @@ export const OverviewDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Main Charts & Live Ticker Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* ── MOBILE PROGRESSIVE DISCLOSURE: Toggle Detailed Analytics & Charts ── */}
+      <div className="block lg:hidden">
+        <button
+          type="button"
+          onClick={() => setShowAnalyticsMobile(!showAnalyticsMobile)}
+          className="w-full flex items-center justify-between p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-xs"
+        >
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span>Detailed Compliance Analytics &amp; Charts</span>
+          </div>
+          <div className="flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
+            <span>{showAnalyticsMobile ? 'Hide' : 'View'}</span>
+            {showAnalyticsMobile ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
+        </button>
+      </div>
+
+      {/* Main Charts & Live Ticker Section — Visible always on desktop (lg:grid), collapsible on mobile */}
+      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 ${showAnalyticsMobile ? 'block' : 'hidden lg:grid'}`}>
         {/* National Compliance Trajectory Dual-Axis Chart */}
         <div className="lg:col-span-12">
           <NationalComplianceTrajectoryChart data={filteredTrends} />
         </div>
 
         {/* Right: Category Risk Distribution Bar Chart */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-12">
           <Card className="h-full flex flex-col justify-between">
             <CardHeader>
               <div>
@@ -268,37 +334,37 @@ export const OverviewDashboard: React.FC = () => {
                 <div
                   key={violation.id}
                   onClick={() => handleInspectViolation(violation.id)}
-                  className="p-4 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                  className="p-3 sm:p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-2"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                     <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-xs ${
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-mono font-bold text-[10px] sm:text-xs shrink-0 ${
                         violation.severity === 'critical'
-                          ? 'bg-red-50 text-red-700 border border-red-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-900'
+                          : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
                       }`}
                     >
                       {violation.platform.slice(0, 3).toUpperCase()}
                     </div>
-                    <div>
-                      <div className="font-semibold text-slate-900 flex items-center gap-2">
-                        <span>{violation.productName}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span className="truncate max-w-[130px] sm:max-w-xs">{violation.productName}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
                         {violation.caseNumber} • {violation.ruleCode}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     <div className="text-right hidden sm:block">
-                      <div className="font-bold text-slate-800 font-mono">
+                      <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs">
                         {formatCurrency(violation.penaltyEstimate)}
                       </div>
                       <div className="text-[10px] text-slate-400">Est. Section 36 Penalty</div>
                     </div>
                     <StatusBadge status={violation.status} />
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                    <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
                   </div>
                 </div>
               ))}

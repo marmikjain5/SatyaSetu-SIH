@@ -412,7 +412,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead className="bg-slate-50 text-slate-500 dark:bg-slate-950/60 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-[10px]">
               <tr>
@@ -532,6 +533,101 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Stacked Grievance Cards View */}
+        <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+          {filteredComplaints.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400">
+              No grievances found matching the criteria.
+            </div>
+          ) : (
+            filteredComplaints.map((cmp) => {
+              const confScore = cmp.classificationResult?.confidenceScore || Math.round(cmp.sentimentScore * 100);
+              const hasPriceAlteration = cmp.extractedEvidenceSummary?.priceOverchargeAmount;
+
+              return (
+                <div
+                  key={cmp.id}
+                  onClick={() => {
+                    setSelectedComplaint(cmp);
+                    setDossierTab('correlation');
+                  }}
+                  className="p-4 space-y-3 active:bg-slate-50 dark:active:bg-slate-800/50 transition-colors cursor-pointer"
+                >
+                  {/* Card Header: Ticket ID & Status */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
+                      {cmp.ticketId}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider',
+                        cmp.status === 'New' || cmp.needsReview
+                          ? 'text-amber-600 bg-amber-50 border border-amber-200 dark:text-amber-400 dark:bg-amber-950/40 dark:border-amber-800/60'
+                          : 'text-slate-600 bg-slate-100 border border-slate-200 dark:text-slate-300 dark:bg-slate-800 dark:border-slate-700'
+                      )}
+                    >
+                      {cmp.status}
+                    </span>
+                  </div>
+
+                  {/* Complainant & Product/Store */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {cmp.consumerName}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                        {cmp.submittedAt}
+                      </span>
+                    </div>
+
+                    {cmp.shopLocation ? (
+                      <div className="text-xs text-slate-700 dark:text-slate-300 flex items-start gap-1">
+                        <Store className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-medium text-slate-900 dark:text-white">{cmp.shopLocation.name}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400">{cmp.shopLocation.address}</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-slate-700 dark:text-slate-300">
+                        <span className="font-medium text-slate-900 dark:text-white">{cmp.productName}</span>
+                        <span className="text-slate-400 text-[11px] ml-1">({cmp.brand} • {cmp.platform})</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Discrepancy & Confidence */}
+                  <div className="bg-slate-50 dark:bg-slate-950/60 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800/60 space-y-1 text-xs">
+                    {hasPriceAlteration ? (
+                      <div className="font-mono text-rose-500 font-semibold text-xs">
+                        +₹{hasPriceAlteration} Price Alteration Discrepancy
+                      </div>
+                    ) : (
+                      <div className="text-slate-600 dark:text-slate-400 text-[11px]">
+                        {cmp.evidenceImages?.length || 1} Physical Evidence File(s)
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-0.5">
+                      <span className="truncate max-w-[180px]">{cmp.category}</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-300">Conf: {confScore}%</span>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <Button
+                    variant="outline"
+                    className="w-full min-h-[44px] text-xs font-semibold text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60 hover:bg-blue-50 dark:hover:bg-blue-950/40 justify-center gap-1.5"
+                  >
+                    <span>Inspect Officer Dossier</span>
+                    <span className="text-sm leading-none">›</span>
+                  </Button>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

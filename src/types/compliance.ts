@@ -37,7 +37,6 @@ export interface Product {
   customerCareContact: string;
   customerCarePhone?: string;
   customerCareEmail?: string;
-  fssaiLicenseNumber?: string;
   manufacturerAddress?: string;
   packerAddress?: string;
   unitSalePrice?: string;
@@ -136,7 +135,6 @@ export interface Manufacturer {
   coordinates: { lat: number; lng: number };
   facilityType: 'Processing & Packaging Plant' | 'E-Commerce Fulfillment Hub' | 'Import Warehouse' | 'Registered Headquarters' | 'R&D & Manufacturing Campus';
   zone: string;
-  fssaiLicenseNo?: string;
 }
 
 /** Shop/store location captured via Google Maps Places Autocomplete */
@@ -196,7 +194,6 @@ export interface ExtractedEvidenceSummary {
   packingDate?: string;
   expiryDate?: string;
   batchNumber?: string;
-  fssaiLicense?: string;
   barcode?: string;
   priceOverchargeAmount?: number;
   extractionConfidence: number;

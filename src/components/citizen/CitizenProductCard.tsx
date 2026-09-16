@@ -71,13 +71,6 @@ export const CitizenProductCard: React.FC<CitizenProductCardProps> = ({
 
           {/* Statutory Highlights Pill Strip */}
           <div className="space-y-1.5 text-xs">
-            {product.fssaiLicenseNumber && (
-              <div className="flex items-center justify-between text-[11px] bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 font-mono">
-                <span className="text-slate-500 font-sans">{t('fssaiLic')}</span>
-                <span className="font-semibold text-slate-800">{product.fssaiLicenseNumber}</span>
-              </div>
-            )}
-
             {product.ingredientsList && product.ingredientsList.length > 0 && (
               <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                 <span className="font-bold text-slate-700 block mb-0.5">{t('ingredientsDecl')}</span>

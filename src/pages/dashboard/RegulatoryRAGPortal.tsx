@@ -46,7 +46,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
 
   const handleTriggerGazetteCrawler = () => {
     setIsCrawling(true);
-    setCrawledAlert('Scanning e-Gazette RSS feeds (consumeraffairs.nic.in & fssai.gov.in)...');
+    setCrawledAlert('Scanning e-Gazette RSS feeds (consumeraffairs.nic.in & bis.gov.in)...');
 
     setTimeout(() => {
       setRuleRegistry((prev) => {
@@ -182,7 +182,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
 
           <div className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-100 dark:bg-slate-800/60 text-xs">
             <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-            <span className="font-bold text-slate-900 dark:text-white">4</span>
+            <span className="font-bold text-slate-900 dark:text-white">{OFFICIAL_REGULATORY_SOURCES.length}</span>
             <span className="text-slate-500 dark:text-slate-400 text-[11px]">Official Authorities Indexed</span>
           </div>
         </div>
@@ -245,7 +245,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Ask any statutory question e.g. 'MRP tax inclusive format rule' or 'FSSAI logo 14 digit license mandate'..."
+                  placeholder="Ask any statutory question e.g. 'MRP tax inclusive format rule' or 'Country of origin declaration mandate'..."
                   className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-200 dark:border-slate-700 shadow-inner"
                 />
               </div>
@@ -256,7 +256,7 @@ export const RegulatoryRAGPortal: React.FC = () => {
                   <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                     <Filter className="h-3 w-3" /> Authority:
                   </span>
-                  {['all', 'Legal Metrology', 'FSSAI', 'BIS', 'CCPA'].map((auth) => (
+                  {['all', 'Legal Metrology', 'BIS', 'CCPA'].map((auth) => (
                     <button
                       key={auth}
                       onClick={() => setSelectedAuthority(auth)}
@@ -771,7 +771,6 @@ export const RegulatoryRAGPortal: React.FC = () => {
           {OFFICIAL_REGULATORY_SOURCES.map((src) => {
             const abbrMap: Record<string, string> = {
               'Legal Metrology': 'LM',
-              FSSAI: 'FSSAI',
               BIS: 'BIS',
               CCPA: 'CCPA',
             };

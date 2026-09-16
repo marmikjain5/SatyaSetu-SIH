@@ -70,7 +70,6 @@ class ProductCreateSchema(BaseModel):
     status: str = "compliant"
     compliance_score: int = 100
     ocr_confidence: float = 95.0
-    fssai_license_number: Optional[str] = None
     ingredients_list: List[str] = Field(default_factory=list)
     nutritional_info: Dict[str, Any] = Field(default_factory=dict)
     customer_care_contact: Optional[str] = None
@@ -145,7 +144,6 @@ def create_product(product_in: ProductCreateSchema, db: Session = Depends(get_db
         status=product_in.status,
         compliance_score=product_in.compliance_score,
         ocr_confidence=product_in.ocr_confidence,
-        fssai_license_number=product_in.fssai_license_number,
         ingredients_list=product_in.ingredients_list,
         nutritional_info=product_in.nutritional_info,
         customer_care_contact=product_in.customer_care_contact,

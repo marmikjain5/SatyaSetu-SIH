@@ -29,7 +29,6 @@ const DECLARATION_KEYS: DeclarationFieldKey[] = [
   'expiryDate',
   'batchNumber',
   'customerCare',
-  'fssaiLicense',
   'barcode',
 ];
 
@@ -233,7 +232,6 @@ export function consolidateMultiAngleExtractions(
     expiryDate: consolidatedDeclarations.expiryDate?.value || '',
     batchNumber: consolidatedDeclarations.batchNumber?.value || '',
     customerCare: consolidatedDeclarations.customerCare?.value || '',
-    fssaiLicense: consolidatedDeclarations.fssaiLicense?.value || '',
     barcode: consolidatedDeclarations.barcode?.value || '',
     rawText: consolidatedRawText,
     confidence: overallConfidence,

@@ -35,7 +35,6 @@ MRP: ₹245 (Inclusive of all taxes)
 Batch No: NV-2025-B0471
 Date of Manufacturing: 15-JUN-2025
 Best Before: 12 months from date of manufacturing
-FSSAI License No: 10025047000891
 
 Ingredients: Water, Sugar, Milk Solids (8%), Cocoa Powder (3%), Vitamins (A, B1, B2, B6, B12, C, D, E), Minerals (Iron, Calcium, Zinc), Stabilizer (INS 460(i)), Emulsifier (INS 322(i)), Artificial Flavoring Substances (Chocolate), Preservative (INS 211).
 
@@ -112,61 +111,45 @@ Key Messaging:
     id: 'doc-003',
     title: 'Compliance Notice — GreenPack Facility Audit',
     documentType: 'Compliance Notice',
-    referenceNumber: 'FSS/2025/AUD-11092',
-    issuer: 'GreenPack Food Processing Ltd.',
+    referenceNumber: 'LM/2025/AUD-11092',
+    issuer: 'GreenPack Packaging & Processing Ltd.',
     date: '2025-08-10',
     status: 'pending',
     summary:
-      'Annual food safety compliance notice for GreenPack cold-storage and processing facility. Contains audit findings and corrective action declarations.',
-    content: `FOOD SAFETY COMPLIANCE NOTICE — Annual Facility Audit
+      'Annual packaging and legal metrology compliance notice for GreenPack packaging facility. Contains audit findings and corrective action declarations.',
+    content: `PACKAGING & METROLOGY COMPLIANCE NOTICE — Annual Facility Audit
 
 [SAMPLE / PROTOTYPE DOCUMENT — NOT A REAL COMPLIANCE NOTICE]
 
-Notice Reference: FSS/2025/AUD-11092
-Facility: GreenPack Food Processing Unit, Sector 18, Manesar, Gurugram
-License No: FSSAI-HR-2022-00481
+Notice Reference: LM/2025/AUD-11092
+Facility: GreenPack Packaging Unit, Sector 18, Manesar, Gurugram
+Registration No: IND-HR-2022-00481
 Audit Date: 10-AUG-2025
-Auditor: Internal Quality Assurance Team
+Auditor: Internal Quality & Metrology Team
 
 ═══ COMPLIANCE DECLARATIONS ═══
 
-1. HACCP Plan Status: "Currently being updated (Version 3.1 — Draft)"
-   Last Certified Version: 2.8 (Expired: March 2025)
+1. Automatic Checkweigher Calibration:
+   - Line A: Calibrated against NABL weights (Compliant)
+   - Line B: Calibration drift recorded (+3.5g over tolerance on 05-AUG-2025)
+   - Line C: Calibration logger malfunction — "no log available for July 2025"
 
-2. Cold Storage Temperature Log:
-   - Unit A: Maintained at -18°C (Compliant)
-   - Unit B: Temperature fluctuation recorded: -12°C to -8°C over 48 hours on 05-AUG-2025
-   - Unit C: Temperature logger malfunction — "no data available for July 2025"
+2. Statutory Font Sizing on Secondary Packaging:
+   - Master cartons: Missing mandatory 4mm numeral height for gross weight
+   - Barcode scanning: Grade B verification achieved
 
-3. Pest Control:
-   Last treatment: 15-MAR-2025 (over 4 months ago)
-   Scheduled frequency: Quarterly
-   Status: "Treatment rescheduled due to vendor unavailability"
+3. Mandatory Declarations Review:
+   - Date of packing format: Inconsistent MM/YY vs DD/MM/YYYY across batches
+   - Unit Sale Price font size: 2.1mm (minimum requirement is 3.0mm)
 
-4. Employee Health Records:
-   Total food handlers: 47
-   Valid medical fitness certificates: 31
-   Pending/expired certificates: 16 employees
-   Note: "Remaining certificates will be updated by September 2025"
-
-5. Water Quality Testing:
-   Last microbiological test: 22-FEB-2025
-   Result: "Satisfactory"
-   Required frequency: Monthly
-   Status: "Testing delayed — budget allocation pending"
-
-6. Allergen Management:
-   Cross-contamination controls: "Standard operating procedures are being developed"
-   Allergen labeling review: "Pending completion"
-
-7. Traceability System:
-   Batch recall drill last conducted: "Not conducted in current financial year"
-   Raw material traceability: "Partially implemented for primary suppliers"
+4. Traceability System:
+   - Batch recall drill last conducted: "Not conducted in current financial year"
+   - Master carton to unit pack correlation: "Partially implemented"
 
 DECLARATION:
-"We hereby declare that all operations at the above facility comply with
-applicable food safety standards. Minor gaps identified above are being
-addressed as per our continuous improvement plan."
+"We hereby declare that packaging operations at the above facility comply with
+applicable Legal Metrology and consumer protection standards. Minor gaps identified above
+are being addressed as per our continuous improvement plan."
 
 Signed: Rajesh Mehta, Plant Manager
 Date: 10-AUG-2025
@@ -205,9 +188,9 @@ const DOC_001_FINDINGS: AIFinding[] = [
     'Unsupported Absolute Health Claim',
     'critical',
     94,
-    'Sample Regulatory Rule — Product Health Claims (FSSAI Advertising & Claims Regulation)',
+    'Sample Regulatory Rule — Misleading Claims (Consumer Protection Guidelines 2022)',
     '"Guaranteed to prevent disease and boost immunity by 300%"',
-    'The label makes an absolute therapeutic claim ("prevent disease") and a quantified immunity claim ("boost immunity by 300%") without any supporting clinical evidence or disclaimers. Under food safety advertising regulations, health claims must be scientifically substantiated and cannot guarantee prevention of disease.',
+    'The label makes an absolute therapeutic claim ("prevent disease") and a quantified immunity claim ("boost immunity by 300%") without any supporting clinical evidence or disclaimers. Under consumer protection and advertising standards, health claims must be scientifically substantiated and cannot guarantee prevention of disease.',
     'Remove or substantially modify the health claim. Replace with a qualified statement such as "May help support immune function as part of a balanced diet" with appropriate disclaimers and references to supporting studies.'
   ),
   createFinding(
@@ -238,7 +221,7 @@ const DOC_001_FINDINGS: AIFinding[] = [
     'Sample Regulatory Rule — Allergen Declaration Requirements',
     '"NOTE: May contain traces of nuts and soy." — listed as a side note rather than in a dedicated allergen section.',
     'The allergen cross-contamination notice is present but does not follow the recommended formatting guidelines. Allergen information should be prominently displayed in a dedicated, clearly demarcated section with appropriate font sizing, not as a peripheral note.',
-    'Move allergen information to a dedicated "ALLERGEN DECLARATION" section with bold or contrasting text formatting. Ensure all 14 major allergens are addressed or declared absent.'
+    'Move allergen information to a dedicated "ALLERGEN DECLARATION" section with bold or contrasting text formatting. Ensure all major allergens are addressed or declared absent.'
   ),
 ];
 
@@ -278,33 +261,33 @@ const DOC_002_FINDINGS: AIFinding[] = [
 const DOC_003_FINDINGS: AIFinding[] = [
   createFinding(
     'f-003-1',
-    'Expired HACCP Certification',
+    'Checkweigher Calibration Tolerance Drift',
     'high',
     93,
-    'Sample Regulatory Rule — Food Safety Management System Certification',
-    '"HACCP Plan Status: Currently being updated (Version 3.1 — Draft)" and "Last Certified Version: 2.8 (Expired: March 2025)"',
-    'The facility is operating with an expired HACCP certification (expired March 2025, over 5 months ago). The current version is only in draft status. Operating a food processing facility without a valid, certified food safety management plan represents a significant compliance gap.',
-    'Expedite HACCP recertification immediately. Consider engaging an external auditor to fast-track Version 3.1 approval. Interim risk assessment should be conducted and documented.'
+    'Legal Metrology (General) Rules — Weighing Instrument Calibration',
+    '"Line B: Calibration drift recorded (+3.5g over tolerance on 05-AUG-2025)"',
+    'Checkweigher equipment exceeded permissible error limits under Legal Metrology calibration standards. Operating with uncalibrated automated filling lines risks systemic net quantity violations.',
+    'Perform immediate recalibration with certified standard weights and re-verify previous batch records.'
   ),
   createFinding(
     'f-003-2',
-    'Incomplete Employee Health Compliance',
+    'Unit Sale Price Font Height Below Minimum Threshold',
     'medium',
     87,
-    'Sample Regulatory Rule — Food Handler Health & Hygiene Requirements',
-    '"Total food handlers: 47 | Valid medical fitness certificates: 31 | Pending/expired: 16 employees"',
-    '34% of food handlers (16 out of 47) are operating without valid medical fitness certificates. This violates food handler health requirements. Employees without current medical clearance pose a contamination risk in food processing environments.',
-    'Immediately suspend food handling duties for employees with expired certificates until recertification is complete. Schedule batch medical examinations. Implement an automated tracking system for certificate expiry dates.'
+    'Legal Metrology (Packaged Commodities) Rules, 2011 — Rule 6(1)(aa) & Rule 7',
+    '"Unit Sale Price font size: 2.1mm (minimum requirement is 3.0mm)"',
+    'The Unit Sale Price declaration does not satisfy the mandatory minimum font size requirements based on packaging area dimensions under Rule 7.',
+    'Update packaging artwork plates to ensure Unit Sale Price font height meets the minimum 3.0mm threshold.'
   ),
   createFinding(
     'f-003-3',
-    'Overdue Water Quality Testing',
+    'Incomplete Master Carton Traceability',
     'low',
     79,
-    'Sample Regulatory Rule — Water Quality Monitoring Standards',
-    '"Last microbiological test: 22-FEB-2025 | Required frequency: Monthly | Status: Testing delayed — budget allocation pending"',
-    'Water quality microbiological testing is approximately 6 months overdue (last conducted February 2025, required monthly). The stated reason is "budget allocation pending," which does not constitute an acceptable justification for skipping mandatory safety testing.',
-    'Conduct water quality testing immediately and reinstate the monthly testing schedule. Allocate dedicated budget for recurring compliance testing. Consider this a non-negotiable operational expense.'
+    'Packaging Standardization & Traceability Guidelines',
+    '"Master carton to unit pack correlation: Partially implemented"',
+    'Master carton tracking is not fully correlated with inner retail pack serial numbers, creating traceability friction during quality audits.',
+    'Implement end-to-end 2D matrix barcode correlation across primary and secondary packaging tiers.'
   ),
 ];
 

@@ -71,7 +71,6 @@ class ProductModel(Base):
     status = Column(String(64), nullable=False, default="compliant", index=True)
     compliance_score = Column(Integer, nullable=False, default=100)
     ocr_confidence = Column(Float, nullable=False, default=95.0)
-    fssai_license_number = Column(String(64), nullable=True)
     ingredients_list = Column(JSON, default=list)
     nutritional_info = Column(JSON, default=dict)
     customer_care_contact = Column(Text, nullable=True)

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Scale,
@@ -10,12 +10,13 @@ import {
   MapPin,
   Camera,
   CheckCircle2,
+  ChevronDown,
+  MessageSquare,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useLegalReviewStore } from '../../store/legalReviewStore';
-import { useHygieneStore } from '../../store/hygieneStore';
 import { DocumentPanel } from '../../components/legalReview/DocumentPanel';
 import { AnalysisSummary } from '../../components/legalReview/AnalysisSummary';
 import { FindingCard } from '../../components/legalReview/FindingCard';
@@ -23,8 +24,6 @@ import { ChatAssistant } from '../../components/legalReview/ChatAssistant';
 import { ViolationAssessmentPanel } from '../../components/legalReview/ViolationAssessmentPanel';
 import { HumanVerificationPanel } from '../../components/legalReview/HumanVerificationPanel';
 import { PublicationPanel } from '../../components/legalReview/PublicationPanel';
-import { createReviewDocumentFromViolation } from '../../lib/legalReviewIntegration';
-import type { HygieneViolation } from '../../types/hygiene';
 
 export const AILegalReviewAgent: React.FC = () => {
   const {
@@ -42,25 +41,10 @@ export const AILegalReviewAgent: React.FC = () => {
     setReviewerNotes,
   } = useLegalReviewStore();
 
-  const { getFactoryById } = useHygieneStore();
-  const location = useLocation();
-  const hasLoadedRef = useRef(false);
-
-  // Receive hygiene violation from navigation state
-  useEffect(() => {
-    const state = location.state as { hygieneViolation?: HygieneViolation } | null;
-    if (state?.hygieneViolation && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      const violation = state.hygieneViolation;
-      const factory = getFactoryById(violation.factoryId);
-      const factoryName = factory?.name;
-      const reviewDoc = createReviewDocumentFromViolation(violation, factoryName);
-      loadExternalDocument(reviewDoc, violation, factoryName);
-
-      // Clear navigation state to prevent re-loading on re-render
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, getFactoryById, loadExternalDocument]);
+  // Mobile disclosure states
+  const [showMobileSource, setShowMobileSource] = useState(false);
+  const [showMobileFindings, setShowMobileFindings] = useState(false);
+  const [showMobileChat, setShowMobileChat] = useState(false);
 
   // ── Workflow step computation ─────────────────────────────────────────
   const workflowSteps = sourceViolation
@@ -231,7 +215,7 @@ export const AILegalReviewAgent: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left Panel: Source Violation + Document + Analysis + Assessment + Findings + Verification + Publication */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Source Violation Context (only for hygiene-originated reviews) */}
+          {/* Source Violation Context (only for external-originated reviews) */}
           {sourceViolation && (
             <Card>
               <CardHeader>
@@ -325,35 +309,82 @@ export const AILegalReviewAgent: React.FC = () => {
             </Card>
           )}
 
-          {/* Document Panel */}
-          <DocumentPanel />
+          {/* Document Panel (Collapsible on mobile if sourceViolation is present, always visible on desktop) */}
+          {sourceViolation ? (
+            <>
+              <div className="hidden lg:block">
+                <DocumentPanel />
+              </div>
+              <div className="block lg:hidden border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+                <button
+                  onClick={() => setShowMobileSource(!showMobileSource)}
+                  className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <FileSearch className="h-4 w-4 text-blue-600" />
+                    <span>Legal Review Document ({showMobileSource ? 'Hide' : 'Show'})</span>
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileSource ? 'rotate-180' : ''}`} />
+                </button>
+                {showMobileSource && (
+                  <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+                    <DocumentPanel />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <DocumentPanel />
+          )}
 
           {/* Analysis Summary (shown after analysis) */}
           {analysisResult && <AnalysisSummary result={analysisResult} />}
 
-          {/* Violation Assessment Panel (PRD-aligned, only for hygiene violations) */}
+          {/* Violation Assessment Panel (PRD-aligned) */}
           {violationAssessment && (
             <ViolationAssessmentPanel assessment={violationAssessment} />
           )}
 
-          {/* Finding Cards */}
+          {/* Finding Cards (Always visible on desktop, collapsible on mobile to prioritize verification) */}
           {analysisResult && analysisResult.findings.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-                  Detailed Findings
-                </h2>
-                <span className="text-[11px] text-slate-400 font-mono">
-                  {analysisResult.findings.length} issue(s)
-                </span>
+            <>
+              <div className="hidden lg:block space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+                    Detailed Findings
+                  </h2>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {analysisResult.findings.length} issue(s)
+                  </span>
+                </div>
+                {analysisResult.findings.map((finding) => (
+                  <FindingCard key={finding.id} finding={finding} />
+                ))}
               </div>
-              {analysisResult.findings.map((finding) => (
-                <FindingCard key={finding.id} finding={finding} />
-              ))}
-            </div>
+
+              <div className="block lg:hidden border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+                <button
+                  onClick={() => setShowMobileFindings(!showMobileFindings)}
+                  className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShieldAlert className="h-4 w-4 text-amber-600" />
+                    <span>Detailed Findings ({analysisResult.findings.length} issues)</span>
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileFindings ? 'rotate-180' : ''}`} />
+                </button>
+                {showMobileFindings && (
+                  <div className="p-3 space-y-3 border-t border-slate-200 dark:border-slate-800">
+                    {analysisResult.findings.map((finding) => (
+                      <FindingCard key={finding.id} finding={finding} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
           )}
 
-          {/* Human Verification Panel (PRD workflow, only for hygiene violations) */}
+          {/* Human Verification Panel (PRD workflow) */}
           {violationAssessment && (
             <HumanVerificationPanel
               assessment={violationAssessment}
@@ -363,7 +394,7 @@ export const AILegalReviewAgent: React.FC = () => {
             />
           )}
 
-          {/* Publication Panel (PRD workflow, only for hygiene violations) */}
+          {/* Publication Panel (PRD workflow) */}
           {violationAssessment && (
             <PublicationPanel
               assessment={violationAssessment}
@@ -376,10 +407,8 @@ export const AILegalReviewAgent: React.FC = () => {
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-slate-400 shrink-0" />
               <p className="text-[11px] text-slate-500">
-                <span className="font-semibold">Sample Document Review Mode</span> — This
-                is a standalone document review. For the full PRD workflow (Violation → AI
-                Review → Human Verification → Publication), navigate from a Factory Hygiene
-                violation using "Review with AI".
+                <span className="font-semibold">Sample Document Review Mode</span> — Statutory
+                AI analysis has evaluated the document against regulatory guidelines.
               </p>
             </div>
           )}
@@ -402,8 +431,27 @@ export const AILegalReviewAgent: React.FC = () => {
           )}
         </div>
 
-        {/* Right Panel: Chat Assistant */}
-        <div className="lg:col-span-2 lg:sticky lg:top-20" style={{ minHeight: '500px' }}>
+        {/* Mobile Accordion for Chat Assistant */}
+        <div className="block lg:hidden border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+          <button
+            onClick={() => setShowMobileChat(!showMobileChat)}
+            className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-indigo-600" />
+              <span>Ask AI Legal Assistant ({showMobileChat ? 'Hide' : 'Open'})</span>
+            </span>
+            <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileChat ? 'rotate-180' : ''}`} />
+          </button>
+          {showMobileChat && (
+            <div className="h-[440px] border-t border-slate-200 dark:border-slate-800">
+              <ChatAssistant />
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Right Panel: Chat Assistant */}
+        <div className="hidden lg:block lg:col-span-2 lg:sticky lg:top-20" style={{ minHeight: '500px' }}>
           <ChatAssistant />
         </div>
       </div>

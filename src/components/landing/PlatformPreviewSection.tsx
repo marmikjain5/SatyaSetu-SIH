@@ -255,7 +255,7 @@ export const PlatformPreviewSection: React.FC = () => {
                         <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">
                           <span className="flex items-center gap-2 font-medium">
                             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                            FSSAI License & Origin Verified (Rajasthan Agro Pvt Ltd)
+                            Manufacturer Details & Origin Verified (Rajasthan Agro Pvt Ltd)
                           </span>
                           <span className="font-mono text-[11px]">Pass</span>
                         </div>

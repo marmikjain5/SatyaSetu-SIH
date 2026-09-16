@@ -151,7 +151,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Statutory Declarations Breakdown: FSSAI, Ingredients & Nutrition */}
+        {/* Statutory Declarations Breakdown: Ingredients & Nutrition */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200">
           {/* Ingredients & Manufacturer */}
           <div className="space-y-3">
@@ -160,11 +160,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <FileCheck2 className="h-3.5 w-3.5 text-blue-600" />
                 <span>Declared Ingredients & Additives</span>
               </span>
-              {product.fssaiLicenseNumber && (
-                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  FSSAI: {product.fssaiLicenseNumber}
-                </span>
-              )}
             </div>
 
             {product.ingredientsList && product.ingredientsList.length > 0 ? (
@@ -227,7 +222,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
             ) : (
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-500 text-[11px]">
-                Non-food consumer appliance / garment. Nutritional declarations exempt under FSSR 2011.
+                Non-food consumer appliance / garment. Nutritional declarations exempt under statutory guidelines.
               </div>
             )}
           </div>
@@ -237,7 +232,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         {product.claims && product.claims.length > 0 && (
           <div className="space-y-2">
             <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
-              AI Claim Verification (CCPA & FSSAI Analysis)
+              AI Claim Verification (CCPA & Statutory Analysis)
             </span>
             <div className="space-y-2">
               {product.claims.map((claim, idx) => (
