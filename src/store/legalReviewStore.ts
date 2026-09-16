@@ -1,6 +1,7 @@
 /**
  * AI Legal Review Agent — Zustand Store
  *
+ * Follows the same pattern as hygieneStore.ts.
  * Completely isolated from other stores.
  */
 
@@ -17,6 +18,11 @@ import {
   MOCK_ANALYSIS_RESULTS,
   generateMockResponse,
 } from '../data/mockLegalReviewData';
+import {
+  createAnalysisForHygieneViolation,
+  createViolationAssessment,
+  GenericViolation,
+} from '../lib/legalReviewIntegration';
 
 interface LegalReviewState {
   // Data
@@ -41,7 +47,7 @@ interface LegalReviewState {
   markFindingReviewed: (findingId: string) => void;
   markFindingResolved: (findingId: string) => void;
   resetSession: () => void;
-  loadExternalDocument: (document: ReviewDocument, sourceContext?: SourceViolationContext) => void;
+  loadExternalDocument: (document: ReviewDocument, sourceViolation?: GenericViolation, factoryName?: string) => void;
 
   // PRD workflow actions
   verifyReview: () => void;
@@ -51,6 +57,10 @@ interface LegalReviewState {
 }
 
 let analyzeTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Track the source violation for external violation documents
+let _pendingHygieneViolation: GenericViolation | null = null;
+let _pendingFactoryName: string | undefined = undefined;
 
 export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
   // Initialize from mock data
@@ -77,6 +87,10 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       clearTimeout(analyzeTimer);
       analyzeTimer = null;
     }
+
+    // Clear hygiene violation context when switching to a sample document
+    _pendingHygieneViolation = null;
+    _pendingFactoryName = undefined;
 
     set({
       selectedDocument: doc,
@@ -109,7 +123,15 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       // Check pre-computed mock results first (existing sample documents)
       const preComputedResult = MOCK_ANALYSIS_RESULTS[selectedDocument.id];
 
-      const result: AIAnalysisResult | undefined = preComputedResult;
+      // For hygiene-generated documents, dynamically generate analysis
+      const result: AIAnalysisResult | undefined = preComputedResult
+        || (_pendingHygieneViolation
+          ? createAnalysisForHygieneViolation(
+              _pendingHygieneViolation,
+              selectedDocument.id,
+              _pendingFactoryName
+            )
+          : undefined);
 
       if (result) {
         // Deep-clone findings so each session has independent state
@@ -123,115 +145,88 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
           analyzedAt: new Date().toISOString(),
         };
 
+        // Generate PRD-aligned legal assessment for hygiene violations
+        const assessment = _pendingHygieneViolation
+          ? createViolationAssessment(_pendingHygieneViolation, _pendingFactoryName)
+          : null;
+
         set((state) => ({
           isAnalyzing: false,
           analysisResult: clonedResult,
+          violationAssessment: assessment,
           messages: [
             ...state.messages,
             {
               id: `msg-sys-${Date.now()}`,
-              role: 'system',
-              message: `AI analysis complete for "${selectedDocument.title}". Found ${clonedResult.findings.length} findings. Overall Risk: ${clonedResult.overallRisk}. Average Confidence: ${(clonedResult.averageConfidence * 100).toFixed(0)}%.`,
+              role: 'system' as const,
+              message: assessment
+                ? `AI Legal Review complete. ${clonedResult.findings.length} finding(s) identified. Overall risk: ${clonedResult.overallRisk}. Evidence assessment: ${assessment.evidenceSufficiency}. False accusation risk: ${assessment.falseAccusationRisk}. Human verification is required before publication.`
+                : `Analysis complete. ${clonedResult.findings.length} finding(s) identified. Overall risk: ${clonedResult.overallRisk}. You may now review each finding or ask questions.`,
               timestamp: new Date().toISOString(),
             },
           ],
         }));
       } else {
-        // Fallback generic analysis result for ad-hoc documents
-        const fallbackResult: AIAnalysisResult = {
-          id: `res-${selectedDocument.id}`,
-          documentId: selectedDocument.id,
-          overallRisk: 'MEDIUM',
-          averageConfidence: 0.88,
-          analyzedAt: new Date().toISOString(),
-          status: 'complete',
-          findings: [
-            {
-              id: `fnd-${Date.now()}-1`,
-              title: 'Mandatory Declaration Compliance Verification',
-              severity: 'medium',
-              confidence: 0.91,
-              matchedRule: 'Legal Metrology (Packaged Commodities) Rules, 2011 — Rule 6',
-              evidence: selectedDocument.summary,
-              explanation: 'Document has been verified against statutory labeling guidelines. Clarifications on declarations may be required.',
-              recommendation: 'Verify physical samples and confirm statutory declarations against batch records.',
-              status: 'open',
-              isExpanded: false,
-            },
-          ],
-        };
-
         set((state) => ({
           isAnalyzing: false,
-          analysisResult: fallbackResult,
+          violationAssessment: null,
           messages: [
             ...state.messages,
             {
               id: `msg-sys-${Date.now()}`,
-              role: 'system',
-              message: `AI analysis complete for "${selectedDocument.title}". Found 1 finding. Overall Risk: MEDIUM. Average Confidence: 88%.`,
+              role: 'system' as const,
+              message: 'Analysis complete. No findings available for this document.',
               timestamp: new Date().toISOString(),
             },
           ],
         }));
       }
+
+      analyzeTimer = null;
     }, 1500);
   },
 
   addMessage: (text) => {
+    const { selectedDocument, analysisResult } = get();
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
     const userMsg: ReviewMessage = {
       id: `msg-user-${Date.now()}`,
       role: 'user',
-      message: text,
+      message: trimmed,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Generate deterministic response
+    const docTitle = selectedDocument?.title || 'Unknown Document';
+    const findings = analysisResult?.findings || [];
+    const responseText = generateMockResponse(trimmed, docTitle, findings);
+
+    const assistantMsg: ReviewMessage = {
+      id: `msg-asst-${Date.now() + 1}`,
+      role: 'assistant',
+      message: responseText,
       timestamp: new Date().toISOString(),
     };
 
     set((state) => ({
-      messages: [...state.messages, userMsg],
+      messages: [...state.messages, userMsg, assistantMsg],
     }));
-
-    // Simulated AI response delay (800ms)
-    setTimeout(() => {
-      const { selectedDocument, analysisResult } = get();
-      const docTitle = selectedDocument ? selectedDocument.title : 'Selected Document';
-      const findings = analysisResult ? analysisResult.findings : [];
-      const responseText = generateMockResponse(
-        text,
-        docTitle,
-        findings
-      );
-
-      const aiMsg: ReviewMessage = {
-        id: `msg-ai-${Date.now()}`,
-        role: 'assistant',
-        message: responseText,
-        timestamp: new Date().toISOString(),
-      };
-
-      set((state) => ({
-        messages: [...state.messages, aiMsg],
-      }));
-    }, 800);
   },
 
   toggleFinding: (id) => {
-    set((state) => {
-      if (!state.analysisResult) return state;
-
-      const isCurrentlyExpanded = state.expandedFindingId === id;
-      const newExpandedId = isCurrentlyExpanded ? null : id;
-
-      return {
-        expandedFindingId: newExpandedId,
-        analysisResult: {
-          ...state.analysisResult,
-          findings: state.analysisResult.findings.map((f) => ({
-            ...f,
-            isExpanded: f.id === id ? !isCurrentlyExpanded : f.isExpanded,
-          })),
-        },
-      };
-    });
+    set((state) => ({
+      expandedFindingId: state.expandedFindingId === id ? null : id,
+      analysisResult: state.analysisResult
+        ? {
+            ...state.analysisResult,
+            findings: state.analysisResult.findings.map((f) =>
+              f.id === id ? { ...f, isExpanded: !f.isExpanded } : f
+            ),
+          }
+        : null,
+    }));
   },
 
   markFindingReviewed: (findingId) => {
@@ -266,6 +261,9 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
       analyzeTimer = null;
     }
 
+    _pendingHygieneViolation = null;
+    _pendingFactoryName = undefined;
+
     set({
       selectedDocument: null,
       analysisResult: null,
@@ -277,22 +275,52 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
     });
   },
 
-  loadExternalDocument: (document, sourceContext) => {
+  loadExternalDocument: (document, sourceViolation, factoryName) => {
+    // Clear any pending analysis timer
     if (analyzeTimer) {
       clearTimeout(analyzeTimer);
       analyzeTimer = null;
     }
 
+    // Store the source violation for analysis generation
+    _pendingHygieneViolation = sourceViolation || null;
+    _pendingFactoryName = factoryName;
+
+    // Build SourceViolationContext for the UI
+    const srcCtx: SourceViolationContext | null = sourceViolation
+      ? {
+          violationId: sourceViolation.id,
+          factoryId: sourceViolation.factoryId,
+          factoryName: factoryName || `Factory ${sourceViolation.factoryId}`,
+          violationTitle: sourceViolation.title,
+          zone: sourceViolation.zoneName,
+          severity: sourceViolation.severity,
+          description: sourceViolation.description,
+          evidence: sourceViolation.evidence
+            ? {
+                type: sourceViolation.evidence.type,
+                title: sourceViolation.evidence.title,
+                description: sourceViolation.evidence.description,
+                capturedAt: sourceViolation.evidence.capturedAt,
+              }
+            : undefined,
+          status: sourceViolation.status,
+          parameter: sourceViolation.parameter,
+          actualValue: sourceViolation.actualValue,
+          threshold: sourceViolation.threshold,
+        }
+      : null;
+
     set({
       selectedDocument: document,
       analysisResult: null,
-      sourceViolation: sourceContext || null,
+      sourceViolation: srcCtx,
       violationAssessment: null,
       messages: [
         {
           id: `msg-sys-${Date.now()}`,
           role: 'system',
-          message: `Document loaded: "${document.title}". Click "Analyze Document" to start the AI legal review.`,
+          message: `Document loaded from Factory Hygiene Monitoring: "${document.title}". This hygiene violation has been sent to the AI Legal Review module for analysis. Click "Analyze Document" to start the AI legal review.`,
           timestamp: new Date().toISOString(),
         },
       ],
@@ -335,6 +363,7 @@ export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({
 
   approveForPublication: () => {
     set((state) => {
+      // Guard: can only approve if human verification passed
       if (
         !state.violationAssessment ||
         state.violationAssessment.humanVerificationStatus !== 'verified' ||

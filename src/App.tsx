@@ -40,11 +40,10 @@ export function App() {
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
-          <Route path="factory-hygiene" element={<Navigate to="/dashboard" replace />} />
-          <Route path="factory-certification" element={<Navigate to="/dashboard" replace />} />
           <Route path="legal-review" element={<AILegalReviewAgent />} />
           <Route path="settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
+
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
