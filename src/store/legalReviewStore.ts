@@ -13,7 +13,6 @@ import type {
   SourceViolationContext,
   ViolationLegalAssessment,
 } from '../types/legalReview';
-import type { HygieneViolation } from '../types/hygiene';
 import {
   MOCK_LEGAL_DOCUMENTS,
   MOCK_ANALYSIS_RESULTS,
@@ -22,6 +21,7 @@ import {
 import {
   createAnalysisForHygieneViolation,
   createViolationAssessment,
+  GenericViolation,
 } from '../lib/legalReviewIntegration';
 
 interface LegalReviewState {
@@ -47,7 +47,7 @@ interface LegalReviewState {
   markFindingReviewed: (findingId: string) => void;
   markFindingResolved: (findingId: string) => void;
   resetSession: () => void;
-  loadExternalDocument: (document: ReviewDocument, sourceViolation?: HygieneViolation, factoryName?: string) => void;
+  loadExternalDocument: (document: ReviewDocument, sourceViolation?: GenericViolation, factoryName?: string) => void;
 
   // PRD workflow actions
   verifyReview: () => void;
@@ -58,8 +58,8 @@ interface LegalReviewState {
 
 let analyzeTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Track the source violation for hygiene-generated documents
-let _pendingHygieneViolation: HygieneViolation | null = null;
+// Track the source violation for external violation documents
+let _pendingHygieneViolation: GenericViolation | null = null;
 let _pendingFactoryName: string | undefined = undefined;
 
 export const useLegalReviewStore = create<LegalReviewState>((set, get) => ({

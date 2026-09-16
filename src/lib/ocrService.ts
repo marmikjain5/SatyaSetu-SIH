@@ -137,6 +137,43 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
     onProgress?.(88, 'Extracting Legal Metrology statutory declarations & evidence...');
     const declarations = extractAllLegalDeclarations(passOCRData, imgDimensions, bestRawText);
 
+    // Call backend LLM text extractor (/api/v1/extract) to parse missing fields from noisy OCR text
+    if (bestRawText && bestRawText.trim().length > 10) {
+      const endpoints = [
+        '/api/v1/extract',
+        'http://localhost:8000/api/v1/extract',
+      ];
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw_text: bestRawText }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'success' && data.extraction?.fields) {
+              const llmFields = data.extraction.fields;
+              for (const k of Object.keys(declarations) as DeclarationFieldKey[]) {
+                const llmF = llmFields[k];
+                if (llmF && llmF.value && (!declarations[k].value || declarations[k].value === '(Not detected)')) {
+                  declarations[k].value = llmF.value;
+                  declarations[k].rawValue = llmF.raw_match || llmF.value;
+                  declarations[k].rawMatch = llmF.raw_match || llmF.value;
+                  declarations[k].confidence = Math.max(declarations[k].confidence, Math.round((llmF.confidence_pct || 88)));
+                  declarations[k].validationStatus = llmF.validation_status || 'compliant';
+                }
+              }
+              break;
+            }
+          }
+        } catch {
+          // continue fallback
+        }
+      }
+    }
+
+
     // ── Step 4: Build Rule Engine Compliance Payload ────────────
     onProgress?.(95, 'Synthesizing Rule Engine compliance payload...');
 
@@ -268,7 +305,7 @@ export class HybridVisionBackendProvider implements OCRProvider {
       const preprocessed = await preprocessImage(dataUrl);
       const imgDimensions = preprocessed.dimensions;
 
-      onProgress?.(30, 'Performing Vision LLM extraction (Local Qwen2.5-VL / Gemini)...');
+      onProgress?.(30, 'Performing Vision LLM extraction (Pollinations AI / Ollama / Gemini)...');
 
       const endpoints = [
         `${this.backendBaseUrl}/api/v1/extract-image`,
@@ -295,11 +332,17 @@ export class HybridVisionBackendProvider implements OCRProvider {
 
           if (res.ok) {
             const data = await res.json();
-            if (data.status === 'success' && data.extraction) {
-              responseData = data.extraction;
-              break;
+            if (data.status === 'success' && data.extraction?.fields) {
+              const hasFields = Object.values(data.extraction.fields).some(
+                (f: any) => f.value && f.value.trim().length > 0 && f.value !== '(Not detected)'
+              );
+              if (hasFields) {
+                responseData = data.extraction;
+                break;
+              }
             }
           }
+
         } catch (e) {
           // continue to next endpoint
         }

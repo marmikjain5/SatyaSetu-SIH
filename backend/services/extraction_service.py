@@ -296,6 +296,94 @@ def _estimate_field_confidence(field_key: str, value: str, pattern: str) -> floa
 
 # ─── Main Extraction Pipeline Entry Point ─────────────────────────────────
 
+def _llm_parse_ocr_text(raw_text: str) -> Dict[str, str]:
+    """
+    Calls LLM (Pollinations / Gemini / Ollama) to extract statutory fields from raw OCR text.
+    Handles garbled or noisy OCR output by using natural language understanding.
+    """
+    if not raw_text or len(raw_text.strip()) < 5:
+        return {}
+
+    prompt = f"""You are a senior packaging compliance parser for Legal Metrology & FSSAI India.
+Clean, auto-correct OCR typos into real dictionary words, and extract all statutory declarations from raw OCR text into precise JSON.
+
+RULES FOR PARSING & SPELL CORRECTION:
+1. productName: Auto-correct obvious OCR typos into proper brand/commodity words (e.g., 'B Naura Mied Fui' -> 'B Natural Mixed Fruit').
+2. mrp: Exact numeric price in Indian Rupees (e.g., '152.00'). Do NOT include 'Rs.' or 'incl. of taxes'.
+3. netQuantity: Clean metric weight/volume (e.g., '1 L', '500 g', '200 ml').
+4. manufacturer: Legal company name only (e.g., 'ITC LIMITED').
+5. address: Full premises address with PIN code (e.g., 'ITC GREEN CENTRE - 10TH FLOOR, NO. 18, BANASWADI MAIN ROAD, BENGALURU - 560005').
+6. manufacturingDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '19/08/2026').
+7. expiryDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '18/05/2027').
+8. batchNumber: Clean batch/lot code (e.g., 'H9XM190826').
+9. customerCare: Phone/toll-free number and email (e.g., '1800 425 444 444 / itccares@itc.in').
+10. fssaiLicense: 14-digit FSSAI license number (e.g., '10012031000312').
+11. countryOfOrigin: Country name (e.g., 'India').
+12. barcode: EAN barcode number (e.g., '8901725100025').
+
+RAW OCR TEXT:
+{raw_text[:3000]}
+
+Return ONLY valid JSON mapping key -> string value (or null).
+"""
+
+    import urllib.request
+    import json
+    import os
+
+    # 1. Try Pollinations AI Text LLM
+    pollinations_enabled = os.getenv("POLLINATIONS_ENABLED", "true").lower() in ("true", "1", "yes")
+    if pollinations_enabled:
+        model_name = os.getenv("POLLINATIONS_TEXT_MODEL", "openai")
+        url = f"https://text.pollinations.ai/{model_name}"
+        payload = {
+            "messages": [{"role": "user", "content": prompt}],
+        }
+
+        headers = {"Content-Type": "application/json"}
+        try:
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers=headers)
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                if resp.status == 200:
+                    raw_resp = resp.read().decode("utf-8")
+                    from services.vision_service import OllamaVisionProvider
+                    parser = OllamaVisionProvider()
+                    parsed = parser._clean_and_parse_json(raw_resp)
+                    if parsed and isinstance(parsed, dict):
+                        return {k: str(v) for k, v in parsed.items() if v and str(v).lower() not in ("null", "none")}
+        except Exception as e:
+            print(f"[LLM OCR Text Extractor] Pollinations failed: {e}")
+
+
+
+
+
+
+    # 2. Try Gemini
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    if gemini_key and len(gemini_key.strip()) > 10:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"response_mime_type": "application/json", "temperature": 0.1}
+        }
+        try:
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status == 200:
+                    resp_json = json.loads(resp.read().decode("utf-8"))
+                    text = resp_json["candidates"][0]["content"]["parts"][0]["text"]
+                    parsed = json.loads(text.strip())
+                    if parsed and isinstance(parsed, dict):
+                        return {k: str(v) for k, v in parsed.items() if v and str(v).lower() not in ("null", "none")}
+        except Exception as e:
+            print(f"[LLM OCR Text Extractor] Gemini failed: {e}")
+
+    return {}
+
+
 def extract_from_text(
     raw_text: str,
     image_id: str = "unknown",
@@ -304,20 +392,6 @@ def extract_from_text(
     """
     Main entry point: extracts all mandatory and conditional statutory
     declaration fields from OCR-extracted text.
-
-    Parameters
-    ----------
-    raw_text : str
-        Raw OCR text from the packaging label.
-    image_id : str
-        Identifier for the image being processed.
-    preprocessing_passes : list[str], optional
-        Names of OCR preprocessing passes used.
-
-    Returns
-    -------
-    ExtractionResult
-        Complete extraction with all detected statutory fields.
     """
     cleaned_text = clean_ocr_text(raw_text)
     result = ExtractionResult(
@@ -330,6 +404,7 @@ def extract_from_text(
     total_confidence = 0.0
     found_count = 0
 
+    # Step 1: Deterministic regex extraction
     for field_key, patterns in FIELD_EXTRACTION_PATTERNS.items():
         extracted = extract_field(cleaned_text, field_key, patterns)
         if extracted:
@@ -337,7 +412,6 @@ def extract_from_text(
             total_confidence += extracted.confidence
             found_count += 1
         else:
-            # Record missing field with appropriate status
             is_mandatory = field_key in MANDATORY_FIELDS
             result.fields[field_key] = ExtractedField(
                 key=field_key,
@@ -349,8 +423,28 @@ def extract_from_text(
                 validation_status="non-compliant" if is_mandatory else "missing",
             )
 
+    # Step 2: LLM Text Fallback for missing/unmatched fields from noisy OCR
+    missing_fields = [k for k, f in result.fields.items() if not f.value]
+    if missing_fields and raw_text and len(raw_text.strip()) > 10:
+        llm_extracted = _llm_parse_ocr_text(raw_text)
+        for field_key, val in llm_extracted.items():
+            if val and field_key in result.fields and not result.fields[field_key].value:
+                is_mandatory = field_key in MANDATORY_FIELDS
+                result.fields[field_key] = ExtractedField(
+                    key=field_key,
+                    value=val,
+                    raw_match=val,
+                    confidence=0.88,
+                    regex_pattern="llm_ocr_parse",
+                    is_mandatory=is_mandatory,
+                    validation_status="compliant",
+                )
+                total_confidence += 0.88
+                found_count += 1
+
     result.overall_confidence = (total_confidence / found_count) if found_count > 0 else 0.0
     return result
+
 
 
 def get_extraction_summary(result: ExtractionResult) -> Dict:

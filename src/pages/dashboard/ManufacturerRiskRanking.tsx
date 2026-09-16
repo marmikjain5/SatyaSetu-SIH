@@ -14,14 +14,12 @@ import {
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Manufacturer } from '../../types/compliance';
-import { Factory } from '../../types/hygiene';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ManufacturerSatelliteMap } from '../../components/maps/ManufacturerSatelliteMap';
 import { ManufacturerDossierModal } from './ManufacturerDossierModal';
-import { ScheduleInspectionModal } from '../../components/hygiene/ScheduleInspectionModal';
 
 type ViewMode = 'split' | 'map' | 'grid';
 
@@ -32,39 +30,6 @@ const RISK_CONFIG = {
   Low:      { badge: 'success'   as const, barColor: 'bg-green-500'  },
 };
 
-export function manufacturerToFactory(mfg: Manufacturer): Factory {
-  const score = Math.max(0, 100 - mfg.riskScore);
-  return {
-    id: mfg.id,
-    name: mfg.name,
-    registrationNumber: mfg.cin || mfg.gstin || 'REG-MFG-2026',
-    fssaiLicense: mfg.fssaiLicenseNo || 'FSSAI-10020043000911',
-    category: mfg.primaryCategory || 'General Manufacturing',
-    location: mfg.registeredAddress,
-    city: mfg.zone.split(' ')[0] || 'Bengaluru',
-    state: 'Karnataka',
-    overallScore: score,
-    complianceStatus: mfg.riskTier === 'Critical' ? 'critical' : mfg.riskTier === 'High' ? 'warning' : 'compliant',
-    activeAlerts: mfg.activeViolations,
-    lastInspection: mfg.lastAuditDate || '2026-01-15',
-    totalInspections: mfg.totalProductsScanned > 0 ? 3 : 1,
-    inspectionPassRate: Math.max(50, score),
-    zones: [
-      {
-        id: 'z-prod',
-        factoryId: mfg.id,
-        name: 'Main Production & Packaging Line',
-        type: 'production',
-        score: score,
-        status: mfg.riskTier === 'Critical' ? 'critical' : mfg.riskTier === 'High' ? 'warning' : 'compliant',
-        parameters: [],
-        activeIssues: mfg.activeViolations,
-        lastInspected: mfg.lastAuditDate || '2026-01-15',
-      },
-    ],
-  };
-}
-
 export const ManufacturerRiskRanking: React.FC = () => {
   const { manufacturers, violations } = useComplianceStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,13 +37,6 @@ export const ManufacturerRiskRanking: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [selectedMfg, setSelectedMfg] = useState<Manufacturer | null>(null);
   const [dossierOpen, setDossierOpen] = useState(false);
-  const [scheduleMfg, setScheduleMfg] = useState<Manufacturer | null>(null);
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-
-  const handleOpenScheduleModal = useCallback((mfg: Manufacturer) => {
-    setScheduleMfg(mfg);
-    setScheduleModalOpen(true);
-  }, []);
 
   const tiers = ['All', 'Critical', 'High', 'Moderate', 'Low'];
 
@@ -207,7 +165,6 @@ export const ManufacturerRiskRanking: React.FC = () => {
                 isSelected={selectedMfg?.id === mfg.id}
                 onClick={handleCardClick}
                 onOpenDossier={handleSelectMfg}
-                onScheduleInspection={handleOpenScheduleModal}
               />
             ))}
           </div>
@@ -233,7 +190,6 @@ export const ManufacturerRiskRanking: React.FC = () => {
               isSelected={selectedMfg?.id === mfg.id}
               onClick={handleCardClick}
               onOpenDossier={handleSelectMfg}
-              onScheduleInspection={handleOpenScheduleModal}
             />
           ))}
         </div>
@@ -252,14 +208,6 @@ export const ManufacturerRiskRanking: React.FC = () => {
         violations={violations}
         isOpen={dossierOpen}
         onClose={() => setDossierOpen(false)}
-        onScheduleInspection={handleOpenScheduleModal}
-      />
-
-      {/* ── Schedule Inspection Modal ── */}
-      <ScheduleInspectionModal
-        factory={scheduleMfg ? manufacturerToFactory(scheduleMfg) : null}
-        isOpen={scheduleModalOpen}
-        onClose={() => setScheduleModalOpen(false)}
       />
     </div>
   );
@@ -271,10 +219,9 @@ interface MfgCardProps {
   isSelected: boolean;
   onClick: (mfg: Manufacturer) => void;
   onOpenDossier: (mfg: Manufacturer) => void;
-  onScheduleInspection: (mfg: Manufacturer) => void;
 }
 
-const MfgCard: React.FC<MfgCardProps> = ({ mfg, isSelected, onClick, onOpenDossier, onScheduleInspection }) => {
+const MfgCard: React.FC<MfgCardProps> = ({ mfg, isSelected, onClick, onOpenDossier }) => {
   const navigate = useNavigate();
   const rc = RISK_CONFIG[mfg.riskTier];
 
@@ -357,19 +304,6 @@ const MfgCard: React.FC<MfgCardProps> = ({ mfg, isSelected, onClick, onOpenDossi
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-[11px] h-7 px-2.5 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950 font-semibold"
-            onClick={(e) => {
-              e.stopPropagation();
-              onScheduleInspection(mfg);
-            }}
-            title="Schedule surprise inspection notice & dispatch email to enforcement team"
-          >
-            <Calendar className="h-3.5 w-3.5 mr-1 text-blue-600 dark:text-blue-400" />
-            Schedule Inspection
-          </Button>
           <button
             onClick={(e) => { e.stopPropagation(); onOpenDossier(mfg); }}
             className="flex items-center gap-1 text-[10px] text-blue-700 font-semibold hover:text-blue-900 transition-colors"

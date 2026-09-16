@@ -12,9 +12,7 @@ import { ViolationsLedger } from './pages/dashboard/ViolationsLedger';
 import { ManufacturerRiskRanking } from './pages/dashboard/ManufacturerRiskRanking';
 import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPortal';
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
-import { FactoryHygieneMonitoring } from './pages/dashboard/FactoryHygieneMonitoring';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
-import { ManufacturerHygieneCertification } from './pages/dashboard/ManufacturerHygieneCertification';
 import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
 
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
@@ -42,11 +40,10 @@ export function App() {
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
-          <Route path="factory-hygiene" element={<FactoryHygieneMonitoring />} />
-          <Route path="factory-certification" element={<ManufacturerHygieneCertification />} />
           <Route path="legal-review" element={<AILegalReviewAgent />} />
           <Route path="settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
+
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

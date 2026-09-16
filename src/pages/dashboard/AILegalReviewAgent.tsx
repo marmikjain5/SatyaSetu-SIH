@@ -17,7 +17,6 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useLegalReviewStore } from '../../store/legalReviewStore';
-import { useHygieneStore } from '../../store/hygieneStore';
 import { DocumentPanel } from '../../components/legalReview/DocumentPanel';
 import { AnalysisSummary } from '../../components/legalReview/AnalysisSummary';
 import { FindingCard } from '../../components/legalReview/FindingCard';
@@ -25,8 +24,6 @@ import { ChatAssistant } from '../../components/legalReview/ChatAssistant';
 import { ViolationAssessmentPanel } from '../../components/legalReview/ViolationAssessmentPanel';
 import { HumanVerificationPanel } from '../../components/legalReview/HumanVerificationPanel';
 import { PublicationPanel } from '../../components/legalReview/PublicationPanel';
-import { createReviewDocumentFromViolation } from '../../lib/legalReviewIntegration';
-import type { HygieneViolation } from '../../types/hygiene';
 
 export const AILegalReviewAgent: React.FC = () => {
   const {
@@ -44,30 +41,12 @@ export const AILegalReviewAgent: React.FC = () => {
     setReviewerNotes,
   } = useLegalReviewStore();
 
-  const { getFactoryById } = useHygieneStore();
   const location = useLocation();
-  const hasLoadedRef = useRef(false);
 
   // Mobile disclosure states
   const [showMobileSource, setShowMobileSource] = useState(false);
   const [showMobileFindings, setShowMobileFindings] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
-
-  // Receive hygiene violation from navigation state
-  useEffect(() => {
-    const state = location.state as { hygieneViolation?: HygieneViolation } | null;
-    if (state?.hygieneViolation && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      const violation = state.hygieneViolation;
-      const factory = getFactoryById(violation.factoryId);
-      const factoryName = factory?.name;
-      const reviewDoc = createReviewDocumentFromViolation(violation, factoryName);
-      loadExternalDocument(reviewDoc, violation, factoryName);
-
-      // Clear navigation state to prevent re-loading on re-render
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, getFactoryById, loadExternalDocument]);
 
   // ── Workflow step computation ─────────────────────────────────────────
   const workflowSteps = sourceViolation

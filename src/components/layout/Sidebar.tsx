@@ -14,9 +14,9 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
-  Factory,
   Scale,
   X,
+
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -85,12 +85,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       roles: ['admin', 'inspector', 'manufacturer'],
     },
     {
-      to: '/dashboard/factory-certification',
-      label: 'Factory Hygiene Proof',
-      icon: Factory,
-      roles: ['manufacturer', 'admin'],
-    },
-    {
       to: '/dashboard/violations',
       label: 'Violations',
       icon: ShieldAlert,
@@ -133,12 +127,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       roles: ['admin', 'inspector'],
     },
     {
-      to: '/dashboard/factory-hygiene',
-      label: 'Factory Hygiene',
-      icon: Factory,
-      roles: ['admin', 'inspector'],
-    },
-    {
       to: '/dashboard/legal-review',
       label: 'AI Legal Review',
       icon: Scale,
@@ -146,6 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
+
   ];
 
   const navItems = allNavItems.filter((item) => item.roles.includes(userRole));

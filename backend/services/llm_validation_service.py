@@ -30,9 +30,13 @@ from typing import Dict, List, Optional, Any, Tuple
 DEFAULT_OLLAMA_BASE_URL  = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 DEFAULT_OLLAMA_MODEL     = os.getenv("OLLAMA_VISION_MODEL", "qwen2.5-vl")  # Same model as vision
 GEMINI_API_KEY           = os.getenv("GEMINI_API_KEY", "")
+POLLINATIONS_API_KEY     = os.getenv("POLLINATIONS_API_KEY", "")
+POLLINATIONS_BASE_URL    = os.getenv("POLLINATIONS_BASE_URL", "https://text.pollinations.ai")
+POLLINATIONS_TEXT_MODEL  = os.getenv("POLLINATIONS_TEXT_MODEL", "openai")
 
 # Output token cap — keep it tight so inference stays fast
 LLM_MAX_TOKENS = int(os.getenv("LLM_VALIDATION_MAX_TOKENS", os.getenv("OLLAMA_NUM_PREDICT", "450")))
+
 
 
 # ─── Statutory Grounding & Rule Specifications ──────────────────────────────
@@ -216,6 +220,74 @@ For EACH finding return a JSON array entry:
 Return ONLY the raw JSON array. No markdown, no explanations outside the JSON."""
 
     return prompt
+
+
+# ─── Pollinations Text Provider ────────────────────────────────────────────────
+
+class _PollinationsTextProvider:
+    """Calls Pollinations AI chat completions endpoint for text-only verification."""
+
+    def __init__(
+        self,
+        api_key: str = POLLINATIONS_API_KEY,
+        base_url: str = POLLINATIONS_BASE_URL,
+        model_name: str = POLLINATIONS_TEXT_MODEL,
+        timeout_seconds: int = 45,
+    ):
+        self.api_key = api_key or os.getenv("POLLINATIONS_API_KEY", "")
+        self.base_url = (base_url or os.getenv("POLLINATIONS_BASE_URL", "https://text.pollinations.ai")).rstrip("/")
+        self.model_name = model_name or os.getenv("POLLINATIONS_TEXT_MODEL", "openai")
+        self.timeout = timeout_seconds
+
+    def is_available(self) -> bool:
+        enabled = os.getenv("POLLINATIONS_ENABLED", "true").lower() in ("true", "1", "yes")
+        return bool(enabled and (self.api_key or "pollinations.ai" in self.base_url))
+
+    def call(self, prompt: str) -> Tuple[Optional[List[Dict]], str]:
+        url = self.base_url if self.base_url.endswith("/") else f"{self.base_url}/"
+        payload = {
+            "model": self.model_name,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            "temperature": 0.05,
+            "max_tokens": LLM_MAX_TOKENS,
+        }
+
+
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "SatyaDrishti-ValidationAugmentor",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        data_bytes = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data_bytes, headers=headers)
+
+        try:
+            import time
+            t0 = time.time()
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                if resp.status == 200:
+                    resp_json = json.loads(resp.read().decode("utf-8"))
+                    choices = resp_json.get("choices", [])
+                    raw_text = ""
+                    if choices:
+                        raw_text = choices[0].get("message", {}).get("content", "")
+                    elif "content" in resp_json:
+                        raw_text = resp_json.get("content", "")
+
+                    elapsed = time.time() - t0
+                    print(f"[LLM-Validation] Pollinations model={self.model_name} | elapsed={elapsed:.2f}s")
+                    parsed = _safe_parse_json_list(raw_text)
+                    return parsed, raw_text
+                return None, f"Pollinations HTTP {resp.status}"
+        except Exception as exc:
+            return None, str(exc)
 
 
 # ─── Ollama Text Provider ────────────────────────────────────────────────────
@@ -423,12 +495,13 @@ class LLMValidationAugmentor:
     Orchestrates the LLM verification pass with hybrid architecture guardrails:
       1. Filter to only fail/warning findings
       2. Build context-enriched statutory prompt with exact legal requirements
-      3. Call Ollama (or Gemini fallback)
+      3. Call Pollinations AI (Priority 1), Ollama (Fallback 1), or Gemini (Fallback 2)
       4. Apply guardrails: reject hallucinated dismissals on missing mandatory fields
       5. Return high-confidence augmentations
     """
 
     def __init__(self):
+        self._pollinations = _PollinationsTextProvider()
         self._ollama = _OllamaTextProvider()
         self._gemini = _GeminiTextProvider()
 
@@ -459,15 +532,22 @@ class LLMValidationAugmentor:
 
         prompt = _build_verification_prompt(extracted_fields, reviewable, evaluation_date=evaluation_date)
 
-        # --- Provider 1: Ollama ---
         parsed, raw = None, ""
         provider_label = "none"
-        if self._ollama.is_available():
+
+        # --- Provider 1: Pollinations AI ---
+        if self._pollinations.is_available():
+            parsed, raw = self._pollinations.call(prompt)
+            if parsed is not None:
+                provider_label = f"Cloud-Pollinations-{self._pollinations.model_name}"
+
+        # --- Provider 2: Ollama Fallback ---
+        if parsed is None and self._ollama.is_available():
             parsed, raw = self._ollama.call(prompt)
             if parsed is not None:
                 provider_label = f"Local-Ollama-{self._ollama.model_name}"
 
-        # --- Provider 2: Gemini fallback ---
+        # --- Provider 3: Gemini Fallback ---
         if parsed is None and self._gemini.is_available():
             parsed, raw = self._gemini.call(prompt)
             if parsed is not None:

@@ -1,14 +1,25 @@
-/**
- * Legal Review Integration — Hygiene → Legal Review Adapter
- *
- * Converts HygieneViolation data into a ReviewDocument + deterministic
- * analysis results so the AI Legal Review module can review hygiene violations.
- *
- * This is the sole bridge between the two modules.
- * Both stores remain independent.
- */
+export interface GenericViolation {
+  id: string;
+  factoryId: string;
+  zoneId: string;
+  zoneName: string;
+  parameter: string;
+  actualValue: string;
+  threshold: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  recommendation: string;
+  detectedAt: string;
+  status: string;
+  evidence?: {
+    type: string;
+    title: string;
+    description: string;
+    capturedAt: string;
+  };
+}
 
-import type { HygieneViolation } from '../types/hygiene';
 import type {
   ReviewDocument,
   AIAnalysisResult,
@@ -21,11 +32,11 @@ import type {
 } from '../types/legalReview';
 
 /**
- * Convert a HygieneViolation into a ReviewDocument suitable for the
+ * Convert a violation record into a ReviewDocument suitable for the
  * AI Legal Review module.
  */
 export function createReviewDocumentFromViolation(
-  violation: HygieneViolation,
+  violation: GenericViolation,
   factoryName?: string
 ): ReviewDocument {
   const factory = factoryName || `Factory ${violation.factoryId}`;
@@ -100,7 +111,7 @@ Sample regulatory rules are used for analysis.
  * review document, based on the violation's actual data.
  */
 export function createAnalysisForHygieneViolation(
-  violation: HygieneViolation,
+  violation: GenericViolation,
   documentId: string,
   factoryName?: string
 ): AIAnalysisResult {
@@ -190,7 +201,7 @@ export function createAnalysisForHygieneViolation(
  * All legal references are clearly labelled as prototype / requiring verification.
  */
 export function createViolationAssessment(
-  violation: HygieneViolation,
+  violation: GenericViolation,
   factoryName?: string
 ): ViolationLegalAssessment {
   const factory = factoryName || `Factory ${violation.factoryId}`;
