@@ -8,8 +8,6 @@ Statutory Sources:
   - Legal Metrology Act, 2009 — Section 36(1) penalty compounding
   - G.S.R. 779(E) — Unit Sale Price amendment, effective 1 Jan 2023
   - G.S.R. 1537(E) — Country of Origin amendment, effective 1 Jan 2018
-  - FSSAI Food Safety & Standards (Labelling & Display) Regulations, 2020
-    [F.No. 1-116/FSSAI/Imports/2021], effective 1 Oct 2022
   - Consumer Protection Act, 2019 — Section 89 penalty provisions
   - Consumer Protection (E-Commerce) Rules, 2020 [G.S.R. 462(E)]
 """
@@ -173,20 +171,6 @@ def validate_mrp(value: str, raw_text: str = "") -> Tuple[str, str, str]:
 
 
 # ─── Reference Data for Statutory Verification ──────────────────────────────
-
-FSSAI_STATE_CODES: Dict[str, str] = {
-    "00": "Central Licensing Authority (Headquarters)",
-    "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
-    "05": "Uttarakhand", "06": "Haryana", "07": "Delhi", "08": "Rajasthan",
-    "09": "Uttar Pradesh", "10": "Bihar", "11": "Sikkim", "12": "Arunachal Pradesh",
-    "13": "Nagaland", "14": "Manipur", "15": "Mizoram", "16": "Tripura",
-    "17": "Meghalaya", "18": "Assam", "19": "West Bengal", "20": "Jharkhand",
-    "21": "Odisha", "22": "Chhattisgarh", "23": "Madhya Pradesh", "24": "Gujarat",
-    "25": "Daman & Diu", "26": "Dadra & Nagar Haveli", "27": "Maharashtra",
-    "28": "Andhra Pradesh", "29": "Karnataka", "30": "Goa", "31": "Lakshadweep",
-    "32": "Kerala", "33": "Tamil Nadu", "34": "Puducherry", "35": "Andaman & Nicobar",
-    "36": "Telangana", "37": "Ladakh", "99": "Central Licensing Authority",
-}
 
 PIN_ZONE_MAP: Dict[str, str] = {
     "1": "Northern Zone (Delhi, Haryana, Punjab, Himachal Pradesh, J&K, Chandigarh)",
@@ -538,7 +522,7 @@ def validate_manufacturer_address(value: str) -> Tuple[str, str, str]:
 
 
 def validate_date_field(value: str, is_mandatory: bool = True, must_not_be_past: bool = False) -> Tuple[str, str, str]:
-    """Rule: PCR-2011-R6(1)(e) [Manufacturing/Packing Date] & FSSAI-2020-Reg5(10) [Expiry]"""
+    """Rule: PCR-2011-R6(1)(e) [Manufacturing/Packing Date] & PCR-EXP-1 [Expiry]"""
     if not value:
         status = "fail" if is_mandatory else "warning"
         return (
@@ -614,56 +598,6 @@ def validate_customer_care(value: str) -> Tuple[str, str, str]:
     return ("pass", value, "Consumer care contact declared with phone/email.")
 
 
-def validate_fssai_license(value: str, manufacturer_address: str = "") -> Tuple[str, str, str]:
-    """
-    Rule: FSSAI-2020-Reg5(1) [F.No. 1-116/FSSAI/Imports/2021]
-    Validates 14-digit FSSAI statutory license number, licensing tier, state code, and registration year.
-    """
-    if not value or value.strip() == "(Not detected)":
-        return (
-            "fail",
-            "(Not detected)",
-            "FSSAI logo and 14-digit license number are mandatory for food products [FSSAI Reg 5(1)].",
-        )
-    digits_only = re.sub(r'\D', '', value)
-    if not re.match(r'^[12]\d{13}$', digits_only):
-        return (
-            "fail",
-            value,
-            f"FSSAI license must be exactly 14 digits starting with 1 (registration/central) or 2 (state license). "
-            f"Got: '{digits_only}' ({len(digits_only)} digits).",
-        )
-
-    # 14-digit decomposition:
-    # Digit 1: Type (1 = Registration/Central, 2 = State License)
-    # Digits 2-3: State code
-    # Digits 4-5: Year of enrollment (e.g. 22 -> 2022)
-    # Digits 6-8: Quantity/Category/Officer
-    # Digits 9-14: Sequential ID
-    type_digit = digits_only[0]
-    lic_type = "Registration / Central License" if type_digit == "1" else "State License"
-    state_code = digits_only[1:3]
-    year_code = digits_only[3:5]
-    reg_year = f"20{year_code}"
-
-    state_name = FSSAI_STATE_CODES.get(state_code, f"State Code {state_code}")
-    if state_code in ("00", "99") or digits_only.startswith(("100", "101", "199")):
-        jurisdiction = "Central Licensing Authority (National Jurisdiction)"
-    else:
-        jurisdiction = f"State of {state_name}"
-
-    # Cross check state with manufacturer address if available
-    addr_lower = manufacturer_address.lower() if manufacturer_address else ""
-    if state_name.lower() in addr_lower or (state_code in ("00", "99") or digits_only.startswith(("100", "101", "199"))):
-        match_note = " (Jurisdiction matches manufacturing premises)"
-    else:
-        match_note = ""
-
-    return (
-        "pass",
-        f"FSSAI #{digits_only} [{lic_type} | {jurisdiction} | Registered: {reg_year}]{match_note}",
-        f"Valid 14-digit FSSAI license: {jurisdiction}, {lic_type} (Reg. Year: {reg_year}).",
-    )
 
 
 def validate_batch_number(value: str) -> Tuple[str, str, str]:
@@ -907,26 +841,14 @@ def validate_product_compliance(
                 s, ViolationSeverity.HIGH, ev,
                 "Importer's full legal name and Indian address with PIN code (imported goods only).", rec, 25000, 100000, 6)
 
-    # ── FSSAI-2020-Reg5(1): FSSAI License (Conditional — Food only) ──────
-    if product_category in ("FOOD", "ALL"):
-        fssai_val = g.get("fssaiLicense", "")
-        addr_val = g.get("manufacturerAddress", "") or g.get("address", "")
-        s, ev, rec = validate_fssai_license(fssai_val, addr_val)
-        add_finding("FSSAI-REG5-1", "FSSAI-2020-Reg5(1)", "Regulation 5(1)",
-                    "Food Safety and Standards (Labelling and Display) Regulations, 2020",
-                    "fssaiLicense", "FSSAI Logo & 14-Digit License Number",
-                    s if fssai_val else "warning",  # warning (not fail) if product might not be food
-                    ViolationSeverity.CRITICAL, ev,
-                    "Valid 14-digit FSSAI license number starting with 1 or 2.", rec, 100000, 500000, 6)
-
-    # ── FSSAI-2020-Reg5(10): Expiry Date (Conditional — Food only) ───────
-    if product_category in ("FOOD", "ALL"):
+    # ── Expiry / Best Before Date (Conditional) ──────────────────────────
+    if g.get("expiryDate"):
         s, ev, rec = validate_date_field(g.get("expiryDate", ""), is_mandatory=False, must_not_be_past=True)
-        add_finding("FSSAI-REG5-10", "FSSAI-2020-Reg5(10)", "Regulation 5(10)",
-                    "Food Safety and Standards (Labelling and Display) Regulations, 2020",
+        add_finding("PCR-EXP-1", "PCR-2011-EXP", "Best Before / Expiry Declaration",
+                    "Legal Metrology (Packaged Commodities) Rules, 2011",
                     "expiryDate", "Expiry Date / Best Before / Use By Date",
-                    s, ViolationSeverity.CRITICAL, ev,
-                    "Best Before / Use By / Expiry Date in DD/MM/YYYY or MM/YYYY format.", rec, 50000, 300000, 6)
+                    s, ViolationSeverity.HIGH, ev,
+                    "Best Before / Use By / Expiry Date in DD/MM/YYYY or MM/YYYY format.", rec, 25000, 50000, 0)
 
     # ── Aggregation ───────────────────────────────────────────────────────
     violation_count = sum(1 for f in findings if f.status == "fail")

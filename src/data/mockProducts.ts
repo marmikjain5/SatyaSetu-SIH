@@ -22,7 +22,6 @@ export const MOCK_PRODUCTS: Product[] = [
     customerCareContact: 'consumer.care@mdlz.com | 1800-22-7080',
     customerCarePhone: '1800-22-7080',
     customerCareEmail: 'consumer.care@mdlz.com',
-    fssaiLicenseNumber: '10014022002711',
     manufacturerAddress: 'Induri Unit, Talegaon-Chakan Road, Induri, Maval, Pune, Maharashtra - 410507',
     packerAddress: 'Mondelez India Foods Private Limited, Induri, Pune - 410507',
     dietaryType: 'Vegetarian',
@@ -58,7 +57,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.2,
     lastScanned: '10 mins ago',
     missingMandatoryFields: [
-      'FSSAI Advisory Compliance: Sugar declaration exceeds front-of-pack threshold',
+      'Legal Metrology Rule 6(1)(e): Consumer grievance redressal phone contact not prominent',
     ],
     claims: [
       {
@@ -70,7 +69,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
-      'FSSAI (Advertising and Claims) Regulations, 2018',
+      'Consumer Protection (Prevention of Misleading Advertisements) Guidelines, 2022',
     ],
   },
 
@@ -149,7 +148,6 @@ export const MOCK_PRODUCTS: Product[] = [
     customerCareContact: 'wecare@in.nestle.com | 1800-103-1947',
     customerCarePhone: '1800-103-1947',
     customerCareEmail: 'wecare@in.nestle.com',
-    fssaiLicenseNumber: '10012011000168',
     manufacturerAddress: 'Industrial Area, Nanjangud, Mysuru, Karnataka - 571301',
     dietaryType: 'Vegetarian',
     allergenInfo: ['Caffeine'],
@@ -180,12 +178,12 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         text: '100% Pure Natural Coffee with Rich Aroma',
         isMisleading: false,
-        reason: 'Substantiated by Single Ingredient FSSAI Standard for Pure Soluble Coffee',
+        reason: 'Substantiated by Single Ingredient Standard for Pure Soluble Coffee under AGMARK and BIS',
         confidence: 97.9,
       },
     ],
     regulatoryActs: [
-      'Food Safety and Standards (Food Products Standards and Food Additives) Regulations, 2011',
+      'Consumer Protection Act, 2019',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },
@@ -322,7 +320,6 @@ export const MOCK_PRODUCTS: Product[] = [
     customerCareContact: 'csc@marico.com | 1800-222-248',
     customerCarePhone: '1800-222-248',
     customerCareEmail: 'csc@marico.com',
-    fssaiLicenseNumber: '10012042000270',
     manufacturerAddress: 'Industrial Development Area, Kanjikode, Palakkad, Kerala - 678621',
     dietaryType: 'Vegetarian',
     allergenInfo: ['100% Pure Coconut Oil'],
@@ -354,12 +351,12 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         text: '100% Pure Coconut Oil — 5-stage purification process',
         isMisleading: false,
-        reason: 'AGMARK Grade 1 certification & FSSAI Edible Vegetable Oil standard verification compliant',
+        reason: 'AGMARK Grade 1 certification & Edible Vegetable Oils (Packaging) Regulation verification compliant',
         confidence: 98.8,
       },
     ],
     regulatoryActs: [
-      'FSSAI (Food Safety and Standards Act, 2006)',
+      'Essential Commodities Act / Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },
@@ -406,13 +403,13 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         text: 'Light and Healthy for Active Heart with 100% Purity Guarantee',
         isMisleading: false,
-        reason: 'Standard nutritional enrichment claim supported by FSSAI Fortification standards (+F logo)',
+        reason: 'Standard nutritional enrichment claim supported by National Nutrition Fortification standards',
         confidence: 94.2,
       },
     ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
-      'FSSAI (Packaging and Labelling) Regulations, 2020',
+      'Consumer Protection Act, 2019 - Misleading Ads Guidelines',
     ],
   },
 
@@ -437,7 +434,6 @@ export const MOCK_PRODUCTS: Product[] = [
     customerCareContact: 'care@amartea.com | +91 22 2377 8899',
     customerCarePhone: '+91 22 2377 8899',
     customerCareEmail: 'care@amartea.com',
-    fssaiLicenseNumber: '10012022000258',
     manufacturerAddress: 'Plot No. 11/12, GIDC Industrial Estate, Sanjan, Valsad, Gujarat - 396150',
     dietaryType: 'Vegetarian',
     allergenInfo: ['Caffeine'],
@@ -466,12 +462,12 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         text: 'Original Assam Chai Blend with Strong Liquor & Rich Taste',
         isMisleading: false,
-        reason: 'Assam Tea Board origin & FSSAI Tea Regulations standard compliance verified',
+        reason: 'Assam Tea Board origin & Tea (Marketing) Control Order standard compliance verified',
         confidence: 98.0,
       },
     ],
     regulatoryActs: [
-      'FSSAI (Food Safety and Standards Act, 2006)',
+      'Tea Act, 1953 & Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },

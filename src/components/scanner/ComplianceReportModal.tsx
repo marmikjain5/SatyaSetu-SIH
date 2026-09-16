@@ -430,7 +430,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                     : 'Comprehensive Multi-Commodity Inspection Session Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards • {report.auditedProducts?.length || 0} Products Audited
+                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; Legal Metrology Act, 2009 • {report.auditedProducts?.length || 0} Products Audited
                 </p>
               </div>
 
@@ -621,7 +621,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               {(report.consolidatedViolations || []).length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
-                    <span>3. Consolidated Legal Metrology &amp; FSSAI Violations Matrix</span>
+                    <span>3. Consolidated Legal Metrology Violations Matrix</span>
                     <span className="font-mono text-[10px] text-slate-400">SEC-03</span>
                   </h4>
 
@@ -749,7 +749,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                     : 'Statutory Packaged Commodity Inspection Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards
+                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; Legal Metrology Act, 2009
                 </p>
               </div>
 
@@ -865,8 +865,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                         <td className="p-2">{productInfo.countryOfOrigin}</td>
                       </tr>
                       <tr>
-                        <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">FSSAI License</td>
-                        <td className="p-2">{productInfo.fssaiLicense}</td>
+                        <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">Customer Care</td>
+                        <td className="p-2">{productInfo.customerCare}</td>
                         <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">Barcode / GTIN</td>
                         <td className="p-2">{productInfo.barcode}</td>
                       </tr>

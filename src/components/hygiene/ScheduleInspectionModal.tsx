@@ -91,7 +91,6 @@ export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = (
       factoryId: factory.id,
       factoryName: factory.name,
       registrationNumber: factory.registrationNumber,
-      fssaiLicense: factory.fssaiLicense,
       location: factory.location,
       city: factory.city,
       state: factory.state,
@@ -159,7 +158,6 @@ export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = (
                 {factory.city}, {factory.state}
               </span>
               <span>Reg: {factory.registrationNumber}</span>
-              <span>FSSAI: {factory.fssaiLicense}</span>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">

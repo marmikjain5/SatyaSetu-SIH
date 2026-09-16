@@ -5,7 +5,7 @@
  * 1. Estimating physical font size (pt, mm, px) from OCR bounding boxes relative to image dimensions.
  * 2. Optical luminance & WCAG 2.1 contrast ratio analysis from image canvas data.
  * 3. Composite visibility scoring based on contrast, font adequacy, and OCR confidence.
- * 4. Statutory compliance verification against Legal Metrology Rule 9 / Schedule II and FSSAI guidelines.
+ * 4. Statutory compliance verification against Legal Metrology Rule 9 / Schedule II standards.
  * 5. Problematic region flagging and remediation recommendations.
  */
 
@@ -92,7 +92,7 @@ const STATUTORY_THRESHOLDS: Record<DeclarationFieldKey, StatutoryThreshold> = {
   expiryDate: {
     minPt: 6.0,
     minMm: 1.8,
-    statutoryRule: 'FSSAI Packaging & Labelling Regulation 2.2 - Best Before / Expiry Legibility',
+    statutoryRule: 'Legal Metrology Rule 9 - Best Before / Expiry Date Legibility Standard',
     category: 'statutory_declaration',
   },
   batchNumber: {
@@ -105,12 +105,6 @@ const STATUTORY_THRESHOLDS: Record<DeclarationFieldKey, StatutoryThreshold> = {
     minPt: 5.5,
     minMm: 1.5,
     statutoryRule: 'Legal Metrology Rule 6(1)(da) - Consumer Redressal Contact Legibility',
-    category: 'statutory_declaration',
-  },
-  fssaiLicense: {
-    minPt: 6.0,
-    minMm: 1.8,
-    statutoryRule: 'FSSAI Statutory Display Standard - License Number Height Requirement',
     category: 'statutory_declaration',
   },
   barcode: {

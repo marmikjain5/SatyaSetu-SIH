@@ -102,10 +102,6 @@ export const FactoryDetailModal: React.FC<FactoryDetailModalProps> = ({
               <span>{factory.location}, {factory.city}, {factory.state}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-700">
-              <FileText className="h-4 w-4 text-slate-400" />
-              <span>FSSAI: {factory.fssaiLicense}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-700">
               <Calendar className="h-4 w-4 text-slate-400" />
               <span>Last Inspection: {factory.lastInspection}</span>
             </div>

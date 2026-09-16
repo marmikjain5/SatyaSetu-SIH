@@ -9,10 +9,7 @@
  *  │            Amended by: G.S.R. 779(E) dated 28 Oct 2022 (Unit Sale Price)       │
  *  │            Amended by: G.S.R. 1537(E) dated 13 Dec 2017 (Country of Origin)    │
  *  ├─────────────────────────────────────────────────────────────────────────────────┤
- *  │  BLOCK B — FSSAI Food Safety & Standards (Labelling & Display) Regs, 2020       │
- *  │            Gazette: FSSAI F.No. 1-116/FSSAI/Imports/2021, effective 1 Oct 2022  │
- *  ├─────────────────────────────────────────────────────────────────────────────────┤
- *  │  BLOCK C — Legal Metrology E-Commerce Declarations & BIS Standards              │
+ *  │  BLOCK B — Legal Metrology E-Commerce Declarations & BIS Standards              │
  *  │            Gazette: G.S.R. 629(E), Ministry of Consumer Affairs                 │
  *  └─────────────────────────────────────────────────────────────────────────────────┘
  *
@@ -334,7 +331,6 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     description:
       'For all imported packages, the full legal name and complete Indian address (including PIN code) ' +
       'of the importer must be declared separately from the foreign manufacturer\'s details. ' +
-      'For food products: Importer\'s 14-digit FSSAI license number must also be declared alongside. ' +
       'Applicable only when Country of Origin is not India.',
     severity: 'high',
     isMandatory: false,
@@ -344,67 +340,7 @@ export const LEGAL_METROLOGY_RULES: LegalMetrologyRule[] = [
     penaltyRange: { minFine: 25000, maxFine: 100000, imprisonmentMonths: 6 },
     recommendations: [
       'Print importer\'s full legal entity name and complete Indian address with PIN code.',
-      'For food products, also include the importer\'s 14-digit FSSAI License Number.',
       'If marketed by a different entity, also include "Marketed by:" details.',
-    ],
-  },
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // BLOCK B: FSSAI Food Safety & Standards (Labelling & Display) Regs, 2020
-  // Source: FSSAI F.No. 1-116/FSSAI/Imports/2021, effective 1 Oct 2022
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // ─── 14. FSSAI 14-Digit License Number ─────────────────────────────────
-  {
-    id: 'FSSAI-REG5-1',
-    ruleCode: 'FSSAI-2020-Reg5(1)',
-    act: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    section: 'Regulation 5(1) | Penalty: Section 26 & 31, FSS Act 2006',
-    fieldKey: 'fssaiLicense',
-    title: 'FSSAI Logo & 14-Digit License Number on Food Products',
-    description:
-      'All food business operators must display the FSSAI logo and a valid 14-digit FSSAI ' +
-      'license/registration number on every food product package. ' +
-      'Format: exactly 14 numeric digits, starting with 1 (registration) or 2 (license). ' +
-      'Example: "FSSAI Lic. No. 10020042002099". Displaying a fabricated or invalid FSSAI number ' +
-      'is a criminal offence under Section 26 & 31 of the FSS Act, 2006.',
-    severity: 'critical',
-    isMandatory: false,
-    isConditional: true,
-    conditionDescription: 'Applies to all food and food products only.',
-    validatorKey: 'validateFSSAI',
-    penaltyRange: { minFine: 100000, maxFine: 500000, imprisonmentMonths: 6 },
-    recommendations: [
-      'Display FSSAI logo alongside the 14-digit license number on the PDP.',
-      'License number must be exactly 14 digits starting with "1" (registration) or "2" (license).',
-      'Ensure the license is valid and not expired before printing on packages.',
-    ],
-  },
-
-  // ─── 15. Expiry Date / Best Before ─────────────────────────────────────
-  {
-    id: 'FSSAI-REG5-10',
-    ruleCode: 'FSSAI-2020-Reg5(10)',
-    act: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    section: 'Regulation 5(10) — FSSAI F.No. 1-116/FSSAI/Imports/2021',
-    fieldKey: 'expiryDate',
-    title: 'Expiry Date / Best Before / Use By Date Declaration',
-    description:
-      'Every packaged food must declare "Expiry Date", "Best Before", or "Use By" date. ' +
-      'Short shelf life (≤3 months) → format DD/MM/YYYY. ' +
-      'Long shelf life (>3 months) → format MM/YYYY acceptable. ' +
-      'The declaration must be easily legible and permanently affixed on the primary package. ' +
-      'Date must not be in the past at time of sale.',
-    severity: 'critical',
-    isMandatory: false,
-    isConditional: true,
-    conditionDescription: 'Applies to all food products. Date must be on primary package.',
-    validatorKey: 'validateDate',
-    penaltyRange: { minFine: 50000, maxFine: 300000, imprisonmentMonths: 6 },
-    recommendations: [
-      'Use accepted labels: "Best Before", "Use By", "Expiry Date", or "BB Date".',
-      'For shelf life ≤3 months: use DD/MM/YYYY format.',
-      'For shelf life >3 months: MM/YYYY format is acceptable.',
     ],
   },
 ];

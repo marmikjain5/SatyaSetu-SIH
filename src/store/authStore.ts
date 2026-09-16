@@ -133,7 +133,7 @@ export const DEMO_USERS: Record<string, User> = {
     role: 'manufacturer',
     department: 'Apex FMCG Enterprises / Statutory Affairs',
     designation: 'Chief Compliance & Quality Officer',
-    badgeNumber: 'FSSAI-MFG-9402',
+    badgeNumber: 'MFG-IND-9402',
     lastLogin: 'Today, 09:15 AM',
   },
 };

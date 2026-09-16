@@ -8,7 +8,7 @@ Statutory Frameworks:
   - Legal Metrology (Packaged Commodities) Rules, 2011 [G.S.R. 882(E)]
   - Unit Sale Price Amendment [G.S.R. 779(E), effective 1 Jan 2023]
   - Country of Origin Mandatory Declaration [G.S.R. 1537(E)]
-  - FSSAI Labelling & Display Regulations, 2020 [F.No. 1-116/FSSAI/Imports/2021]
+  - Consumer Protection Act, 2019 / E-Commerce Rules, 2020
 """
 
 import os
@@ -24,7 +24,7 @@ DEFAULT_OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 DEFAULT_OLLAMA_VISION_MODEL = os.getenv("OLLAMA_VISION_MODEL", "qwen2.5-vl")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-STATUTORY_VISION_PROMPT = """You are SatyaDrishti's statutory packaging compliance inspector under the Legal Metrology Act, 2009, Legal Metrology (Packaged Commodities) Rules 2011/2022, and FSSAI Regulations 2020.
+STATUTORY_VISION_PROMPT = """You are SatyaDrishti's statutory packaging compliance inspector under the Legal Metrology Act, 2009, Legal Metrology (Packaged Commodities) Rules 2011/2022, and Consumer Protection Regulations.
 
 Carefully inspect all text, labels, stamps, dot-matrix imprints, symbols, and tables in this product image (including curved surfaces, bottle sides, and nutritional panels).
 
@@ -42,7 +42,6 @@ Extract the following statutory declarations into exact JSON. Fill ALL fields yo
   "batchNumber": "Batch or Lot number (e.g. BN: 1234, or null if blank)",
   "countryOfOrigin": "Country of Origin / Manufacture (e.g. Product of India, Made in India)",
   "customerCare": "Consumer grievance redressal toll-free number or email",
-  "fssaiLicense": "14-digit FSSAI license number (if food item)",
   "vegNonVeg": "VEG (Green dot in square) or NON-VEG (Brown triangle in square) or NONE",
   "rawDetectedText": "Key transcript of all visible text on package"
 }
@@ -207,7 +206,7 @@ class OllamaVisionProvider:
             for k in [
                 "productName", "mrp", "mrpRaw", "unitSalePrice", "netQuantity",
                 "manufacturer", "manufacturerAddress", "manufacturingDate", "expiryDate",
-                "batchNumber", "countryOfOrigin", "customerCare", "fssaiLicense",
+                "batchNumber", "countryOfOrigin", "customerCare",
                 "vegNonVeg", "rawDetectedText"
             ]:
                 m = re.search(rf'"{k}"\s*:\s*"([^"]*)"', raw_str)

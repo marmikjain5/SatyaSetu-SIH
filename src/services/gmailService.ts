@@ -24,7 +24,6 @@ export interface SendSurpriseInspectionEmailOptions {
   factoryId: string;
   factoryName: string;
   registrationNumber: string;
-  fssaiLicense: string;
   location: string;
   city: string;
   state: string;
@@ -345,14 +344,13 @@ function buildSurpriseInspectionHtmlEmail(
         <div class="meta-item"><span class="meta-label">PRIORITY STATUS:</span> <span style="color: #dc2626; font-weight: bold;">${options.priority || 'IMMEDIATE / HIGH PRIORITY'}</span></div>
       </div>
 
-      <p>In accordance with statutory powers vested under the Legal Metrology Act, 2009 and FSSAI Hygiene Guidelines, you are hereby ordered to conduct an <strong>immediate, unannounced surprise physical inspection</strong> of the following manufacturing facility:</p>
+      <p>In accordance with statutory powers vested under the Legal Metrology Act, 2009 and Central Compliance Guidelines, you are hereby ordered to conduct an <strong>immediate, unannounced surprise physical inspection</strong> of the following manufacturing facility:</p>
 
       <div class="factory-card">
         <div style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-bottom: 6px;">${options.factoryName}</div>
         <div style="font-size: 12px; color: #3b82f6; margin-bottom: 12px;">Category: ${options.category}</div>
         
         <div class="meta-item"><span class="meta-label">Registration No:</span> ${options.registrationNumber}</div>
-        <div class="meta-item"><span class="meta-label">FSSAI License:</span> ${options.fssaiLicense}</div>
         <div class="meta-item"><span class="meta-label">Facility Location:</span> ${options.location}, ${options.city}, ${options.state}</div>
         <div class="meta-item" style="margin-top: 8px;">
           <span class="meta-label">Hygiene Health Score:</span>

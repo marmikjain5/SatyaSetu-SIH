@@ -111,7 +111,6 @@ export interface Factory {
   city: string;
   state: string;
   registrationNumber: string;
-  fssaiLicense: string;
   category: string;
   overallScore: number; // 0-100
   complianceStatus: HygieneStatus;

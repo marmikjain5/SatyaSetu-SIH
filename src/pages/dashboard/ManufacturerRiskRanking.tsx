@@ -38,7 +38,6 @@ export function manufacturerToFactory(mfg: Manufacturer): Factory {
     id: mfg.id,
     name: mfg.name,
     registrationNumber: mfg.cin || mfg.gstin || 'REG-MFG-2026',
-    fssaiLicense: mfg.fssaiLicenseNo || 'FSSAI-10020043000911',
     category: mfg.primaryCategory || 'General Manufacturing',
     location: mfg.registeredAddress,
     city: mfg.zone.split(' ')[0] || 'Bengaluru',

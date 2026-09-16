@@ -45,7 +45,7 @@ export const BentoFeaturesGrid: React.FC = () => {
               </div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900">High-Precision OCR Engine</h3>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Optical character recognition tailored for reflective, curved, and distorted consumer packaging surfaces. Accurately identifies 1.5mm micro-print MRP, dates, and FSSAI codes across 22 scheduled Indian languages.
+                Optical character recognition tailored for reflective, curved, and distorted consumer packaging surfaces. Accurately identifies 1.5mm micro-print MRP, dates, and mandatory declarations across 22 scheduled Indian languages.
               </p>
             </div>
 

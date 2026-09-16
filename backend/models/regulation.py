@@ -40,7 +40,7 @@ class RegulatoryDocument:
     """Represents an ingested official government gazette, act, notification, or guideline document."""
     document_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     title: str = ""
-    authority: str = ""  # Legal Metrology, FSSAI, BIS, CCPA
+    authority: str = ""  # Legal Metrology, BIS, CCPA
     document_type: str = "notification"  # act, rule, amendment, notification, circular, guideline
     source_url: str = ""
     publication_date: Optional[str] = None  # YYYY-MM-DD

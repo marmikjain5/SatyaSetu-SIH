@@ -110,7 +110,7 @@ for cfg in configurations:
     print(f"  Parse Success: {v_parsed is not None}")
     if v_parsed:
         print(f"  Sample Extracted Fields:")
-        for k in ["productName", "mrp", "mrpRaw", "unitSalePrice", "netQuantity", "manufacturingDate", "expiryDate", "batchNumber", "fssaiLicense", "manufacturerAddress"]:
+        for k in ["productName", "mrp", "mrpRaw", "unitSalePrice", "netQuantity", "manufacturingDate", "expiryDate", "batchNumber", "manufacturerAddress"]:
             print(f"    - {k}: {v_parsed.get(k)}")
     else:
         print(f"  Raw Content Preview (truncated): {repr(v_content[:150])}")
@@ -125,7 +125,6 @@ for cfg in configurations:
         "expiryDate": "18/11/2020",
         "customerCare": "022-6691 6929, cs@parle.biz",
         "manufacturerAddress": "North Level Crossing, Vile Parle East, Mumbai, MH-400057",
-        "fssaiLicense": "10013022002253",
         "batchNumber": "RA 18A B",
         "countryOfOrigin": "India"
     }

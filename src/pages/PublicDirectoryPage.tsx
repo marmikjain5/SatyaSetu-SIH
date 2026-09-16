@@ -57,7 +57,6 @@ export const PublicDirectoryPage: React.FC = () => {
       product.title.toLowerCase().includes(q) ||
       product.brand.toLowerCase().includes(q) ||
       product.manufacturer.toLowerCase().includes(q) ||
-      (product.fssaiLicenseNumber && product.fssaiLicenseNumber.toLowerCase().includes(q)) ||
       (product.ingredientsList && product.ingredientsList.some((ing) => ing.toLowerCase().includes(q)));
 
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -210,7 +209,7 @@ export const PublicDirectoryPage: React.FC = () => {
             <div>
               <h3 className="text-base font-bold text-slate-800">No products matching your query</h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                Try adjusting your search terms, removing filters, or searching by generic brand name or FSSAI number.
+                Try adjusting your search terms, removing filters, or searching by generic brand name or product title.
               </p>
             </div>
             <Button
@@ -235,7 +234,7 @@ export const PublicDirectoryPage: React.FC = () => {
               <span>Mandatory Statutory Packaging Standards (Legal Metrology Rules, 2011)</span>
             </div>
             <p className="text-xs text-blue-800 leading-relaxed">
-              Every packaged commodity sold in India or on e-commerce marketplaces must clearly display MRP (inclusive of all taxes), Unit Sale Price, Name & Address of Manufacturer/Packer, Net Quantity, Country of Origin, Customer Care contact, and FSSAI License where applicable.
+              Every packaged commodity sold in India or on e-commerce marketplaces must clearly display MRP (inclusive of all taxes), Unit Sale Price, Name & Address of Manufacturer/Packer, Net Quantity, Country of Origin, and Customer Care contact details.
             </p>
           </div>
 

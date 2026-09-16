@@ -364,7 +364,7 @@ export const ManufacturerHygieneCertification: React.FC = () => {
                     Hygiene Assurance Certificate
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                    Self-Certified under FSSAI & Legal Metrology Hygiene Standards
+                    Self-Certified under Central & Legal Metrology Hygiene Standards
                   </p>
                 </div>
 
