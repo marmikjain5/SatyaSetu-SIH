@@ -54,7 +54,7 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden sm:overflow-y-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -67,13 +67,13 @@ export const Modal: React.FC<ModalProps> = ({
 
           {/* Dialog */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
-              'relative w-full rounded-xl overflow-hidden z-10 my-8 shadow-2xl transition-colors',
-              'bg-white border border-slate-200 text-slate-900 shadow-modal',
+              'relative w-full rounded-t-2xl sm:rounded-xl overflow-hidden z-10 shadow-2xl transition-colors max-h-[90vh] sm:max-h-[92vh] flex flex-col',
+              'bg-white border-t sm:border border-slate-200 text-slate-900 shadow-modal',
               'dark:bg-slate-900 dark:border-slate-800 dark:text-white',
               maxWidthClasses[maxWidth],
               className
@@ -82,7 +82,7 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Header */}
             <div
               className={cn(
-                'px-6 py-4 border-b flex items-center justify-between',
+                'px-4 sm:px-6 py-3.5 sm:py-4 border-b flex items-center justify-between shrink-0',
                 'border-slate-200/80 bg-slate-50/50',
                 'dark:border-slate-800 dark:bg-slate-950/80'
               )}
@@ -112,7 +112,7 @@ export const Modal: React.FC<ModalProps> = ({
               <button
                 onClick={onClose}
                 className={cn(
-                  'rounded-lg p-1.5 transition-colors',
+                  'rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors',
                   'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60',
                   'dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                 )}
@@ -125,7 +125,7 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Body */}
             <div
               className={cn(
-                'max-h-[calc(85vh-8rem)] overflow-y-auto p-5 sm:p-6 scrollbar-thin',
+                'flex-1 overflow-y-auto p-3 sm:p-6 scrollbar-thin',
                 'bg-white',
                 'dark:bg-slate-900 dark:text-white'
               )}

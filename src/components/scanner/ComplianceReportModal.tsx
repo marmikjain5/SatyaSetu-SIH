@@ -22,6 +22,7 @@ import {
   FileCode,
   Building,
   Edit3,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
@@ -51,6 +52,21 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
   const [activeTab, setActiveTab] = useState<'report' | 'customize'>('report');
   const [copiedHash, setCopiedHash] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Mobile accordion state (Executive Summary open by default)
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    summary: true,
+    products: false,
+    violations: false,
+    legal: false,
+    evidence: false,
+    recommendations: false,
+    signoff: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Inspector customization state
   const [inspectorName, setInspectorName] = useState(report.coverPage.inspectorName);
@@ -126,10 +142,11 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
   }[coverPage.overallStatus];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl max-h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-2 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative w-full max-w-5xl max-h-[94vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
         {/* ─── Modal Header ────────────────────────────────────────── */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/80">
+        {/* Desktop Header (>=sm) */}
+        <div className="hidden sm:flex px-6 py-4 border-b border-slate-200 dark:border-slate-800 items-center justify-between bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
               <FileText className="h-5 w-5" />
@@ -221,6 +238,70 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
             >
               <X className="h-5 w-5" />
             </button>
+          </div>
+        </div>
+
+        {/* Mobile Header (<sm) */}
+        <div className="sm:hidden px-3.5 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="h-7 w-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
+                <FileText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 truncate">
+                <h2 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  {isManufacturer ? 'Packaging Report' : 'Compliance Report'}
+                </h2>
+                <div className="font-mono text-[10px] text-slate-500 truncate">
+                  {report.reportId}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 rounded-lg p-0.5 flex-1">
+              <button
+                onClick={() => setActiveTab('report')}
+                className={cn(
+                  'flex-1 py-1 text-[11px] font-semibold rounded text-center transition-colors',
+                  activeTab === 'report'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                )}
+              >
+                Full Report
+              </button>
+              <button
+                onClick={() => setActiveTab('customize')}
+                className={cn(
+                  'flex-1 py-1 text-[11px] font-semibold rounded text-center transition-colors flex items-center justify-center gap-1',
+                  activeTab === 'customize'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                )}
+              >
+                <Edit3 className="h-2.5 w-2.5" />
+                <span>Sign-Off</span>
+              </button>
+            </div>
+
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleDownloadPdf}
+              disabled={isExporting}
+              className="h-7 text-xs px-2.5 bg-blue-600 hover:bg-blue-700 text-white gap-1 shrink-0 font-bold"
+            >
+              <Download className="h-3 w-3" />
+              <span>PDF</span>
+            </Button>
           </div>
         </div>
 
@@ -329,9 +410,13 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 </Button>
               </div>
             </form>
-          ) : isSessionReport ? (
-            /* ── Multi-Product Inspection Session Printable View ── */
-            <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
+          ) : (
+            <>
+              {/* Desktop Full Printable Government Dossier View (>=md) */}
+              <div className="hidden md:block">
+                {isSessionReport ? (
+                  /* ── Multi-Product Inspection Session Printable View ── */
+                  <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
               {/* Government Header Banner */}
               <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 text-center space-y-1">
                 <div className="inline-flex items-center gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest font-mono">
@@ -943,6 +1028,300 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               </div>
             </div>
           )}
+        </div>
+
+        {/* ─── Mobile Purpose-Built Accordion View (<md) ─────────── */}
+        <div className="block md:hidden space-y-3 pb-4">
+          {/* Compact Inspection Summary */}
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-slate-500 uppercase block">Inspection ID</span>
+                <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">{report.reportId}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-slate-500 block">Date</span>
+                <span className="text-xs font-medium text-slate-800 dark:text-slate-200">{coverPage.formattedDate}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700/60 text-center">
+              <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="text-[9px] uppercase text-slate-400 font-bold">Products</div>
+                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{report.auditedProducts?.length || 1}</div>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="text-[9px] uppercase text-slate-400 font-bold">Risk Tier</div>
+                <div className="text-xs font-bold text-amber-600 capitalize mt-0.5">{coverPage.riskTier ? coverPage.riskTier.toLowerCase() : 'Medium'}</div>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="text-[9px] uppercase text-slate-400 font-bold">Verdict</div>
+                <div className={cn("text-xs font-bold capitalize mt-0.5", coverPage.overallStatus === 'compliant' ? 'text-emerald-600' : 'text-red-600')}>
+                  {coverPage.overallStatus}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Accordion 1: Executive Summary (Open initially) */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('summary')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-blue-600" />
+                <span>Executive Summary</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.summary && "rotate-180")} />
+            </button>
+            {openSections.summary && (
+              <div className="p-3.5 space-y-3 text-xs border-t border-slate-200 dark:border-slate-800">
+                <div className="p-3 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/40">
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    {verdict.summaryRemarks || 'Statutory audit completed across Legal Metrology and FSSAI packaging norms.'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 font-mono">
+                  <div className="p-2 rounded bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block">Total Violations</span>
+                    <span className="font-bold text-red-600 text-sm">{ruleValidation.violationCount}</span>
+                  </div>
+                  <div className="p-2 rounded bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block">Penalty Exposure</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{verdict.statutoryPenaltyEstimate || '₹0'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 2: Products Audited */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('products')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-indigo-600" />
+                <span>Products Audited ({report.auditedProducts?.length || 1})</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.products && "rotate-180")} />
+            </button>
+            {openSections.products && (
+              <div className="p-3 space-y-2.5 border-t border-slate-200 dark:border-slate-800">
+                {report.auditedProducts && report.auditedProducts.length > 0 ? (
+                  report.auditedProducts.map((p, i) => (
+                    <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-bold text-xs text-slate-900 dark:text-white">{p.productName}</div>
+                        <span className={cn(
+                          "text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono",
+                          p.status === 'compliant' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                        )}>
+                          {p.status}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>{p.manufacturer} • {p.netQuantity}</span>
+                        <span className="font-mono font-bold">Score: {p.complianceScore}%</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <div className="font-bold text-xs text-slate-900 dark:text-white">{productInfo.productName || 'Audited Product'}</div>
+                    <div className="text-[11px] text-slate-500">
+                      Manufacturer: {productInfo.manufacturer || '—'} | Net: {productInfo.netQuantity || '—'} | MRP: {productInfo.mrp || '—'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 3: Violations */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('violations')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-red-600" />
+                <span>Violations ({ruleValidation.violationCount})</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.violations && "rotate-180")} />
+            </button>
+            {openSections.violations && (
+              <div className="p-3 space-y-2.5 border-t border-slate-200 dark:border-slate-800">
+                {(report.consolidatedViolations || []).length > 0 ? (
+                  report.consolidatedViolations!.map((v, i) => (
+                    <div key={i} className="p-3 bg-red-50/50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-red-800 dark:text-red-300 font-mono">{v.ruleCode}</span>
+                        <span className="font-mono text-[10px] text-red-600 font-bold">{v.penaltyRange}</span>
+                      </div>
+                      <p className="text-xs text-slate-800 dark:text-slate-200 font-medium">{v.ruleName}</p>
+                      <p className="text-[11px] text-red-700 dark:text-red-400 font-mono">{v.evidence}</p>
+                    </div>
+                  ))
+                ) : ruleValidation.violationCount > 0 ? (
+                  ruleValidation.auditTrail.filter((r) => r.status === 'fail').map((r, i) => (
+                    <div key={i} className="p-3 bg-red-50/50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-red-800 dark:text-red-300">{r.ruleName}</span>
+                        <span className="text-[9px] uppercase font-bold text-red-600 bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded font-mono">{r.severity}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400">{r.ruleDescription}</p>
+                      {r.evidence && (
+                        <p className="text-[10px] text-red-700 dark:text-red-400 font-mono">{r.evidence}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>All packaging declarations passed statutory compliance validation.</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 4: Legal References */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('legal')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Scale className="h-4 w-4 text-slate-700 dark:text-slate-300" />
+                <span>Legal References</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.legal && "rotate-180")} />
+            </button>
+            {openSections.legal && (
+              <div className="p-3.5 space-y-2 text-xs text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 leading-relaxed">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                  <strong className="block text-slate-900 dark:text-slate-100">Legal Metrology Act, 2009</strong>
+                  <span className="text-[11px] text-slate-500">Section 18 (Declarations on pre-packaged commodities) & Section 36(1) (Penalties for non-declaration).</span>
+                </div>
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                  <strong className="block text-slate-900 dark:text-slate-100">Legal Metrology (Packaged Commodities) Rules, 2011</strong>
+                  <span className="text-[11px] text-slate-500">Rule 6 (Mandatory declarations), Rule 8 (Minimum font heights), Rule 9 (Principal display panel), Rule 24.</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 5: Evidence */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('evidence')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Eye className="h-4 w-4 text-blue-600" />
+                <span>Evidence & Readability</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.evidence && "rotate-180")} />
+            </button>
+            {openSections.evidence && (
+              <div className="p-3.5 space-y-3 text-xs border-t border-slate-200 dark:border-slate-800">
+                {evidence.imageDataUrl && (
+                  <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-center p-2">
+                    <img src={evidence.imageDataUrl} alt="Inspection Evidence" className="max-h-48 object-contain rounded" />
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-mono">Font Height</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{readabilityAnalysis.summary.avgFontSizePt} pt</span>
+                  </div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-mono">Contrast</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{readabilityAnalysis.summary.avgContrastRatio}:1</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 6: Recommendations */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('recommendations')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <FileCheck className="h-4 w-4 text-emerald-600" />
+                <span>Recommendations</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.recommendations && "rotate-180")} />
+            </button>
+            {openSections.recommendations && (
+              <div className="p-3.5 space-y-2 text-xs border-t border-slate-200 dark:border-slate-800">
+                <ul className="space-y-1.5 list-disc pl-4 text-slate-700 dark:text-slate-300">
+                  {recommendations.correctiveActions.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+                <div className="pt-2 text-xs font-bold text-red-600 dark:text-red-400 border-t border-slate-100 dark:border-slate-800">
+                  Deadline: {verdict.recommendedActionDeadline}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 7: Sign-Off */}
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              type="button"
+              onClick={() => toggleSection('signoff')}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <UserCheck className="h-4 w-4 text-blue-600" />
+                <span>Sign-Off & Verification</span>
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", openSections.signoff && "rotate-180")} />
+            </button>
+            {openSections.signoff && (
+              <div className="p-3.5 space-y-2.5 text-xs border-t border-slate-200 dark:border-slate-800">
+                <div className="text-slate-800 dark:text-slate-200">
+                  <span className="font-bold">{coverPage.inspectorName}</span>
+                  <span className="text-slate-500 block text-[11px]">{coverPage.inspectorDesignation} • Badge: {coverPage.inspectorBadge}</span>
+                  <span className="text-slate-500 block text-[11px]">{coverPage.department} • {coverPage.jurisdiction}</span>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 font-mono text-[10px] break-all bg-slate-50 dark:bg-slate-800/60 p-2 rounded">
+                  <span className="text-slate-400 block font-sans text-[9px] uppercase font-bold">SHA-256 e-Sign Hash</span>
+                  <span className="text-slate-700 dark:text-slate-300">{digitalSignature.sha256Hash}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Download PDF button on mobile */}
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              onClick={handleDownloadPdf}
+              disabled={isExporting}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white min-h-[44px] font-bold text-xs gap-2 justify-center shadow-md"
+            >
+              <Download className="h-4 w-4" />
+              <span>{isExporting ? 'Generating Official PDF...' : 'Download Official PDF Report'}</span>
+            </Button>
+          </div>
+        </div>
+      </>
+    )}
 
         </div>
       </div>

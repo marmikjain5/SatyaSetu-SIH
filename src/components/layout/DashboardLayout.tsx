@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { MobileBottomNav } from './MobileBottomNav';
 import { CommandPalette } from './CommandPalette';
 import { GlobalScanNotification } from './GlobalScanNotification';
 import { useAuthStore } from '../../store/authStore';
@@ -12,6 +13,7 @@ export const DashboardLayout: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // Protected route check
@@ -57,26 +59,37 @@ export const DashboardLayout: React.FC = () => {
         />
       </div>
 
-      {/* Sidebar */}
+      {/* Sidebar (Desktop persistent + Mobile off-canvas drawer) */}
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* Main Content Area */}
+      {/* Main Content Area — Responsive Left Inset (0 on mobile, 64/18 on lg+) */}
       <div
-        className={`transition-all duration-300 flex flex-col min-h-screen relative z-10 ${
-          isSidebarCollapsed ? 'pl-18' : 'pl-64'
+        className={`transition-all duration-300 flex flex-col min-h-screen relative z-10 pl-0 ${
+          isSidebarCollapsed ? 'lg:pl-18' : 'lg:pl-64'
         }`}
       >
         {/* Topbar */}
-        <Topbar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
+        <Topbar
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        />
 
-        {/* Page View Viewport */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        {/* Page View Viewport with Bottom Navigation Spacing */}
+        <main className="flex-1 min-w-0 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
           <Outlet />
         </main>
       </div>
+
+      {/* Role-Aware Mobile Bottom Navigation Bar (Mobile / Tablet only) */}
+      <MobileBottomNav
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        isMobileMenuOpen={isMobileMenuOpen}
+      />
 
       {/* Global Command Palette */}
       <CommandPalette

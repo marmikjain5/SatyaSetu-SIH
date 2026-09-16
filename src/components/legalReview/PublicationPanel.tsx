@@ -101,7 +101,7 @@ export const PublicationPanel: React.FC<PublicationPanelProps> = ({
         )}
 
         {canApprove && (
-          <Button className="w-full gap-2" onClick={onApprove}>
+          <Button className="w-full gap-2 min-h-[44px]" onClick={onApprove}>
             <ShieldCheck className="h-4 w-4" />
             Approve for Publication
           </Button>

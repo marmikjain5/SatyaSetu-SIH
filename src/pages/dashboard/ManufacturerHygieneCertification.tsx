@@ -102,22 +102,46 @@ export const ManufacturerHygieneCertification: React.FC = () => {
   const needsRemediationCount = myAssessments.filter((a) => a.status === 'needs-remediation').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-purple-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 dark:border-indigo-800/60 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
-        <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            Factory Hygiene Self-Certification Portal
+      <div className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-purple-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 dark:border-indigo-800/60 p-4 sm:p-6 shadow-xs">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+            Factory Hygiene Proof
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed hidden sm:block">
             Record a live video of your factory floor, production area or storage zone for hygiene assessment. Passing assessments generate a self-certification proof that can be submitted to regulators for compliance verification.
           </p>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+      {/* Status Summary (Mobile: compact 2-col, Desktop: 3-col) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-3 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+            Certified
+          </span>
+          <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono my-0.5 sm:my-1.5">
+            {certifiedCount}
+          </div>
+          <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+            Passed AI Check
+          </span>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-3 sm:p-5 flex flex-col justify-between shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-mono font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+            Needs Action
+          </span>
+          <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 font-mono my-0.5 sm:my-1.5">
+            {needsRemediationCount}
+          </div>
+          <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+            Remediation Req.
+          </span>
+        </div>
+
+        <div className="hidden sm:flex rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex-col justify-between shadow-xs">
           <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Total Assessments
           </span>
@@ -128,33 +152,9 @@ export const ManufacturerHygieneCertification: React.FC = () => {
             Factory Videos Inspected
           </span>
         </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-            Certified
-          </span>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono my-1.5">
-            {certifiedCount}
-          </div>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            Passed AI Hygiene Check
-          </span>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-          <span className="text-[11px] font-mono font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-            Needs Remediation
-          </span>
-          <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 font-mono my-1.5">
-            {needsRemediationCount}
-          </div>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            High Risk — Action Required
-          </span>
-        </div>
       </div>
 
-      {/* Live Factory Video Recording Section — LIVE VIDEO ONLY */}
+      {/* Live Factory Video Recording Section — LIVE VIDEO ONLY (Primary CTA) */}
       <LiveFactoryVideoRecorder
         onVideoRecorded={handleVideoRecorded}
         onReset={handleReset}
@@ -416,7 +416,59 @@ export const ManufacturerHygieneCertification: React.FC = () => {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile Stacked Cards (<sm) */}
+          <div className="block sm:hidden divide-y divide-slate-100 dark:divide-slate-800">
+            {myAssessments.map((assessment) => (
+              <div key={assessment.id} className="p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">
+                    {assessment.id}
+                  </span>
+                  {assessment.status === 'certified' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-700/60">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Certified
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-700/60">
+                      <AlertTriangle className="h-3 w-3" />
+                      Needs Action
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {new Date(assessment.submittedAt).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      {assessment.findingsCount} issue(s)
+                    </span>
+                    <span
+                      className={cn(
+                        'font-bold font-mono text-xs',
+                        assessment.riskScore <= 30
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : assessment.riskScore <= 60
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-red-600 dark:text-red-400'
+                      )}
+                    >
+                      {assessment.riskScore}/100
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table (>=sm) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-[10px]">
                 <tr>

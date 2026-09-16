@@ -71,15 +71,15 @@ export const ZoneMonitoringGrid: React.FC<ZoneMonitoringGridProps> = ({ zones, o
             className={cn('cursor-pointer', onSelectZone && 'hover:border-blue-300')}
             onClick={() => onSelectZone?.(zone)}
           >
-            <CardHeader>
-              <div className="flex items-center gap-2">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 sm:p-6">
+              <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="text-sm">{zone.name}</CardTitle>
                 <Badge variant={cfg.variant} size="sm" dot>{cfg.label}</Badge>
                 {zone.activeIssues > 0 && (
                   <Badge variant="danger" size="sm">{zone.activeIssues} issue{zone.activeIssues > 1 ? 's' : ''}</Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <span className={cn(
                   'text-lg font-bold',
                   zone.score >= 80 ? 'text-emerald-700' : zone.score >= 60 ? 'text-amber-700' : 'text-red-700'

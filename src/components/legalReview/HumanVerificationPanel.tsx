@@ -106,23 +106,21 @@ export const HumanVerificationPanel: React.FC<HumanVerificationPanelProps> = ({
 
         {/* Action Buttons */}
         {isPending && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <Button
               variant="success"
-              size="sm"
-              className="gap-1.5 text-xs"
+              className="gap-1.5 text-xs min-h-[44px] px-4 w-full sm:w-auto font-semibold"
               onClick={onVerify}
             >
-              <CheckCircle2 className="h-3.5 w-3.5" />
+              <CheckCircle2 className="h-4 w-4" />
               Verify Finding
             </Button>
             <Button
               variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs text-red-600 border-red-200 hover:bg-red-50"
+              className="gap-1.5 text-xs min-h-[44px] px-4 w-full sm:w-auto text-red-600 border-red-200 hover:bg-red-50 font-semibold"
               onClick={onReject}
             >
-              <XCircle className="h-3.5 w-3.5" />
+              <XCircle className="h-4 w-4" />
               Reject Finding
             </Button>
           </div>

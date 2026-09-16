@@ -179,7 +179,7 @@ export const ViolationsLedger: React.FC = () => {
             onClick={() => handleOpenNotice(violation)}
           >
             <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0 space-y-2">
 
                   {/* ── Product Name (PRIMARY IDENTIFIER) ── */}
@@ -240,18 +240,20 @@ export const ViolationsLedger: React.FC = () => {
                 </div>
 
                 {/* ── Right Column: badges + action ── */}
-                <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <StatusBadge status={violation.status} />
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400">Est. Penalty</div>
-                    <div className="text-sm font-bold font-mono text-red-700">
-                      {formatCurrency(violation.penaltyEstimate)}
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 flex-shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 w-full sm:w-auto">
+                  <div className="flex items-center sm:flex-col items-start sm:items-end gap-2">
+                    <StatusBadge status={violation.status} />
+                    <div className="text-left sm:text-right">
+                      <div className="text-[10px] text-slate-400">Est. Penalty</div>
+                      <div className="text-sm font-bold font-mono text-red-700">
+                        {formatCurrency(violation.penaltyEstimate)}
+                      </div>
                     </div>
                   </div>
                   <Button
                     variant={violation.status === 'Notice Issued' ? 'outline' : 'danger'}
                     size="sm"
-                    className="h-7 text-xs gap-1.5 mt-1"
+                    className="min-h-[40px] sm:h-7 text-xs gap-1.5 mt-1 px-3"
                     onClick={(e) => handleOpenNotice(violation, e)}
                   >
                     <FileCheck2 className="h-3.5 w-3.5" />
