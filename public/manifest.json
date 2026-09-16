@@ -1,0 +1,19 @@
+{
+  "name": "SatyaDrishti — Legal Metrology & Compliance Grid",
+  "short_name": "SatyaDrishti",
+  "description": "National Legal Metrology & E-Commerce Compliance Intelligence Platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0F172A",
+  "background_color": "#F8FAFC",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

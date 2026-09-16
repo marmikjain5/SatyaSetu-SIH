@@ -92,7 +92,7 @@ export const ComplianceResultsPanel: React.FC = () => {
   return (
     <Card className="h-full flex flex-col border border-slate-200/90 shadow-subtle bg-white">
       {/* 1. Header with Shield Icon & Top-Right Overall Status Badge */}
-      <CardHeader className="px-5 py-4 border-b border-slate-100 flex flex-row items-start justify-between gap-4">
+      <CardHeader className="px-4 sm:px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
         <div className="flex items-start gap-3">
           <div className="h-8 w-8 rounded-lg border border-blue-200 bg-blue-50/60 flex items-center justify-center shrink-0 mt-0.5">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
@@ -111,7 +111,7 @@ export const ComplianceResultsPanel: React.FC = () => {
         </div>
 
         {/* Top-Right Status Badge & Report Action */}
-        <div className="flex items-center gap-2 shrink-0 self-start">
+        <div className="flex items-center flex-wrap gap-2 shrink-0 self-start">
           <Button
             variant="outline"
             size="sm"
@@ -122,9 +122,9 @@ export const ComplianceResultsPanel: React.FC = () => {
               setActiveReport(rep);
               setIsReportModalOpen(true);
             }}
-            className="text-xs h-7 gap-1 border-slate-200"
+            className="text-xs h-8 sm:h-7 min-h-[36px] sm:min-h-[28px] gap-1 border-slate-200"
           >
-            <FileCheck className="h-3 w-3 text-blue-600" />
+            <FileCheck className="h-3.5 w-3.5 text-blue-600" />
             <span>Generate Report</span>
           </Button>
 
@@ -156,7 +156,7 @@ export const ComplianceResultsPanel: React.FC = () => {
               </span>
             </div>
             {/* Blue Progress Bar under score */}
-            <div className="h-1.5 w-36 bg-slate-100 rounded-full overflow-hidden mt-2">
+            <div className="h-1.5 w-full sm:w-36 bg-slate-100 rounded-full overflow-hidden mt-2">
               <div
                 className="h-full bg-blue-600 rounded-full transition-all duration-500"
                 style={{ width: `${result.complianceScore}%` }}
@@ -165,7 +165,7 @@ export const ComplianceResultsPanel: React.FC = () => {
           </div>
 
           {/* Right: 4 Metrics with subtle vertical dividers */}
-          <div className="grid grid-cols-4 divide-x divide-slate-100 text-center flex-1 max-w-sm sm:pl-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-0 sm:divide-x divide-slate-100 text-center flex-1 max-w-full sm:max-w-sm sm:pl-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
             <div className="px-2">
               <span className="text-lg font-bold font-mono text-red-600 block leading-none">
                 {result.violationCount}

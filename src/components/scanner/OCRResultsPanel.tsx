@@ -246,7 +246,7 @@ export const OCRResultsPanel: React.FC = () => {
   return (
     <Card className="h-full flex flex-col border border-slate-200/90 shadow-subtle bg-white">
       {/* 1. Header with Shield Icon & Top-Right Compliance Score Box */}
-      <CardHeader className="px-5 py-4 border-b border-slate-100 flex flex-row items-start justify-between gap-4">
+      <CardHeader className="px-4 sm:px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
         <div className="flex items-start gap-3">
           <div className="h-8 w-8 rounded-lg border border-blue-200 bg-blue-50/60 flex items-center justify-center shrink-0 mt-0.5">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
@@ -265,7 +265,7 @@ export const OCRResultsPanel: React.FC = () => {
         </div>
 
         {/* Top-right prominent Compliance Score box from reference design */}
-        <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-2 text-center shrink-0 min-w-[100px]">
+        <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-2 text-center shrink-0 self-start min-w-[100px]">
           <span className="text-xl font-extrabold font-mono text-blue-600 leading-none block">
             {data.confidence}%
           </span>
@@ -334,7 +334,7 @@ export const OCRResultsPanel: React.FC = () => {
         )}
 
         {/* 2. Top Summary Statistics Bar (Single clean bordered card with icons) */}
-        <div className="border border-slate-200/90 rounded-xl p-3 bg-white grid grid-cols-5 divide-x divide-slate-100 text-center shadow-xs">
+        <div className="border border-slate-200/90 rounded-xl p-3 bg-white grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-0 sm:divide-x divide-slate-100 text-center shadow-xs">
 
           <div className="px-1 sm:px-2">
             <div className="flex items-center justify-center gap-1">
@@ -368,7 +368,7 @@ export const OCRResultsPanel: React.FC = () => {
             <span className="text-[11px] text-slate-500 font-medium block mt-0.5">N/A</span>
           </div>
 
-          <div className="px-1 sm:px-2">
+          <div className="px-1 sm:px-2 col-span-2 sm:col-span-1 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
             <span className="text-base font-bold font-mono text-slate-900 block">{totalCount}</span>
             <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Total Rules</span>
           </div>

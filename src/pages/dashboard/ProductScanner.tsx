@@ -12,6 +12,7 @@ import {
   Download,
   FileCheck,
   Factory,
+  ChevronDown,
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
 import { useReportStore } from '../../store/reportStore';
@@ -53,6 +54,8 @@ export const ProductScanner: React.FC = () => {
   const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [showMobileDeepAnalytics, setShowMobileDeepAnalytics] = useState(false);
+  const [showMobileScanHistory, setShowMobileScanHistory] = useState(false);
 
   const handleGenerateSessionReport = (options?: Partial<ReportGenerationOptions>) => {
     const validScans = scans.filter((s) => s.status === 'completed' && s.extractedData);
@@ -179,8 +182,23 @@ export const ProductScanner: React.FC = () => {
       </div>
 
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stat Cards - Compact 3-metric banner on mobile, 4 full cards on tablet/desktop */}
+      <div className="grid grid-cols-3 gap-2 sm:hidden">
+        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-center shadow-xs">
+          <div className="text-[10px] uppercase font-bold text-slate-400">Scans</div>
+          <div className="text-base font-extrabold text-slate-800 dark:text-slate-100">{totalScans}</div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-center shadow-xs">
+          <div className="text-[10px] uppercase font-bold text-slate-400">Accuracy</div>
+          <div className="text-base font-extrabold text-emerald-600">{avgConfidence > 0 ? `${avgConfidence}%` : '—'}</div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-center shadow-xs">
+          <div className="text-[10px] uppercase font-bold text-slate-400">Queued</div>
+          <div className="text-base font-extrabold text-blue-600">{uploadedImages.length}</div>
+        </div>
+      </div>
+
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={isManufacturer ? 'Products Audited' : 'Total Scans'}
           value={totalScans}
@@ -211,45 +229,44 @@ export const ProductScanner: React.FC = () => {
         />
       </div>
 
-      {/* Active Inspection Session Banner (Feature: All products in session treated as 1 unified inspection) */}
+      {/* Active Inspection Session Banner */}
       {completedScans.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className={`h-10 w-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-xs ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
-              <FileText className="h-5 w-5" />
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/60 p-3.5 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-xs ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-[10px] font-bold font-mono uppercase text-white px-2 py-0.5 rounded ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
-                  {isManufacturer ? 'Pre-Market Compliance Audit' : 'Unified Inspection Session'}
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <span className={`text-[9px] sm:text-[10px] font-bold font-mono uppercase text-white px-2 py-0.5 rounded ${isManufacturer ? 'bg-indigo-600' : 'bg-blue-600'}`}>
+                  {isManufacturer ? 'Pre-Market Audit' : 'Unified Session'}
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
-                  {completedScans.length}{' '}
-                  {completedScans.length === 1 ? 'Product Audited' : 'Products Audited in Current Sweep'}
+                  {completedScans.length} {completedScans.length === 1 ? 'Product' : 'Products'}
                 </span>
                 {sessionTotalViolations > 0 ? (
-                  <span className="text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
-                    {sessionTotalViolations} {isManufacturer ? 'Defects Flagged' : 'Violations Flagged'}
+                  <span className="text-[9px] sm:text-[10px] font-bold font-mono uppercase bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 px-1.5 py-0.5 rounded border border-red-200 dark:border-red-900">
+                    {sessionTotalViolations} Flagged
                   </span>
                 ) : (
-                  <span className="text-[10px] font-bold font-mono uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900">
-                    All Declarations Compliant
+                  <span className="text-[9px] sm:text-[10px] font-bold font-mono uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-900">
+                    Compliant
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2 sm:line-clamp-none">
                 {isManufacturer
-                  ? 'All packaging labels verified during this audit session are compiled into a comprehensive pre-market Compliance Report with regulatory declaration breakdown.'
-                  : 'All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation matrix and compounding fine ledger.'}
+                  ? 'All packaging labels verified during this audit session are compiled into a statutory pre-market Compliance Report.'
+                  : 'All commodities scanned during this session are aggregated into a single statutory inspection record with consolidated violation ledger.'}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
             <Button
               variant="primary"
               size="sm"
               onClick={() => handleGenerateSessionReport()}
-              className={`text-xs gap-1.5 shadow-xs font-bold ${
+              className={`w-full sm:w-auto text-xs gap-1.5 shadow-xs font-bold justify-center min-h-[38px] ${
                 isManufacturer
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -258,8 +275,8 @@ export const ProductScanner: React.FC = () => {
               <FileCheck className="h-3.5 w-3.5" />
               <span>
                 {isManufacturer
-                  ? `Generate Compliance Report (${completedScans.length})`
-                  : `Generate Inspection Report (${completedScans.length})`}
+                  ? `Generate Report (${completedScans.length})`
+                  : `Generate Report (${completedScans.length})`}
               </span>
             </Button>
           </div>
@@ -267,26 +284,27 @@ export const ProductScanner: React.FC = () => {
       )}
 
       {/* Capture/Upload Section */}
-      {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
-
+      <div className="min-w-0">
+        {isManufacturer ? <LiveProductCapture /> : <ImageUploader />}
+      </div>
 
       {/* Image Previews + Actions */}
       <ImagePreviewPanel />
 
       {/* Action Bar */}
       {uploadedImages.length > 0 && (
-        <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 shadow-subtle px-5 py-3.5">
-          <p className="text-xs text-slate-600">
-            <span className="font-semibold text-slate-900">{uploadedImages.length}</span>{' '}
-            {uploadedImages.length === 1 ? 'image' : 'images'} ready for OCR processing
+        <div className="flex items-center justify-between bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle px-4 py-3">
+          <p className="text-xs text-slate-600 dark:text-slate-400 min-w-0 truncate mr-2">
+            <span className="font-semibold text-slate-900 dark:text-white">{uploadedImages.length}</span>{' '}
+            {uploadedImages.length === 1 ? 'image' : 'images'} queued
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
               size="sm"
               onClick={clearImages}
               disabled={isProcessing}
-              className="text-xs gap-1.5"
+              className="text-xs gap-1 min-h-[36px]"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Clear</span>
@@ -297,7 +315,7 @@ export const ProductScanner: React.FC = () => {
               onClick={startScan}
               isLoading={isProcessing}
               disabled={isProcessing}
-              className="text-xs gap-1.5"
+              className="text-xs gap-1.5 font-semibold min-h-[36px]"
             >
               <Play className="h-3.5 w-3.5" />
               <span>{isProcessing ? 'Scanning...' : 'Start Scan'}</span>
@@ -309,7 +327,7 @@ export const ProductScanner: React.FC = () => {
       {/* Processing Status */}
       <OCRProcessingCard />
 
-      {/* Side-by-Side: Statutory Declarations (Left) & Compliance Validation (Right) */}
+      {/* Side-by-Side: Statutory Declarations & Compliance Validation */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
         {/* OCR Extraction Results */}
         <OCRResultsPanel />
@@ -318,26 +336,70 @@ export const ProductScanner: React.FC = () => {
         <ComplianceResultsPanel />
       </div>
 
-      {/* Feature 4: Font Size & Optical Readability Analysis Panel */}
-      {currentScan?.status === 'completed' && <ReadabilityAnalysisPanel />}
-
-      {/* RAG Discrepancy Mapping & Complaint Verification Panel */}
-      {currentScan?.status === 'completed' && <ScanCorrelationCard />}
-
-      {/* Two-Column: Rule Audit Trail (Left ~75%) & Recommendations (Right ~25%) */}
-      {currentScan?.status === 'completed' && currentScan?.extractedData && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-8 xl:col-span-9 h-full">
-            <RuleAuditView />
+      {/* Mobile Progressive Disclosure for Secondary Panels */}
+      <div className="block lg:hidden space-y-4">
+        {currentScan?.status === 'completed' && (
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+            <button
+              onClick={() => setShowMobileDeepAnalytics(!showMobileDeepAnalytics)}
+              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-blue-600" />
+                <span>Readability & Rule Audit ({showMobileDeepAnalytics ? 'Hide' : 'Show'})</span>
+              </span>
+              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileDeepAnalytics ? 'rotate-180' : ''}`} />
+            </button>
+            {showMobileDeepAnalytics && (
+              <div className="p-3 space-y-4 border-t border-slate-200 dark:border-slate-800">
+                <ReadabilityAnalysisPanel />
+                <ScanCorrelationCard />
+                {currentScan?.extractedData && (
+                  <div className="space-y-4">
+                    <RuleAuditView />
+                    <RecommendationsCard />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <div className="lg:col-span-4 xl:col-span-3 h-full">
-            <RecommendationsCard />
-          </div>
+        )}
+
+        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+          <button
+            onClick={() => setShowMobileScanHistory(!showMobileScanHistory)}
+            className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <History className="h-4 w-4 text-indigo-600" />
+              <span>Scan History Archive ({scans.length})</span>
+            </span>
+            <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileScanHistory ? 'rotate-180' : ''}`} />
+          </button>
+          {showMobileScanHistory && (
+            <div className="p-2 border-t border-slate-200 dark:border-slate-800">
+              <ScanHistoryTable />
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Scan History */}
-      <ScanHistoryTable />
+      {/* Desktop View: Full secondary panels */}
+      <div className="hidden lg:block space-y-6">
+        {currentScan?.status === 'completed' && <ReadabilityAnalysisPanel />}
+        {currentScan?.status === 'completed' && <ScanCorrelationCard />}
+        {currentScan?.status === 'completed' && currentScan?.extractedData && (
+          <div className="grid grid-cols-12 gap-6 items-stretch">
+            <div className="col-span-8 xl:col-span-9 h-full">
+              <RuleAuditView />
+            </div>
+            <div className="col-span-4 xl:col-span-3 h-full">
+              <RecommendationsCard />
+            </div>
+          </div>
+        )}
+        <ScanHistoryTable />
+      </div>
 
       {/* Feature 5: Compliance Inspection Report Modal */}
       {activeReport && (

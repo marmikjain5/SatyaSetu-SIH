@@ -22,7 +22,7 @@ import { Badge } from '../../components/ui/Badge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency, cn } from '../../lib/utils';
 
 export const ProductsIntelligence: React.FC = () => {
   const { products, selectedProduct, setSelectedProduct, issueNotice } = useComplianceStore();
@@ -143,7 +143,8 @@ export const ProductsIntelligence: React.FC = () => {
           </CardTitle>
         </CardHeader>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
               <tr>
@@ -228,6 +229,88 @@ export const ProductsIntelligence: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Stacked Cards View */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {filteredProducts.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400">
+              No products found matching the criteria.
+            </div>
+          ) : (
+            filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => handleOpenDetail(product)}
+                className="p-4 space-y-3 active:bg-slate-50 transition-colors cursor-pointer"
+              >
+                {/* Header: Thumbnail + Title + Status */}
+                <div className="flex items-start gap-3">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-14 h-14 rounded-lg object-cover border border-slate-200 bg-slate-100 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1 mb-0.5">
+                      <span className="text-[11px] font-mono font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                        {product.platform}
+                      </span>
+                      <StatusBadge status={product.status} />
+                    </div>
+                    <h3 className="text-xs font-bold text-slate-900 line-clamp-2 leading-tight">
+                      {product.title}
+                    </h3>
+                    <p className="text-[10px] font-mono text-slate-500 mt-0.5 truncate">
+                      {product.brand} • SKU: {product.sku}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Metrics Row */}
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-lg p-2.5 text-center border border-slate-100">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-medium block">Price</span>
+                    <span className="text-xs font-bold font-mono text-slate-900 block mt-0.5">
+                      {formatCurrency(product.listedPrice)}
+                    </span>
+                    <span className="text-[9px] text-slate-400 line-through font-mono">
+                      {formatCurrency(product.mrp)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-medium block">OCR Match</span>
+                    <span className="text-xs font-bold font-mono text-emerald-700 block mt-0.5">
+                      {product.ocrConfidence}%
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-medium block">Compliance</span>
+                    <div className="flex items-center justify-center gap-1 mt-0.5">
+                      <span className={cn(
+                        'text-xs font-extrabold font-mono',
+                        product.complianceScore >= 80 ? 'text-emerald-700' : product.complianceScore >= 50 ? 'text-amber-700' : 'text-red-700'
+                      )}>
+                        {product.complianceScore}
+                      </span>
+                      <span className="text-[10px] text-slate-400">/100</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inspect Action */}
+                <Button
+                  variant="outline"
+                  className="w-full min-h-[44px] text-xs font-semibold text-blue-600 border-blue-200 hover:bg-blue-50 justify-center gap-1.5"
+                >
+                  <span>Inspect Packaging & Declarations</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
         </div>
       </Card>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, Loader2, AlertTriangle, ShieldAlert, CheckCircle2, PlusCircle, Sparkles, CheckSquare, AlertCircle } from 'lucide-react';
+import { UploadCloud, Loader2, AlertTriangle, ShieldAlert, CheckCircle2, PlusCircle, Sparkles, CheckSquare, AlertCircle, ChevronDown } from 'lucide-react';
 import { useHygieneStore } from '../../store/hygieneStore';
 import { HygieneViolation } from '../../types/hygiene';
 import { visualInspectionService, DeterministicInspectionResult } from '../../services/visualInspectionService';
@@ -16,6 +16,7 @@ export const FactoryImageInspection: React.FC = () => {
   const [analysisStatus, setAnalysisStatus] = useState<string>('');
   const [result, setResult] = useState<DeterministicInspectionResult | null>(null);
   const [createdViolations, setCreatedViolations] = useState<Record<string, HygieneViolation>>({});
+  const [showObservations, setShowObservations] = useState(false);
 
   const { factories, addViolation } = useHygieneStore();
 
@@ -97,10 +98,10 @@ export const FactoryImageInspection: React.FC = () => {
         <CardContent>
           {!imageUrl ? (
             <div
-              className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-12 text-center hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 sm:p-12 text-center hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <UploadCloud className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+              <UploadCloud className="h-9 w-9 sm:h-10 sm:w-10 text-slate-400 mx-auto mb-3" />
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                 Upload Factory Image
               </h3>
@@ -109,6 +110,7 @@ export const FactoryImageInspection: React.FC = () => {
               </p>
               <Button
                 variant="outline"
+                className="min-h-[44px] px-5"
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
@@ -267,7 +269,7 @@ export const FactoryImageInspection: React.FC = () => {
           <div className="lg:col-span-2">
             <Card className="h-full">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
                       AI Visual Inspection
@@ -285,19 +287,19 @@ export const FactoryImageInspection: React.FC = () => {
                           : 'primary'
                     }
                     size="md"
-                    className="uppercase font-bold tracking-wider"
+                    className="uppercase font-bold tracking-wider self-start sm:self-auto"
                   >
                     Severity: {result.severity}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 space-y-5">
+              <CardContent className="p-4 sm:p-6 space-y-5">
                 {/* Title & Description */}
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-start sm:items-center gap-2 mb-2">
                     <ShieldAlert
                       className={cn(
-                        'h-5 w-5 shrink-0',
+                        'h-5 w-5 shrink-0 mt-0.5 sm:mt-0',
                         result.severity === 'critical'
                           ? 'text-red-600'
                           : result.severity === 'high'
@@ -309,26 +311,40 @@ export const FactoryImageInspection: React.FC = () => {
                       {result.title}
                     </h3>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed sm:pl-7">
                     {result.description}
                   </p>
                 </div>
 
-                {/* Observations List */}
+                {/* Observations List (Collapsible on mobile, always visible on desktop) */}
                 {result.observations && result.observations.length > 0 && (
-                  <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 border border-slate-200 dark:border-slate-800 space-y-2">
-                    <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider block flex items-center gap-1.5">
-                      <CheckSquare className="h-3.5 w-3.5 text-blue-500" />
-                      Observations:
-                    </span>
-                    <ul className="space-y-1.5 pl-1">
-                      {result.observations.map((obs, idx) => (
-                        <li key={idx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2">
-                          <span className="text-blue-500 font-bold">•</span>
-                          <span>{obs}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setShowObservations(!showObservations)}
+                      className="w-full flex sm:hidden items-center justify-between p-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <CheckSquare className="h-3.5 w-3.5 text-blue-500" />
+                        <span>Observations ({result.observations.length})</span>
+                      </span>
+                      <ChevronDown className={cn('h-4 w-4 text-slate-400 transition-transform duration-200', showObservations && 'rotate-180')} />
+                    </button>
+                    
+                    <div className={cn('p-4 space-y-2', !showObservations && 'hidden sm:block')}>
+                      <span className="hidden sm:flex text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider items-center gap-1.5">
+                        <CheckSquare className="h-3.5 w-3.5 text-blue-500" />
+                        Observations:
+                      </span>
+                      <ul className="space-y-1.5 pl-1">
+                        {result.observations.map((obs, idx) => (
+                          <li key={idx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 break-words">
+                            <span className="text-blue-500 font-bold shrink-0">•</span>
+                            <span>{obs}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 )}
 
@@ -338,7 +354,7 @@ export const FactoryImageInspection: React.FC = () => {
                     <AlertCircle className="h-3.5 w-3.5" />
                     Risk
                   </span>
-                  <p className="text-xs text-amber-900 dark:text-amber-200 font-medium">
+                  <p className="text-xs text-amber-900 dark:text-amber-200 font-medium break-words">
                     {result.risk}
                   </p>
                 </div>
@@ -348,7 +364,7 @@ export const FactoryImageInspection: React.FC = () => {
                   <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1 block">
                     Recommendation
                   </span>
-                  <p className="text-xs text-blue-900 dark:text-blue-200">
+                  <p className="text-xs text-blue-900 dark:text-blue-200 break-words">
                     {result.recommendation}
                   </p>
                 </div>
@@ -356,18 +372,17 @@ export const FactoryImageInspection: React.FC = () => {
                 {/* Action Row */}
                 <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
                   {createdViolations[result.finding.id] ? (
-                    <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 min-h-[44px]">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
                       Violation Logged to Official Ledger
                     </span>
                   ) : (
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="text-xs"
+                      className="text-xs min-h-[44px] px-4 w-full sm:w-auto"
                       onClick={() => handleCreateViolation(result.finding)}
                     >
-                      <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+                      <PlusCircle className="h-4 w-4 mr-1.5 shrink-0" />
                       Create Violation
                     </Button>
                   )}

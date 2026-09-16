@@ -56,25 +56,25 @@ export const FactoryList: React.FC<FactoryListProps> = ({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6">
         <CardTitle>Factory Overview</CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <input
               type="text"
               placeholder="Search factories..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="h-8 pl-8 pr-3 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 w-48"
+              className="h-10 sm:h-8 pl-8 pr-3 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 w-full sm:w-48"
             />
           </div>
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value as HygieneStatus | 'all')}
-            className="h-8 px-2.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+            className="h-10 sm:h-8 px-2.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 w-full sm:w-auto"
           >
             <option value="all">All Status</option>
             <option value="compliant">Compliant</option>
@@ -96,52 +96,55 @@ export const FactoryList: React.FC<FactoryListProps> = ({
               return (
                 <div
                   key={factory.id}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50/80 transition-colors cursor-pointer group"
                   onClick={() => onSelectFactory(factory)}
                 >
-                  {/* Score Ring */}
-                  <div className="shrink-0 relative h-12 w-12">
-                    <svg className="h-12 w-12 -rotate-90" viewBox="0 0 48 48">
-                      <circle cx="24" cy="24" r="20" fill="none" stroke="#e2e8f0" strokeWidth="4" />
-                      <circle
-                        cx="24" cy="24" r="20" fill="none"
-                        stroke={factory.overallScore >= 80 ? '#10b981' : factory.overallScore >= 60 ? '#f59e0b' : '#ef4444'}
-                        strokeWidth="4" strokeLinecap="round"
-                        strokeDasharray={`${(factory.overallScore / 100) * 125.6} 125.6`}
-                      />
-                    </svg>
-                    <span className={cn('absolute inset-0 flex items-center justify-center text-xs font-bold', getScoreColor(factory.overallScore))}>
-                      {factory.overallScore}
-                    </span>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900 truncate">{factory.name}</span>
-                      <Badge variant={cfg.variant} size="sm" dot>{cfg.label}</Badge>
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {factory.city}, {factory.state}
-                      </span>
-                      <span>{factory.category}</span>
-                    </div>
-                    {/* Score bar */}
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-xs">
-                        <div
-                          className={cn('h-full rounded-full transition-all', getScoreBarColor(factory.overallScore))}
-                          style={{ width: `${factory.overallScore}%` }}
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    {/* Score Ring */}
+                    <div className="shrink-0 relative h-12 w-12">
+                      <svg className="h-12 w-12 -rotate-90" viewBox="0 0 48 48">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="#e2e8f0" strokeWidth="4" />
+                        <circle
+                          cx="24" cy="24" r="20" fill="none"
+                          stroke={factory.overallScore >= 80 ? '#10b981' : factory.overallScore >= 60 ? '#f59e0b' : '#ef4444'}
+                          strokeWidth="4" strokeLinecap="round"
+                          strokeDasharray={`${(factory.overallScore / 100) * 125.6} 125.6`}
                         />
+                      </svg>
+                      <span className={cn('absolute inset-0 flex items-center justify-center text-xs font-bold', getScoreColor(factory.overallScore))}>
+                        {factory.overallScore}
+                      </span>
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-slate-900 truncate">{factory.name}</span>
+                        <Badge variant={cfg.variant} size="sm" dot>{cfg.label}</Badge>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">{factory.overallScore}/100</span>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {factory.city}, {factory.state}
+                        </span>
+                        <span>{factory.category}</span>
+                      </div>
+
+                      {/* Score bar */}
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-xs">
+                          <div
+                            className={cn('h-full rounded-full transition-all', getScoreBarColor(factory.overallScore))}
+                            style={{ width: `${factory.overallScore}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono">{factory.overallScore}/100</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Metrics */}
-                  <div className="hidden md:flex items-center gap-6 text-xs text-slate-600 shrink-0">
+                  <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 text-xs text-slate-600 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0">
                     <div className="text-center">
                       <div className="font-bold text-slate-900">{factory.activeAlerts}</div>
                       <div className="text-[10px] text-slate-400 uppercase">Alerts</div>
@@ -163,8 +166,7 @@ export const FactoryList: React.FC<FactoryListProps> = ({
                   {onScheduleInspection && (
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="shrink-0 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 font-semibold"
+                      className="w-full sm:w-auto shrink-0 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 font-semibold min-h-[44px] px-3"
                       onClick={(e) => {
                         e.stopPropagation();
                         onScheduleInspection(factory);
@@ -176,7 +178,7 @@ export const FactoryList: React.FC<FactoryListProps> = ({
                   )}
 
                   {/* Action */}
-                  <Button variant="ghost" size="icon" className="shrink-0 opacity-50 group-hover:opacity-100">
+                  <Button variant="ghost" size="icon" className="hidden sm:flex shrink-0 opacity-50 group-hover:opacity-100">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>

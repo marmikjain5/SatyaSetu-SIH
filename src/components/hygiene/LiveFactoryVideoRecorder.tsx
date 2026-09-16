@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Video, Play, Square, RefreshCw, X, AlertCircle, Sparkles } from 'lucide-react';
+import { Video, Play, Square, RefreshCw, X, AlertCircle, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 
@@ -24,6 +24,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
   const [recordingTime, setRecordingTime] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [showTunnelHelp, setShowTunnelHelp] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -79,11 +80,26 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
     setCameraError(null);
     setIsInitializing(true);
 
+    // 1. Insecure context detection
+    if (
+      typeof window !== 'undefined' &&
+      !window.isSecureContext &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    ) {
+      setCameraError('Camera requires a secure connection. Open SatyaDrishti using HTTPS on your phone.');
+      setIsInitializing(false);
+      setRecorderState('idle');
+      return;
+    }
+
+    // 2. Browser mediaDevices check
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setCameraError(
-        'Camera API is not supported or requires a secure context (HTTPS or localhost). If testing on a mobile device over HTTP, please enable insecure origins in browser flags or use HTTPS.'
+        'Camera access unavailable. Mobile browsers require HTTPS for camera access. Open SatyaDrishti using an HTTPS tunnel or localhost.'
       );
       setIsInitializing(false);
+      setRecorderState('idle');
       return;
     }
 
@@ -116,7 +132,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
         setCameraError('No camera found on this device.');
       } else {
-        setCameraError(`Unable to access camera: ${err.message || 'Unknown error'}`);
+        setCameraError(`Camera access unavailable: ${err.message || 'Unknown error'}. Mobile browsers require HTTPS.`);
       }
     }
   };
@@ -224,19 +240,19 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium text-center sm:text-left">
                 Live factory video recording ready for AI hygiene verification.
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onReset}
                   disabled={isAnalyzing}
-                  className="w-full sm:w-auto text-xs"
+                  className="w-full sm:w-auto text-xs min-h-[44px] px-4"
                 >
-                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  <RefreshCw className="h-4 w-4 mr-1.5" />
                   Re-record Video
                 </Button>
 
@@ -244,7 +260,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
                   variant="primary"
                   onClick={onRunAssessment}
                   disabled={isAnalyzing}
-                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-2 min-w-[200px]"
+                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-2 min-h-[44px] px-6 min-w-[200px]"
                 >
                   {isAnalyzing ? (
                     <>
@@ -263,27 +279,27 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
           </div>
         ) : recorderState === 'idle' ? (
           /* State 2: Initial Idle State — ONE Action [ Record Live Video ] */
-          <div className="flex flex-col items-center justify-center text-center p-8 rounded-xl border-2 border-dashed border-indigo-300 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-4">
+          <div className="flex flex-col items-center justify-center text-center p-5 sm:p-8 rounded-2xl border-2 border-dashed border-indigo-300 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-3">
             <div className="h-14 w-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs">
               <Video className="h-7 w-7" />
             </div>
 
-            <div className="max-w-md space-y-1.5">
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Live Factory Hygiene Inspection
+            <div className="max-w-md space-y-1">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                Factory Hygiene Proof
               </h2>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Record a live video of your factory floor, production area or storage zone for hygiene assessment.
+                Record a short walkthrough of your production/storage area.
               </p>
             </div>
 
             {/* ONE Primary Action Button */}
-            <div className="pt-2">
+            <div className="pt-1 w-full sm:w-auto">
               <Button
                 variant="primary"
                 onClick={handleStartCamera}
                 disabled={isInitializing}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 shadow-sm text-xs gap-2"
+                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 shadow-md text-xs sm:text-sm gap-2 min-h-[44px] justify-center rounded-xl"
               >
                 {isInitializing ? (
                   <>
@@ -293,16 +309,20 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
                 ) : (
                   <>
                     <Video className="h-4 w-4" />
-                    <span>Record Live Video</span>
+                    <span>Record Video</span>
                   </>
                 )}
               </Button>
             </div>
+
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Camera access requires HTTPS on mobile.
+            </p>
           </div>
         ) : (
           /* State 3: Live Camera Viewfinder & Recording */
           <div className="space-y-4">
-            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-lg aspect-video max-h-[460px] flex items-center justify-center mx-auto">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-lg aspect-video min-h-[240px] max-h-[50vh] flex items-center justify-center mx-auto">
               <video
                 ref={videoRef}
                 autoPlay
@@ -312,13 +332,13 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
               />
 
               {/* Viewfinder Target Framing Overlay */}
-              <div className="absolute inset-8 pointer-events-none border border-white/20 rounded-xl flex flex-col justify-between p-3">
+              <div className="absolute inset-4 sm:inset-8 pointer-events-none border border-white/20 rounded-xl flex flex-col justify-between p-3">
                 <div className="flex justify-between">
                   <div className="w-5 h-5 border-t-2 border-l-2 border-indigo-400"></div>
                   <div className="w-5 h-5 border-t-2 border-r-2 border-indigo-400"></div>
                 </div>
-                <div className="text-center">
-                  <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-xs text-[11px] font-mono text-white/90">
+                <div className="text-center px-2">
+                  <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-xs text-[10px] sm:text-[11px] font-mono text-white/90">
                     Scan Factory Floor, Machinery & Storage Areas
                   </span>
                 </div>
@@ -330,7 +350,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
 
               {/* Live / Recording Indicator + Timer */}
               {recorderState === 'recording' ? (
-                <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-mono font-bold shadow-md animate-pulse">
+                <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-600 text-white text-xs font-mono font-bold shadow-md animate-pulse">
                   <span className="h-2.5 w-2.5 rounded-full bg-white"></span>
                   <span>REC {formatTimer(recordingTime)}</span>
                 </div>
@@ -348,9 +368,8 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
                 <>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={handleCancel}
-                    className="text-xs gap-1.5"
+                    className="text-xs gap-1.5 min-h-[44px] px-5"
                   >
                     <X className="h-4 w-4" />
                     <span>Cancel</span>
@@ -359,7 +378,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
                   <Button
                     variant="primary"
                     onClick={handleStartRecording}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs gap-2 px-6 py-2 shadow-md"
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs gap-2 min-h-[44px] px-6 shadow-md"
                   >
                     <Play className="h-4 w-4 fill-white" />
                     <span>Start Recording</span>
@@ -371,7 +390,7 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
                 <Button
                   variant="primary"
                   onClick={handleStopRecording}
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs gap-2 px-8 py-2.5 shadow-lg animate-pulse"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs gap-2 min-h-[48px] px-8 shadow-lg animate-pulse"
                 >
                   <Square className="h-4 w-4 fill-white" />
                   <span>Stop Recording ({formatTimer(recordingTime)})</span>
@@ -381,13 +400,44 @@ export const LiveFactoryVideoRecorder: React.FC<LiveFactoryVideoRecorderProps> =
           </div>
         )}
 
-        {/* Camera Error Alert */}
+        {/* Camera Error Alert — Shown only after failure */}
         {cameraError && (
-          <div className="flex items-start gap-2.5 mt-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 text-xs text-red-700 dark:text-red-300">
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
-            <div>
-              <div className="font-semibold">Camera Access Notice</div>
-              <div className="mt-0.5">{cameraError}</div>
+          <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 p-3.5 text-xs text-red-700 dark:text-red-300 space-y-2 mt-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-0.5">
+                <div className="font-bold">Camera access unavailable</div>
+                <div className="leading-relaxed">Mobile browsers require HTTPS for camera access. Use an HTTPS deployment/tunnel to continue.</div>
+              </div>
+            </div>
+
+            {/* Collapsible HTTPS Tunneling Helper */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowTunnelHelp(!showTunnelHelp)}
+                className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-400 hover:underline"
+              >
+                <span>How to enable camera (HTTPS Tunnel)</span>
+                {showTunnelHelp ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+
+              {showTunnelHelp && (
+                <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded-lg border border-red-200 dark:border-red-900/40 text-[11px] space-y-2 text-slate-700 dark:text-slate-300 font-sans">
+                  <p>
+                    Mobile browsers mandate a secure connection (HTTPS) for hardware video stream recording:
+                  </p>
+                  <div className="bg-slate-100 dark:bg-slate-950 p-2 rounded font-mono text-[10px] space-y-1 text-slate-800 dark:text-slate-200">
+                    <div># Option A: Cloudflare Tunnel</div>
+                    <div className="text-blue-600 dark:text-blue-400 font-bold">cloudflared tunnel --url http://localhost:3000</div>
+                    <div className="pt-1"># Option B: ngrok</div>
+                    <div className="text-blue-600 dark:text-blue-400 font-bold">ngrok http 3000</div>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px]">
+                    Open the generated HTTPS link on your phone to record live factory proof.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
