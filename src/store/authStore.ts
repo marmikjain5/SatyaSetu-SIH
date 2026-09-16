@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { AuthState, User, UserRole } from '../types/auth';
 
 export interface PortalConfig {
-  id: 'consumer' | 'inspector' | 'manufacturer' | 'admin';
+  id: 'consumer' | 'inspector' | 'admin';
   name: string;
   portalTitle: string;
   badgeLabel: string;
@@ -51,28 +51,9 @@ export const DEMO_PORTAL_CONFIGS: Record<string, PortalConfig> = {
       'Optical OCR Packaging Label Scanner',
       'Violation Ledger & Evidence Repository',
       'Bengaluru Manufacturer Satellite Map & Risk Ranking',
-      'Factory Hygiene Camera Surveillance',
+      'Statutory Inspection Directives & SCN Dispatch',
     ],
     accessNotice: 'Authorized for field enforcement in Bengaluru City Circle (BBMP). Badge: LM-BLR-4001.',
-  },
-  manufacturer: {
-    id: 'manufacturer',
-    name: 'Manufacturer & Brand Portal',
-    portalTitle: 'Statutory FMCG Compliance Cell',
-    badgeLabel: 'Brand Officer',
-    badgeVariant: 'secondary',
-    tagline: 'Brand compliance management, Show Cause Notice replies & packaging declarations',
-    description: 'Enterprise gateway for FMCG brands and manufacturers to audit catalog compliance, review received notices, and verify production facility hygiene.',
-    demoEmail: 'manufacturer@demo.gov.in',
-    demoPassword: 'manuf123',
-    role: 'manufacturer',
-    allowedFeatures: [
-      'Product Packaging Declaration Verification',
-      'Statutory Notice Receipt & Response',
-      'Factory Hygiene & Production Facility Scores',
-      'Consumer Grievance Response Tracking',
-    ],
-    accessNotice: 'Authorized for brand representatives to inspect compliance health and submit statutory replies.',
   },
   admin: {
     id: 'admin',
@@ -126,16 +107,6 @@ export const DEMO_USERS: Record<string, User> = {
     badgeNumber: 'NAT-CV-5912',
     lastLogin: 'Yesterday, 04:30 PM',
   },
-  'manufacturer@demo.gov.in': {
-    id: 'USR-MFG-501',
-    name: 'Vikramaditya Singhania',
-    email: 'manufacturer@demo.gov.in',
-    role: 'manufacturer',
-    department: 'Apex FMCG Enterprises / Statutory Affairs',
-    designation: 'Chief Compliance & Quality Officer',
-    badgeNumber: 'MFG-IND-9402',
-    lastLogin: 'Today, 09:15 AM',
-  },
 };
 
 const STORAGE_KEY = 'satyadrishti_auth_session';
@@ -167,8 +138,6 @@ export const useAuthStore = create<AuthState>((set) => {
             ? 'admin'
             : normalizedEmail.includes('inspect')
             ? 'inspector'
-            : normalizedEmail.includes('manuf') || normalizedEmail.includes('mfg')
-            ? 'manufacturer'
             : 'consumer'
         );
         matchedUser = {
@@ -180,15 +149,11 @@ export const useAuthStore = create<AuthState>((set) => {
             ? 'CCPA Directorate'
             : role === 'inspector'
             ? 'Legal Metrology Division'
-            : role === 'manufacturer'
-            ? 'Manufacturer Compliance Cell'
             : 'Consumer Vigilance Portal',
           designation: role === 'admin'
             ? 'Compliance Admin'
             : role === 'inspector'
             ? 'Field Inspector'
-            : role === 'manufacturer'
-            ? 'Brand Compliance Officer'
             : 'Registered Citizen',
           badgeNumber: `SAT-${Math.floor(1000 + Math.random() * 9000)}`,
           lastLogin: 'Just now',

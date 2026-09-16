@@ -353,7 +353,7 @@ function buildSurpriseInspectionHtmlEmail(
         <div class="meta-item"><span class="meta-label">Registration No:</span> ${options.registrationNumber}</div>
         <div class="meta-item"><span class="meta-label">Facility Location:</span> ${options.location}, ${options.city}, ${options.state}</div>
         <div class="meta-item" style="margin-top: 8px;">
-          <span class="meta-label">Hygiene Health Score:</span>
+          <span class="meta-label">Compliance Score:</span>
           <span class="score-badge">${options.overallScore}/100 (${options.complianceStatus.toUpperCase()})</span>
         </div>
         <div class="meta-item" style="margin-top: 4px;">
@@ -364,7 +364,7 @@ function buildSurpriseInspectionHtmlEmail(
 
       <!-- ── Google Maps Navigation Box ── -->
       <div class="maps-box">
-        <div style="font-weight: bold; color: #15803d; font-size: 13px;">📍 FACTORY LOCATION & NAVIGATION</div>
+        <div style="font-weight: bold; color: #15803d; font-size: 13px;">📍 FACILITY LOCATION & NAVIGATION</div>
         <div style="font-size: 12px; color: #166534; margin-top: 4px;">
           <strong>Target Address:</strong> ${options.location}, ${options.city}, ${options.state}
         </div>
@@ -379,19 +379,19 @@ function buildSurpriseInspectionHtmlEmail(
       <div class="directive-box">
         <div style="font-weight: bold; color: #b45309; margin-bottom: 6px;">INSPECTION SCOPE & MANDATE:</div>
         <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #78350f;">
-          <li>Inspect production zone cleanroom environments and worker PPE compliance.</li>
-          <li>Verify temperature and moisture telemetry parameters across raw material bays.</li>
-          <li>Audit equipment sanitation logs and pest control barriers.</li>
-          <li>Inspect product packaging compliance and net quantity accuracy.</li>
+          <li>Inspect packaged commodities for mandatory Legal Metrology (PCR 2011) declarations.</li>
+          <li>Audit net quantity declarations and check for weight/volume discrepancies.</li>
+          <li>Verify Maximum Retail Price (MRP) declarations and check for dual pricing or smudging.</li>
+          <li>Verify manufacturer, packer, and importer address and contact declarations.</li>
         </ul>
         ${options.directiveNotes ? `<p style="margin-top: 10px; font-size: 12px; font-style: italic; color: #92400e;"><strong>Special Notes:</strong> ${options.directiveNotes}</p>` : ''}
       </div>
 
-      <p>Please log inspection findings, high-resolution photographic evidence, and formal zone scores back into the SatyaSetu Inspector Portal immediately upon conclusion of the audit.</p>
+      <p>Please log inspection findings, high-resolution photographic evidence, and formal verification records back into the SatyaSetu Inspector Portal immediately upon conclusion of the audit.</p>
 
       <div style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 12px; color: #475569;">
         <strong>Authorized Officer Dispatch Command</strong><br>
-        SatyaSetu Automated Surveillance & Hygiene Enforcement Engine<br>
+        SatyaSetu Automated Surveillance & Legal Metrology Enforcement Engine<br>
         <em>Government of India</em>
       </div>
     </div>

@@ -2,7 +2,7 @@
  * AI Legal Review Agent — Type Definitions
  *
  * Self-contained types for the Legal Review module.
- * Isolated from existing compliance/hygiene types.
+ * Independent and modular.
  */
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low';
