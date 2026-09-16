@@ -208,7 +208,6 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
       expiryDate: declarations.expiryDate.value,
       batchNumber: declarations.batchNumber.value,
       customerCare: declarations.customerCare.value,
-      fssaiLicense: declarations.fssaiLicense.value,
       barcode: declarations.barcode.value,
       rawText: bestRawText,
       confidence: overallConfidence,
@@ -312,7 +311,7 @@ export class HybridVisionBackendProvider implements OCRProvider {
         const keys: DeclarationFieldKey[] = [
           'productName', 'mrp', 'unitSalePrice', 'netQuantity', 'manufacturer',
           'address', 'importer', 'countryOfOrigin', 'packingDate', 'manufacturingDate',
-          'expiryDate', 'batchNumber', 'customerCare', 'fssaiLicense', 'barcode'
+          'expiryDate', 'batchNumber', 'customerCare', 'barcode'
         ];
 
         const declarations: Record<string, any> = {};
@@ -412,7 +411,6 @@ export class HybridVisionBackendProvider implements OCRProvider {
           expiryDate: declarations.expiryDate?.value || '',
           batchNumber: declarations.batchNumber?.value || '',
           customerCare: declarations.customerCare?.value || '',
-          fssaiLicense: declarations.fssaiLicense?.value || '',
           barcode: declarations.barcode?.value || '',
           rawText: rawOcr,
           confidence: overallConfidence,

@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Package,
   ScanLine,
-  Factory,
   ShieldAlert,
   MessageSquareWarning,
   Building2,
@@ -56,11 +55,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         icon: ShieldAlert,
         badge: openViolationsCount > 0 ? openViolationsCount : undefined,
       },
-    ];
-  } else if (userRole === 'manufacturer') {
-    roleItems = [
-      { to: '/dashboard/scanner', label: 'Packaging', icon: ScanLine },
-      { to: '/dashboard/factory-certification', label: 'Hygiene', icon: Factory },
     ];
   } else if (userRole === 'consumer') {
     roleItems = [

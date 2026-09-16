@@ -23,7 +23,6 @@ const FIELD_CATEGORIES: Record<DeclarationFieldKey, DeclarationFieldCategory> = 
   expiryDate: 'manufacturing',
   batchNumber: 'traceability',
   customerCare: 'consumer_redressal',
-  fssaiLicense: 'statutory_license',
   barcode: 'traceability',
 };
 
@@ -44,7 +43,6 @@ function createMockDeclarations(
     'expiryDate',
     'batchNumber',
     'customerCare',
-    'fssaiLicense',
     'barcode',
   ];
 
@@ -96,7 +94,6 @@ function createFieldConfidence(
     expiryDate: scores.expiryDate || 96,
     batchNumber: scores.batchNumber || 95,
     customerCare: scores.customerCare || 98,
-    fssaiLicense: scores.fssaiLicense || 99,
     barcode: scores.barcode || 99,
   };
 }
@@ -115,7 +112,6 @@ const parachuteDeclarations = createMockDeclarations({
   expiryDate: { value: '06/2026', confidence: 97, isPresent: true },
   batchNumber: { value: 'BN-PAR-2025-08', confidence: 95, isPresent: true },
   customerCare: { value: '1800-222-248 / csc@marico.com', confidence: 98, isPresent: true },
-  fssaiLicense: { value: '10012042000270', confidence: 99, isPresent: true },
   barcode: { value: '8901088001015', confidence: 99, isPresent: true },
 });
 
@@ -133,9 +129,8 @@ const parachuteExtracted: ExtractedProductData = {
   expiryDate: '06/2026',
   batchNumber: 'BN-PAR-2025-08',
   customerCare: '1800-222-248 / csc@marico.com',
-  fssaiLicense: '10012042000270',
   barcode: '8901088001015',
-  rawText: 'Parachute 100% Pure Coconut Oil 500ml. MRP Rs 195.00 (incl. of all taxes). USP Rs 0.39 / ml. Mfd: 01/2025. Best Before 18 Months. Batch: BN-PAR-2025-08. FSSAI Lic. No. 10012042000270. Marico Limited, Kanjikode, Palakkad, Kerala 678621. Customer Care: 1800-222-248 / csc@marico.com.',
+  rawText: 'Parachute 100% Pure Coconut Oil 500ml. MRP Rs 195.00 (incl. of all taxes). USP Rs 0.39 / ml. Mfd: 01/2025. Best Before 18 Months. Batch: BN-PAR-2025-08. Marico Limited, Kanjikode, Palakkad, Kerala 678621. Customer Care: 1800-222-248 / csc@marico.com.',
   confidence: 98.6,
   fieldConfidence: createFieldConfidence({
     productName: 99,
@@ -143,7 +138,6 @@ const parachuteExtracted: ExtractedProductData = {
     unitSalePrice: 97,
     netQuantity: 99,
     manufacturer: 98,
-    fssaiLicense: 99,
   }),
   declarations: parachuteDeclarations,
   compliancePayload: {
@@ -206,7 +200,6 @@ const niveaExtracted: ExtractedProductData = {
   expiryDate: '12/2027',
   batchNumber: 'NV-BM-2025-44',
   customerCare: '+91 22 6248 7999 / care@nivea.in',
-  fssaiLicense: '',
   barcode: '4005808801923',
   rawText: 'Nivea Nourishing Body Milk Lotion 400ml. 48h Deep Moisture. MRP Rs 499.00 incl. of all taxes. USP Rs 1.25/ml. Mfg: 01/2025. Use Before: 12/2027. Batch: NV-BM-2025-44. Nivea India Pvt Ltd, Sanand, Ahmedabad, Gujarat 382170. Care: care@nivea.in.',
   confidence: 97.4,
@@ -261,7 +254,6 @@ const nescafeDeclarations = createMockDeclarations({
   expiryDate: { value: '12/2026', confidence: 97, isPresent: true },
   batchNumber: { value: 'NES-2024-912', confidence: 95, isPresent: true },
   customerCare: { value: '1800-103-1947 / wecare@in.nestle.com', confidence: 98, isPresent: true },
-  fssaiLicense: { value: '10012011000168', confidence: 99, isPresent: true },
   barcode: { value: '8901058852722', confidence: 98, isPresent: true },
 });
 
@@ -279,9 +271,8 @@ const nescafeExtracted: ExtractedProductData = {
   expiryDate: '12/2026',
   batchNumber: 'NES-2024-912',
   customerCare: '1800-103-1947 / wecare@in.nestle.com',
-  fssaiLicense: '10012011000168',
   barcode: '8901058852722',
-  rawText: 'Nescafé Classic 100% Pure Instant Coffee 100g. MRP Rs 360.00 incl. of all taxes. USP Rs 3.60/g. Pkd: 12/2024. Best Before 24 Months. Batch: NES-2024-912. FSSAI 10012011000168. Nestlé India Limited, Nanjangud, Mysuru, Karnataka 571301. wecare@in.nestle.com.',
+  rawText: 'Nescafé Classic 100% Pure Instant Coffee 100g. MRP Rs 360.00 incl. of all taxes. USP Rs 3.60/g. Pkd: 12/2024. Best Before 24 Months. Batch: NES-2024-912. Nestlé India Limited, Nanjangud, Mysuru, Karnataka 571301. wecare@in.nestle.com.',
   confidence: 98.1,
   fieldConfidence: createFieldConfidence({
     productName: 98,
@@ -289,7 +280,6 @@ const nescafeExtracted: ExtractedProductData = {
     unitSalePrice: 97,
     netQuantity: 98,
     manufacturer: 98,
-    fssaiLicense: 99,
   }),
   declarations: nescafeDeclarations,
   compliancePayload: {
@@ -335,7 +325,6 @@ const bournvitaDeclarations = createMockDeclarations({
   expiryDate: { value: '10/2025', confidence: 96, isPresent: true },
   batchNumber: { value: 'BV-2024-88', confidence: 94, isPresent: true },
   customerCare: { value: '1800-22-7080 / consumer.care@mdlz.com', confidence: 97, isPresent: true },
-  fssaiLicense: { value: '10014022002711', confidence: 98, isPresent: true },
   barcode: { value: '8901233024018', confidence: 98, isPresent: true },
 });
 
@@ -353,9 +342,8 @@ const bournvitaExtracted: ExtractedProductData = {
   expiryDate: '10/2025',
   batchNumber: 'BV-2024-88',
   customerCare: '1800-22-7080 / consumer.care@mdlz.com',
-  fssaiLicense: '10014022002711',
   barcode: '8901233024018',
-  rawText: 'Cadbury Bournvita 500g Pouch. MRP Rs 240.00 (incl. of all taxes). USP Rs 0.48/g. Pkd: 10/2024. Expiry: 10/2025. Batch: BV-2024-88. FSSAI Lic. No. 10014022002711. Mondelez India Foods Pvt Ltd, Induri, Pune - 410507. Customer Care: 1800-22-7080.',
+  rawText: 'Cadbury Bournvita 500g Pouch. MRP Rs 240.00 (incl. of all taxes). USP Rs 0.48/g. Pkd: 10/2024. Expiry: 10/2025. Batch: BV-2024-88. Mondelez India Foods Pvt Ltd, Induri, Pune - 410507. Customer Care: 1800-22-7080.',
   confidence: 96.5,
   fieldConfidence: createFieldConfidence({
     productName: 97,
@@ -363,7 +351,6 @@ const bournvitaExtracted: ExtractedProductData = {
     unitSalePrice: 95,
     netQuantity: 98,
     manufacturer: 96,
-    fssaiLicense: 98,
   }),
   declarations: bournvitaDeclarations,
   compliancePayload: {
@@ -582,7 +569,7 @@ export const MOCK_VALIDATION_RESULTS: Record<string, ComplianceValidationResult>
     notApplicableCount: 0,
     missingDeclarations: [],
     audit: createPassingAudits(nescafeExtracted),
-    recommendations: ['FSSAI 14-digit registration and Legal Metrology pricing clauses fully validated.'],
+    recommendations: ['Legal Metrology packaging and pricing clauses fully validated.'],
   },
   'scan-mfg-004': {
     id: 'val-scan-mfg-004',
@@ -662,7 +649,7 @@ export const SAMPLE_PACKAGE_OPTIONS: SamplePackageOption[] = [
     name: 'Parachute Coconut Oil (500ml Bottle)',
     category: 'Edible Oils / Personal Care',
     imagePath: '/products/parachute_coconut_oil.jpg',
-    description: '100% Pure Coconut Oil bottle label with MRP, USP, Mfg Date & FSSAI',
+    description: '100% Pure Coconut Oil bottle label with MRP, USP, and Mfg Date',
   },
   {
     id: 'sample-nivea',
@@ -676,7 +663,7 @@ export const SAMPLE_PACKAGE_OPTIONS: SamplePackageOption[] = [
     name: 'Nescafé Classic Instant Coffee (100g Jar)',
     category: 'Packaged Foods & Beverages',
     imagePath: '/products/nescafe_classic.jpg',
-    description: '100g Jar with 14-digit FSSAI license, MRP per gram and Best Before',
+    description: '100g Jar with MRP per gram, batch stamp and Best Before',
   },
   {
     id: 'sample-bournvita',

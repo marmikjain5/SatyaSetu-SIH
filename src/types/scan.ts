@@ -3,7 +3,6 @@
  *
  * Comprehensive data schema for Statutory Packaged Commodity Declarations under:
  * - Legal Metrology (Packaged Commodities) Rules, 2011 (as amended 2017 & 2021)
- * - Food Safety and Standards (Packaging and Labelling) Regulations, 2011
  * - Bureau of Indian Standards (BIS) & GS1 India Barcoding Framework
  *
  * Consumed by: Declaration Detection Engine, Rule Validation Engine, Font Size Analyzer,
@@ -37,7 +36,6 @@ export type DeclarationFieldKey =
   | 'expiryDate'
   | 'batchNumber'
   | 'customerCare'
-  | 'fssaiLicense'
   | 'barcode';
 
 /** Bounding Box coordinates for evidence mapping */
@@ -125,7 +123,6 @@ export interface ExtractedProductData {
   expiryDate: string;
   batchNumber: string;
   customerCare: string;
-  fssaiLicense: string;
   barcode: string;
   rawText: string;
   confidence: number;

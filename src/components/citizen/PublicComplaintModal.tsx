@@ -71,7 +71,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
         brand: product.brand,
         platform: product.platform,
         productUrl: product.productUrl || '',
-        description: `Discrepancy noticed on ${product.title} (MRP: ₹${product.mrp}, Net Qty: ${product.netWeight}, FSSAI: ${product.fssaiLicenseNumber || 'N/A'}): Printed MRP vs store invoice discrepancy.`,
+        description: `Discrepancy noticed on ${product.title} (MRP: ₹${product.mrp}, Net Qty: ${product.netWeight}, Manufacturer: ${product.manufacturer || 'N/A'}): Printed MRP vs store invoice discrepancy.`,
       }));
     }
   }, [product, user]);
@@ -292,7 +292,7 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Product</span>
               <span className="font-bold text-slate-900 block text-xs">{product.title}</span>
               <span className="text-[11px] text-slate-500 font-mono">
-                {product.brand} • FSSAI: {product.fssaiLicenseNumber || 'Registered Business'}
+                {product.brand} • Manufacturer: {product.manufacturer || 'Registered Business'}
               </span>
             </div>
             <Badge variant="primary" size="sm" className="font-mono text-[10px]">

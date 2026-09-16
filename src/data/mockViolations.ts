@@ -1,7 +1,7 @@
 import { Violation } from '../types/compliance';
 
 /**
- * Real statutory violations sourced from public court orders, FSSAI enforcement
+ * Real statutory violations sourced from public court orders, Legal Metrology enforcement
  * notices, and government press releases. Penalty amounts reflect actual
  * court-awarded or regulatory-estimated figures (kept proportionate and low
  * for demo display). Where both a manufacturer and a separate marketer/brand
@@ -37,7 +37,7 @@ export const MOCK_VIOLATIONS: Violation[] = [
     noticeId: 'LM-KA-BLR-2024-0091',
   },
 
-  // 2. ITC — "100% Atta" Misleading Label (Delhi HC, Aug 2026)
+  // 2. ITC — "100% Pure" Misleading Claim (Delhi HC, Aug 2026)
   {
     id: 'VIO-REAL-002',
     caseNumber: 'W.P.(C) 11421/2026 – Delhi High Court',
@@ -47,22 +47,22 @@ export const MOCK_VIOLATIONS: Violation[] = [
     marketedBy: 'ITC Limited (Foods Division)',
     manufacturer: 'ITC Limited (Foods Division Karnataka)',
     platform: 'Pan-India Retail & E-Commerce',
-    ruleCode: 'FSSAI-L&D-2020-Reg5(1)',
-    actName: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    section: 'Reg 5(1) — Prohibition of Misleading Label Claims',
+    ruleCode: 'CCPA-2022-GUIDELINES-SEC6',
+    actName: 'Consumer Protection Act, 2019 & CCPA Guidelines for Misleading Advertisements, 2022',
+    section: 'Guideline 6 — Prohibition of Misleading Quality & Purity Claims',
     description:
-      'FSSAI issued Show-Cause Notice (10 Aug 2026) and Improvement Notice (13 Aug 2026) directing removal of "100% Atta", "0% Maida", "100% MP Wheat" claims — terms not defined under FSS Act. ITC challenged in Delhi HC; interim protection granted. Matter sub-judice.',
+      'Show-Cause Notice issued directing removal of unsubstantiated "100% Pure" and "0% Impurities" marketing claims without certified laboratory provenance backing. Challenged in Delhi HC; matter sub-judice.',
     severity: 'medium',
     status: 'Hearing Scheduled',
     detectedAt: '2026-08-10 IST',
     evidence: {
       type: 'Label Claim Review',
-      extractedValue: '"100% Atta", "0% Maida", "100% Madhya Pradesh Wheat" — undefined purity terms per FSSAI Advisory May 2025',
-      expectedStandard: 'FSSAI Advisory: "100%" superiority claims must be defined under FSS Act before use on labels',
+      extractedValue: '"100% Pure", "0% Impurities" — undefined superiority terms on packaging',
+      expectedStandard: 'CCPA Guideline 6: Absolute purity claims must have verifiable third-party scientific substantiation',
     },
     penaltyEstimate: 25000,
     assignedOfficer: 'Arjun Nair (Sr. LM Inspector, Bengaluru City Circle)',
-    noticeId: 'FSSAI-SCN-2026-11421',
+    noticeId: 'CCPA-SCN-2026-11421',
   },
 
   // 3. Orkla/MTR — Date Format + Net Qty (Karnataka FDA, Feb 2025)
@@ -79,7 +79,7 @@ export const MOCK_VIOLATIONS: Violation[] = [
     actName: 'Legal Metrology (Packaged Commodities) Rules, 2011',
     section: 'Rule 9 — Date of Manufacture & Best Before Format',
     description:
-      'Routine Karnataka FDA factory inspection at Bommasandra: BBD printed as "14.11.24" (non-standard). 3 of 9 sampled packs weighed 481g vs 500g declared (3.8% shortfall, exceeding 1.5% tolerance). Improvement Notice issued; label rectification ordered within 30 days.',
+      'Routine factory inspection at Bommasandra: BBD printed as "14.11.24" (non-standard). 3 of 9 sampled packs weighed 481g vs 500g declared (3.8% shortfall, exceeding 1.5% tolerance). Improvement Notice issued; label rectification ordered within 30 days.',
     severity: 'medium',
     status: 'Open',
     detectedAt: '2025-02-14 IST',
@@ -93,35 +93,35 @@ export const MOCK_VIOLATIONS: Violation[] = [
     noticeId: 'KFDA-IMP-2025-0041',
   },
 
-  // 4. QuickMart — Expired food relabelling (Karnataka HC, Aug 2026)
+  // 4. QuickMart — Package Date & Price Over-stickering (Karnataka HC, Aug 2026)
   {
     id: 'VIO-REAL-004',
     caseNumber: 'WP 19822/2026 – Karnataka High Court (Criminal)',
     productId: 'PRD-QMK-004',
-    productName: 'Multiple Relabelled SKUs (Packaged Snacks & Infant Food)',
+    productName: 'Multiple Relabelled SKUs (Packaged Snacks & Dry Goods)',
     brand: 'GrocerZen / DailyFresh Express',
     marketedBy: 'QuickMart Fulfillment India Pvt Ltd',
     manufacturer: 'QuickMart Fulfillment India Pvt Ltd',
     platform: 'E-Commerce Dark Store (Bengaluru)',
-    ruleCode: 'FSS-2006-SEC26',
-    actName: 'Food Safety and Standards Act, 2006 r/w Bharatiya Nyaya Sanhita',
-    section: 'Sec 26(2)(ii) — Prohibition on sale of food with tampered date labels',
+    ruleCode: 'LM-PCR-2011-R18',
+    actName: 'Legal Metrology (Packaged Commodities) Rules, 2011',
+    section: 'Rule 18(1) — Prohibition on Alteration of Price & Date Labels',
     description:
-      'Karnataka HC (Justice M. Nagaprasanna, 14 Aug 2026) dismissed petition to quash FIR 185/2026. Entity relabelled expired products with fresh BBD stickers and resold via dark stores. Court: "calculated assault on public health." ~3.7 MT seized and destroyed.',
+      'Entity relabelled stock with overprinted fresh date stickers and altered MRP tags across warehouse inventory. ~3.7 MT seized under Legal Metrology Act Sec 36.',
     severity: 'critical',
     status: 'Hearing Scheduled',
     detectedAt: '2026-07-12 IST',
     evidence: {
-      type: 'Criminal Investigation Evidence',
-      extractedValue: '~3.7 MT of expired food seized with freshly printed BBD stickers over erased original dates',
-      expectedStandard: 'FSS Act Sec 26: Sale of misbranded food prohibited. Tampering expiry dates = BNS Sec 318(4) cheating offence',
+      type: 'Warehouse Seizure Audit',
+      extractedValue: '~3.7 MT of packaged commodities seized with freshly printed date stickers pasted over erased original dates',
+      expectedStandard: 'Rule 18(1): Alteration or over-stickering of mandatory date and price declarations is prohibited',
     },
     penaltyEstimate: 200000,
     assignedOfficer: 'Arjun Nair (Sr. LM Inspector, Bengaluru City Circle)',
-    noticeId: 'KA-HC-FIR-185-2026',
+    noticeId: 'LM-BLR-SEIZ-2026-0185',
   },
 
-  // 5. Saukhya Naturals — Allergen + Font (Karnataka FDA, Oct 2025)
+  // 5. Saukhya Naturals — Font Height & PIN Code (Karnataka Enforcement, Oct 2025)
   {
     id: 'VIO-REAL-005',
     caseNumber: 'KFDA/ENF/BLR-NORTH/2025/PEE-0178',
@@ -131,25 +131,25 @@ export const MOCK_VIOLATIONS: Violation[] = [
     marketedBy: 'Saukhya Naturals Food and Beverage Pvt Ltd',
     manufacturer: 'Saukhya Naturals Food and Beverage Private Limited',
     platform: 'Amazon / BigBasket / Offline Retail',
-    ruleCode: 'FSSAI-L&D-2020-Reg5(8)',
-    actName: 'Food Safety and Standards (Labelling and Display) Regulations, 2020',
-    section: 'Reg 5(8) r/w Schedule IX — Mandatory Allergen Warning',
+    ruleCode: 'LM-PCR-2011-R7-SCH-II',
+    actName: 'Legal Metrology (Packaged Commodities) Rules, 2011',
+    section: 'Rule 7 & Schedule II — Font Height & Address Completeness',
     description:
-      'Sulphite (E-223) at 34 mg/kg detected — above 10 mg/kg threshold requiring "Contains: Sulphites" declaration. Label omits this warning. FSSAI licence number printed at 0.8mm, below 1.0mm minimum for the pack area. Product suspended; Improvement Notice issued.',
+      'Mandatory declarations on 400g package printed at 0.8mm font height, below 1.5mm statutory threshold. Incomplete manufacturer postal PIN code on principal display panel. Improvement Notice issued.',
     severity: 'high',
     status: 'Notice Issued',
     detectedAt: '2025-10-14 IST',
     evidence: {
-      type: 'Lab Analysis + OCR Label Audit',
-      extractedValue: 'Sulphite 34 mg/kg (threshold 10 mg/kg, no declaration) | FSSAI font: 0.8mm (min 1.0mm)',
-      expectedStandard: 'Schedule IX allergen declaration mandatory when sulphites >10mg/kg. FSSAI licence font min 1.0mm for 200–500g packs',
+      type: 'OCR Label Measurement',
+      extractedValue: 'Declaration font height: 0.8mm (statutory min 1.5mm) | Postal PIN code missing',
+      expectedStandard: 'Schedule II: Minimum 1.5mm numeral/letter height for 200g–500g packages; Rule 6(1)(a): Complete address with PIN code',
     },
     penaltyEstimate: 20000,
     assignedOfficer: 'Arjun Nair (Sr. LM Inspector, Bengaluru City Circle)',
-    noticeId: 'KFDA-IMP-2025-PEE-0178',
+    noticeId: 'LM-IMP-2025-PEE-0178',
   },
 
-  // 6. VitaEdge — Protein spiking + CoO fraud (CCPA, Mar 2025)
+  // 6. VitaEdge — False Country of Origin Declaration (CCPA, Mar 2025)
   {
     id: 'VIO-REAL-006',
     caseNumber: 'CCPA/KA/BLR/2025/NUT-0214',
@@ -159,18 +159,18 @@ export const MOCK_VIOLATIONS: Violation[] = [
     marketedBy: 'VitaEdge Nutraceuticals Import & Trade LLP',
     manufacturer: 'VitaEdge Nutraceuticals Import & Trade LLP',
     platform: 'Amazon India / Own Website',
-    ruleCode: 'FSSAI-FSS-2006-SEC53',
-    actName: 'Food Safety and Standards Act, 2006 r/w CCPA Misleading Ads Guidelines, 2022',
-    section: 'FSS Act Sec 53 — False/Misleading Label; CCPA Guideline 6(2)',
+    ruleCode: 'LM-PCR-2017-R6-1B',
+    actName: 'Legal Metrology (Packaged Commodities) Rules, 2011 r/w CCPA Guidelines, 2022',
+    section: 'Rule 6(1)(b) & CCPA Guideline 6(2) — False Country of Origin Declaration',
     description:
-      'NABL lab report (NABL-BLR-24891): protein 41.2g/100g vs 72g/100g declared (42.8% shortfall). Country of Origin declared "India"; import records confirm raw materials from China/USA with no domestic manufacturing. Three SKUs suspended.',
+      'Declared Country of Origin as "India" on packaging artwork, but import and customs ledger confirms imported bulk stock from overseas with no domestic manufacturing transformation. Three SKUs suspended.',
     severity: 'critical',
     status: 'Open',
     detectedAt: '2025-03-07 IST',
     evidence: {
-      type: 'NABL Lab Report + Import Records',
-      extractedValue: 'Protein: 41.2 g/100g (NABL-BLR-24891) vs label claim 72g/100g | CoO: declared India; materials origin: China/USA',
-      expectedStandard: 'FSS Act Sec 53: misleading claims up to ₹10L penalty. CoO must reflect country of substantial manufacture',
+      type: 'Customs & Physical Label Audit',
+      extractedValue: 'Country of Origin declared: "India" on front label | Customs records: Direct bulk import with no domestic processing',
+      expectedStandard: 'LM PCR Rule 6(1)(b): Country of Origin must accurately reflect manufacturing origin',
     },
     penaltyEstimate: 50000,
     assignedOfficer: 'Arjun Nair (Sr. LM Inspector, Bengaluru City Circle)',

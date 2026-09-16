@@ -6,7 +6,6 @@
  *
  * Statutory References:
  * - Legal Metrology (Packaged Commodities) Rules, 2011 (Rule 9 & Schedule II: Minimum Height of Numerals & Letters)
- * - Food Safety and Standards (Packaging and Labelling) Regulations, 2011 (Regulation 2.2: Legibility & Prominence)
  * - ISO/IEC 15415 & WCAG 2.1 Contrast Standards for Packaging
  */
 

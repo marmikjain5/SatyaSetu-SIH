@@ -14,14 +14,13 @@ import {
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Manufacturer } from '../../types/compliance';
-import { Factory } from '../../types/hygiene';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ManufacturerSatelliteMap } from '../../components/maps/ManufacturerSatelliteMap';
 import { ManufacturerDossierModal } from './ManufacturerDossierModal';
-import { ScheduleInspectionModal } from '../../components/hygiene/ScheduleInspectionModal';
+import { ScheduleInspectionModal } from '../../components/manufacturers/ScheduleInspectionModal';
 
 type ViewMode = 'split' | 'map' | 'grid';
 
@@ -31,39 +30,6 @@ const RISK_CONFIG = {
   Moderate: { badge: 'secondary' as const, barColor: 'bg-yellow-400' },
   Low:      { badge: 'success'   as const, barColor: 'bg-green-500'  },
 };
-
-export function manufacturerToFactory(mfg: Manufacturer): Factory {
-  const score = Math.max(0, 100 - mfg.riskScore);
-  return {
-    id: mfg.id,
-    name: mfg.name,
-    registrationNumber: mfg.cin || mfg.gstin || 'REG-MFG-2026',
-    fssaiLicense: mfg.fssaiLicenseNo || 'FSSAI-10020043000911',
-    category: mfg.primaryCategory || 'General Manufacturing',
-    location: mfg.registeredAddress,
-    city: mfg.zone.split(' ')[0] || 'Bengaluru',
-    state: 'Karnataka',
-    overallScore: score,
-    complianceStatus: mfg.riskTier === 'Critical' ? 'critical' : mfg.riskTier === 'High' ? 'warning' : 'compliant',
-    activeAlerts: mfg.activeViolations,
-    lastInspection: mfg.lastAuditDate || '2026-01-15',
-    totalInspections: mfg.totalProductsScanned > 0 ? 3 : 1,
-    inspectionPassRate: Math.max(50, score),
-    zones: [
-      {
-        id: 'z-prod',
-        factoryId: mfg.id,
-        name: 'Main Production & Packaging Line',
-        type: 'production',
-        score: score,
-        status: mfg.riskTier === 'Critical' ? 'critical' : mfg.riskTier === 'High' ? 'warning' : 'compliant',
-        parameters: [],
-        activeIssues: mfg.activeViolations,
-        lastInspected: mfg.lastAuditDate || '2026-01-15',
-      },
-    ],
-  };
-}
 
 export const ManufacturerRiskRanking: React.FC = () => {
   const { manufacturers, violations } = useComplianceStore();
@@ -257,7 +223,7 @@ export const ManufacturerRiskRanking: React.FC = () => {
 
       {/* ── Schedule Inspection Modal ── */}
       <ScheduleInspectionModal
-        factory={scheduleMfg ? manufacturerToFactory(scheduleMfg) : null}
+        manufacturer={scheduleMfg}
         isOpen={scheduleModalOpen}
         onClose={() => setScheduleModalOpen(false)}
       />

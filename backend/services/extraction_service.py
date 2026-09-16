@@ -12,7 +12,7 @@ Implements a multi-stage extraction pipeline for packaging label images:
     - Structured NER-style regex extraction per statutory field
     - Pattern matching against all Legal Metrology mandatory declarations
   Stage 4: Data Normalization & Validation
-    - SI unit normalization, FSSAI checksum, PIN code validation
+    - SI unit normalization, PIN code validation
 
 Architecture note:
   This service is the BACKEND production extraction layer.
@@ -59,7 +59,6 @@ class ExtractionResult:
 #
 # Sources:
 #   - Legal Metrology (Packaged Commodities) Rules, 2011 [G.S.R. 882(E)]
-#   - FSSAI Labelling Regulations 2020 [F.No. 1-116/FSSAI/Imports/2021]
 
 FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
@@ -91,7 +90,7 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
     # PCR-2011-R6(1)(d) — Manufacturer / Packer / Marketer Address
     "manufacturerAddress": [
-        r"(?:Packed\s*&\s*Marketed\s*by|Marketed\s*by|Mfg\.|Manufactured\s*by|Packed\s*by|Packer|Manufacturer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|FSSAI|MRP|LIC|$)",
+        r"(?:Packed\s*&\s*Marketed\s*by|Marketed\s*by|Mfg\.|Manufactured\s*by|Packed\s*by|Packer|Manufacturer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|MRP|LIC|$)",
         r"(?:Mfg\.|Manufactured\s*by|Marketed\s*by|Packed\s*by)[:\-\s]+([A-Za-z0-9\s,\-\.]+,[^\n]+[1-9][0-9]{5}[^\n]*)",
         r"([A-Za-z0-9\s,\-\.]+\b(?:Karnataka|Maharashtra|Tamil\s*Nadu|Delhi|Gujarat|Rajasthan|Haryana|Punjab|Bengal|Telangana|Andhra|Kerala|UP|MP)\b[^\n]*\b[1-9][0-9]{5}\b)",
         r"([^\n]+?\b[1-9][0-9]{5}\b)",
@@ -108,7 +107,7 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
         r"(?:Pkg\.?\s*Date|Date\s*of\s*Pkg\.?|Pack(?:ing)?\s*Date|Packed\s*On|Pkg\.?)[:\-\s]*((?:\d{2}[\/\-\.]\d{4}|\d{2}[\/\-\.]\d{2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
     ],
 
-    # FSSAI-2020-Reg5(10) — Expiry / Best Before / Use By Date
+    # Expiry / Best Before / Use By Date
     "expiryDate": [
         r"(?:Expiry\s*Date|Best\s*Before|Use\s*By|BB\s*Date|Exp\.?|BB)[:\-\s]*((?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{2}[\/\-\.]\d{4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
         r"(?:BB|EXP)[:\-.\s]*((?:[0-3]?\d[\/\-][0-1]?\d[\/\-]\d{2,4})|(?:[A-Z]{3}[\/\-]\d{4}))",
@@ -116,7 +115,7 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
     # PCR-2011-R6(1)(n) — Country of Origin [G.S.R. 1537(E)]
     "countryOfOrigin": [
-        r"(?:Country\s*of\s*(?:Origin|Manufacture)|Made\s*in|Manufactured\s*in|Product\s*of)[:\-\s]*([A-Za-z\s]+?)(?:\n|,|FSSAI|MRP|$)",
+        r"(?:Country\s*of\s*(?:Origin|Manufacture)|Made\s*in|Manufactured\s*in|Product\s*of)[:\-\s]*([A-Za-z\s]+?)(?:\n|,|MRP|$)",
         r"(?:Made\s*in|Product\s*of)\s+([A-Z][A-Za-z\s]+?)(?:\n|,|\.)",
     ],
 
@@ -133,13 +132,6 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
         r"(?:Batch\s*(?:No\.?|Code)|B\.?\s*No\.?|Lot\s*(?:No\.?|Code))[:\-\s]*([A-Za-z0-9\-\/]+)",
     ],
 
-    # FSSAI-2020-Reg5(1) — FSSAI 14-Digit License Number
-    "fssaiLicense": [
-        r"(?:FSSAI\s*(?:Lic(?:ense|ence)?\.?\s*No\.?|Reg(?:istration)?\.?\s*No\.?|No\.?|Approved|Cert\.?))[:\-\s]*([12]\d{13})",
-        r"\bFSSAI[:\-\s]*([12]\d{13})\b",
-        r"\b([12]\d{13})\b",  # Bare 14-digit number starting with 1 or 2
-    ],
-
     # Manufacturer name (separate from address)
     "manufacturer": [
         r"(?:Manufactured\s*by|Mfg\.?\s*by|Mfg\.?)[:\-\s]+([A-Za-z0-9\s&',.\-]+?)(?:[,\n]|[1-9][0-9]{5}|$)",
@@ -148,13 +140,13 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
     # Importer details (conditional — only for imported goods)
     "importer": [
-        r"(?:Imported\s*by|Importer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|FSSAI|MRP|$)",
+        r"(?:Imported\s*by|Importer)[:\-\s]+(.+?(?:[1-9][0-9]{5}).+?)(?:\n\n|MRP|$)",
         r"(?:Imported\s*by|Importer)[:\-\s]+([A-Za-z0-9\s,\-\.]+,[^\n]+[1-9][0-9]{5}[^\n]*)",
     ],
 
     # Barcode (EAN-13 / EAN-8 / GS1 barcode)
     "barcode": [
-        r"\b((?:890|890|891|892|893|894|895|896|897|898|899)\d{10})\b",  # Indian GS1 prefix
+        r"\b((?:890|891|892|893|894|895|896|897|898|899)\d{10})\b",  # Indian GS1 prefix
         r"\b(\d{13})\b",  # EAN-13
         r"\b(\d{8})\b",   # EAN-8
     ],
@@ -168,8 +160,7 @@ MANDATORY_FIELDS = {
 
 # Conditional mandatory fields (applicable when conditions are met)
 CONDITIONAL_FIELDS = {
-    "fssaiLicense": "Required for all food products",
-    "expiryDate": "Required for all food products",
+    "expiryDate": "Required for perishable goods",
     "importer": "Required for imported goods (Country of Origin ≠ India)",
     "unitSalePrice": "Required when USP ≠ MRP (G.S.R. 779(E), from 1 Jan 2023)",
 }
@@ -238,7 +229,6 @@ def _estimate_field_confidence(field_key: str, value: str, pattern: str) -> floa
     """
     Heuristic confidence estimation based on field-specific validation:
     - MRP: must be parseable as a positive number
-    - FSSAI: must be exactly 14 digits starting with 1 or 2
     - Dates: must match known date formats
     - Addresses: must contain a 6-digit PIN code
     - Other: length and character composition heuristics
@@ -252,12 +242,6 @@ def _estimate_field_confidence(field_key: str, value: str, pattern: str) -> floa
             return 0.95 if val > 0 else 0.2
         except ValueError:
             return 0.3
-
-    if field_key == "fssaiLicense":
-        digits_only = re.sub(r'\D', '', value)
-        if re.match(r'^[12]\d{13}$', digits_only):
-            return 0.98
-        return 0.2
 
     if field_key in ("manufacturingDate", "packingDate", "expiryDate"):
         # Check for valid date-like structure
@@ -534,4 +518,3 @@ def aggregate_multi_angle_extractions(
             
     master_result.overall_confidence = (total_conf / found_count) if found_count > 0 else 0.0
     return master_result
-

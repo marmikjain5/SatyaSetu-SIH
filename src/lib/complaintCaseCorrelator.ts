@@ -96,7 +96,6 @@ export async function buildEvidenceBackedComplaintCase(
     expiryDate: ocrOut.consolidatedSummary.expiryDate || '',
     batchNumber: '',
     customerCare: ocrOut.consolidatedSummary.customerCare || '',
-    fssaiLicense: ocrOut.consolidatedSummary.fssaiLicense || '',
     barcode: ocrOut.consolidatedSummary.barcode || '',
     rawText: ocrOut.allRawText,
     confidence: (ocrOut.consolidatedSummary.extractionConfidence || 85) / 100,

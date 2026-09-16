@@ -210,12 +210,6 @@ export const ManufacturerDossierModal: React.FC<Props> = ({
                         <div className="text-slate-400 mb-0.5">GSTIN (Karnataka)</div>
                         <div className="font-mono font-semibold text-slate-900">{mfg.gstin}</div>
                       </div>
-                      {mfg.fssaiLicenseNo && (
-                        <div>
-                          <div className="text-slate-400 mb-0.5">FSSAI License No.</div>
-                          <div className="font-mono font-semibold text-slate-900">{mfg.fssaiLicenseNo}</div>
-                        </div>
-                      )}
                       <div>
                         <div className="text-slate-400 mb-0.5">Last Audit</div>
                         <div className="font-semibold text-slate-900">{mfg.lastAuditDate}</div>

@@ -20,7 +20,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.9602, lng: 77.6100 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Bommasandra KIADB, Anekal Taluk',
-    fssaiLicenseNo: '10014011001691',
   },
   {
     id: 'MFG-KA-002',
@@ -41,7 +40,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 13.0356, lng: 77.5340 },
     facilityType: 'R&D & Manufacturing Campus',
     zone: 'Tumkur Road Industrial Corridor',
-    fssaiLicenseNo: '10016011005462',
   },
   {
     id: 'MFG-KA-003',
@@ -62,7 +60,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.7991, lng: 77.3985 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Bidadi Industrial Area, Ramanagara',
-    fssaiLicenseNo: '10019011002843',
   },
   {
     id: 'MFG-KA-004',
@@ -78,12 +75,11 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     noticesIssued: 1,
     brands: ['Sunfeast', 'Aashirvaad', 'Bingo!', 'Yippee!', 'B Natural'],
     primaryCategory: 'Snacks, Atta & Packaged Foods',
-    topOffenseTypes: ['"100% Atta" label claim under FSSAI review'],
+    topOffenseTypes: ['"100% Whole Wheat" claim under CCPA review'],
     lastAuditDate: '18 Mar 2025',
     coordinates: { lat: 12.9996, lng: 77.6201 },
     facilityType: 'Registered Headquarters',
     zone: 'Cox Town, Central Bengaluru',
-    fssaiLicenseNo: '10013011003972',
   },
   {
     id: 'MFG-KA-005',
@@ -104,7 +100,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.8120, lng: 77.4110 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Bidadi Agro-Processing Belt',
-    fssaiLicenseNo: '10016011009814',
   },
   {
     id: 'MFG-KA-006',
@@ -120,12 +115,11 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     noticesIssued: 2,
     brands: ['Saukhya Naturals', 'Orgo Bites'],
     primaryCategory: 'Health Mixes & Organic Instant Foods',
-    topOffenseTypes: ['Missing allergen (sulphite) declaration', 'FSSAI licence font below minimum'],
+    topOffenseTypes: ['Missing allergen declaration', 'Mandatory font height below Legal Metrology minimum'],
     lastAuditDate: '14 Oct 2025',
     coordinates: { lat: 13.0290, lng: 77.5190 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Peenya Industrial Area, Phase IV',
-    fssaiLicenseNo: '21418003000427',
   },
   {
     id: 'MFG-KA-007',
@@ -146,7 +140,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.8105, lng: 77.6742 },
     facilityType: 'E-Commerce Fulfillment Hub',
     zone: 'Bommasandra–Jigani Link Road, KIADB',
-    fssaiLicenseNo: '21518012001388',
   },
   {
     id: 'MFG-KA-008',
@@ -167,7 +160,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.9810, lng: 77.7440 },
     facilityType: 'Import Warehouse',
     zone: 'Whitefield EPIP Zone, East Bengaluru',
-    fssaiLicenseNo: '21418002000719',
   },
   {
     id: 'MFG-KA-009',
@@ -188,7 +180,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 13.0031, lng: 77.5510 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Rajajinagar Industrial Suburb',
-    fssaiLicenseNo: '10015043000882',
   },
   {
     id: 'MFG-KA-010',
@@ -209,7 +200,6 @@ export const MOCK_MANUFACTURERS: Manufacturer[] = [
     coordinates: { lat: 12.8390, lng: 77.6770 },
     facilityType: 'Processing & Packaging Plant',
     zone: 'Electronic City Phase 2',
-    fssaiLicenseNo: '10012011000348',
   },
 ];
 
