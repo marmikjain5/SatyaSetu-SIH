@@ -26,6 +26,12 @@ export const DashboardLayout: React.FC = () => {
     return <Navigate to="/dashboard/complaints" replace />;
   }
 
+  // Manufacturer Portal Restriction: Manufacturers can access Packaging Declaration Scanner and Factory Hygiene Certification
+  const allowedManufacturerRoutes = ['/dashboard/scanner', '/dashboard/factory-certification'];
+  if (user?.role === 'manufacturer' && !allowedManufacturerRoutes.includes(location.pathname)) {
+    return <Navigate to="/dashboard/scanner" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-x-hidden">
       {/* Global Background Grid Texture */}

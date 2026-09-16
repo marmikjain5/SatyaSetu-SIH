@@ -9,6 +9,7 @@ import {
   Building2,
   Scale,
   UserCheck,
+  Factory,
   ArrowRight,
   AlertCircle,
 } from 'lucide-react';
@@ -21,7 +22,7 @@ import { GridPattern } from '../components/ui/GridPattern';
 import { AnimatedThemeToggler } from '../components/ui/AnimatedThemeToggler';
 import { cn } from '../lib/utils';
 
-type PortalTab = 'consumer' | 'inspector' | 'admin';
+type PortalTab = 'consumer' | 'inspector' | 'manufacturer' | 'admin';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export const LoginPage: React.FC = () => {
   // Initialize portal from query param (e.g. /login?portal=consumer or ?role=inspector)
   useEffect(() => {
     const portalParam = searchParams.get('portal') || searchParams.get('role');
-    if (portalParam && ['consumer', 'inspector', 'admin'].includes(portalParam)) {
+    if (portalParam && ['consumer', 'inspector', 'manufacturer', 'admin'].includes(portalParam)) {
       handlePortalChange(portalParam as PortalTab);
     }
   }, [searchParams]);
@@ -47,6 +48,8 @@ export const LoginPage: React.FC = () => {
     if (isAuthenticated && user) {
       if (user.role === 'consumer') {
         navigate('/dashboard/complaints');
+      } else if (user.role === 'manufacturer') {
+        navigate('/dashboard/scanner');
       } else {
         navigate('/dashboard');
       }
@@ -65,6 +68,7 @@ export const LoginPage: React.FC = () => {
     const lower = emailInput.toLowerCase();
     if (lower.includes('admin')) return 'admin';
     if (lower.includes('inspect')) return 'inspector';
+    if (lower.includes('manuf') || lower.includes('mfg')) return 'manufacturer';
     return 'consumer';
   };
 
@@ -99,6 +103,11 @@ export const LoginPage: React.FC = () => {
         setIsLoading(false);
         return;
       }
+      if (targetEmail === 'manufacturer@demo.gov.in' && targetPassword !== 'manuf123') {
+        setError('Invalid password for Manufacturer. Correct demo password is: manuf123');
+        setIsLoading(false);
+        return;
+      }
       if (targetEmail === 'consumer@demo.gov.in' && targetPassword !== 'consumer123') {
         setError('Invalid password for Consumer. Correct demo password is: consumer123');
         setIsLoading(false);
@@ -109,9 +118,11 @@ export const LoginPage: React.FC = () => {
       login(targetEmail, role);
       setIsLoading(false);
 
-      // Dedicated redirection: Consumers -> Complaints, Officers -> Dashboard
+      // Dedicated redirection: Consumers -> Complaints, Manufacturers -> Scanner/Declarations
       if (role === 'consumer') {
         navigate('/dashboard/complaints');
+      } else if (role === 'manufacturer') {
+        navigate('/dashboard/scanner');
       } else {
         navigate('/dashboard');
       }
@@ -191,7 +202,7 @@ export const LoginPage: React.FC = () => {
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-xl px-3 sm:px-0 relative z-10">
         {/* 1. SEPARATED PORTAL SELECTOR TABS */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-subtle mb-4">
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {/* Consumer Tab */}
             <button
               type="button"
@@ -238,6 +249,29 @@ export const LoginPage: React.FC = () => {
               </span>
             </button>
 
+            {/* Manufacturer Tab */}
+            <button
+              type="button"
+              onClick={() => handlePortalChange('manufacturer')}
+              className={cn(
+                'flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-center transition-all text-xs font-semibold gap-1 relative',
+                activePortal === 'manufacturer'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              )}
+            >
+              <div className="flex items-center gap-1.5">
+                <Factory className="h-4 w-4" />
+                <span>Manufacturer</span>
+              </div>
+              <span className={cn(
+                'text-[10px] font-normal leading-none',
+                activePortal === 'manufacturer' ? 'text-indigo-100 font-medium' : 'text-slate-400'
+              )}>
+                FMCG Brands
+              </span>
+            </button>
+
             {/* Admin Tab */}
             <button
               type="button"
@@ -278,6 +312,7 @@ export const LoginPage: React.FC = () => {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               {activePortal === 'consumer' && <UserCheck className="h-5 w-5 text-emerald-600" />}
               {activePortal === 'inspector' && <Scale className="h-5 w-5 text-amber-600" />}
+              {activePortal === 'manufacturer' && <Factory className="h-5 w-5 text-indigo-600" />}
               {activePortal === 'admin' && <Building2 className="h-5 w-5 text-blue-600" />}
               <span>{currentConfig.name}</span>
             </h3>
@@ -347,6 +382,8 @@ export const LoginPage: React.FC = () => {
                   ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
                   : activePortal === 'inspector'
                   ? 'bg-amber-600 hover:bg-amber-700 border-amber-600'
+                  : activePortal === 'manufacturer'
+                  ? 'bg-indigo-600 hover:bg-indigo-700 border-indigo-600'
                   : 'bg-blue-600 hover:bg-blue-700 border-blue-600'
               )}
               isLoading={isLoading}
@@ -356,6 +393,8 @@ export const LoginPage: React.FC = () => {
                   ? 'Enter Consumer Grievance Portal'
                   : activePortal === 'inspector'
                   ? 'Enter Inspector Enforcement Gateway'
+                  : activePortal === 'manufacturer'
+                  ? 'Enter Manufacturer Compliance Cell'
                   : 'Enter Central CCPA Directorate'}
               </span>
               <ArrowRight className="h-4 w-4" />

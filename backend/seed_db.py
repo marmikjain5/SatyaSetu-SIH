@@ -154,6 +154,7 @@ def seed_database():
                 status="non-compliant",
                 compliance_score=42,
                 ocr_confidence=98.4,
+                fssai_license_number="11521999000142",
                 ingredients_list=["Whey Protein Isolate", "Cocoa Powder", "Soy Lecithin", "Natural Flavors", "Sucralose"],
                 nutritional_info={"perUnit": "Per 100g", "energyKcal": "380 kcal", "protein": "74.0g (Declared 82g)", "carbohydrates": "6.2g", "addedSugars": "0.0g", "totalFat": "2.4g", "sodium": "180mg"},
                 customer_care_contact="support@nutriprolabs.in / +91-22-28491000",
@@ -181,6 +182,7 @@ def seed_database():
                 status="notice-issued",
                 compliance_score=31,
                 ocr_confidence=99.1,
+                fssai_license_number=None,
                 ingredients_list=[],
                 nutritional_info={},
                 customer_care_contact="care@boat-lifestyle.com / 022-69181920",
@@ -208,6 +210,7 @@ def seed_database():
                 status="compliant",
                 compliance_score=98,
                 ocr_confidence=99.8,
+                fssai_license_number="10014031001025",
                 ingredients_list=["100% Organic Unpolished Toor Dal (Pigeon Peas)"],
                 nutritional_info={"perUnit": "Per 100g", "energyKcal": "343 kcal", "protein": "22.3g", "carbohydrates": "62.8g", "addedSugars": "0.0g", "totalFat": "1.5g", "sodium": "28mg"},
                 customer_care_contact="feedback@tataconsumer.com / 1800-108-4488",
@@ -235,6 +238,7 @@ def seed_database():
                 status="under-review",
                 compliance_score=58,
                 ocr_confidence=96.2,
+                fssai_license_number="10819005000214",
                 ingredients_list=["Red Onion Extract", "Bhringraj Oil", "Sesame Seed Oil", "Coconut Oil", "Vitamin E"],
                 nutritional_info={},
                 customer_care_contact="care@thehimalayanorganics.com / 1800-889-1002",
@@ -265,12 +269,13 @@ def seed_database():
                     "net_quantity": "2 kg",
                     "measured_weight": "1.84 kg",
                     "manufacturer": "NutriPro Labs Pvt Ltd",
+                    "fssai_license": "11521999000142",
                     "mfg_date": "2025-01-10",
                 },
                 bounding_boxes=[
                     {"field": "MRP", "box": [120, 45, 240, 80], "confidence": 99.2},
                     {"field": "Net Quantity", "box": [310, 110, 430, 145], "confidence": 98.1},
-                    {"field": "Packer Address", "box": [500, 30, 580, 70], "confidence": 97.4},
+                    {"field": "FSSAI Logo", "box": [500, 30, 580, 70], "confidence": 97.4},
                 ],
                 readability_scores={
                     "min_font_size_mm": 0.85,
@@ -434,6 +439,7 @@ def seed_regulatory_rules(db):
 
     Sources:
     - Legal Metrology (Packaged Commodities) Rules, 2011 (as amended up to G.S.R. 779(E) 2022)
+    - FSSAI Food Safety and Standards (Labelling and Display) Regulations, 2020
     - Consumer Protection Act, 2019 & E-Commerce Rules, 2020
 
     Architecture note: This is the BACKEND production rule store. The frontend
@@ -802,37 +808,233 @@ def seed_regulatory_rules(db):
             is_active=True,
         ),
 
-        # Expiry / Best Before Declaration under Legal Metrology & Consumer Safety
+        # ═══════════════════════════════════════════════════════════════════════
+        # BLOCK B: FSSAI Food Safety & Standards (Labelling & Display) Regs, 2020
+        # Gazette: FSSAI F.No. 1-116/FSSAI/Imports/2021, effective 01 Oct 2022
+        # ═══════════════════════════════════════════════════════════════════════
         RegulatoryRuleModel(
-            id="PCR-EXP-1",
-            rule_code="PCR-2011-R6(1)(e)-EXP",
-            act_name="Legal Metrology (Packaged Commodities) Rules, 2011",
-            section_clause="Rule 6(1)(e)",
-            target_field="expiryDate",
-            title="Expiry / Best Before / Use By Date Declaration",
+            id="FSSAI-REG5-1",
+            rule_code="FSSAI-2020-Reg5(1)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(1)",
+            target_field="fssaiLicense",
+            title="FSSAI Logo & 14-Digit License Number on Food Packages",
             description=(
-                "Every package of commodities with a limited shelf life must declare "
-                "either 'Expiry Date', 'Best Before', or 'Use By' date on the package. "
-                "The declaration must be clearly legible and format compliant (MM/YYYY or DD/MM/YYYY)."
+                "All food business operators (FBOs) must display the FSSAI logo and a valid "
+                "14-digit FSSAI license/registration number on every food product package. "
+                "The license number must begin with 1 (for registration) or 2 (for license) "
+                "and be exactly 14 numeric digits. Displaying an invalid or fabricated FSSAI "
+                "number is a criminal offence under the FSS Act, 2006."
             ),
-            category_scope="ALL",
+            category_scope="FOOD",
             validation_spec={
-                "type": "expiry_date",
-                "accepted_labels": ["Expiry Date", "Best Before", "Use By", "BB", "Exp.", "BB Date"],
-                "short_shelf_life_format": "DD/MM/YYYY",
-                "long_shelf_life_format": "MM/YYYY",
-                "must_not_be_past": True
+                "type": "fssai_license",
+                "length": 14,
+                "numeric_only": True,
+                "valid_first_digit": ["1", "2"],
+                "regex": "^[12]\\d{13}$",
+                "must_display_logo": True,
+                "penalty_act": "Section 26 & 31, Food Safety and Standards Act, 2006"
+            },
+            severity="CRITICAL",
+            is_mandatory=True,
+            is_conditional=True,
+            condition_description="Applies to all food and food products only",
+            min_fine_inr=100000.0,
+            max_fine_inr=500000.0,
+            imprisonment_months=6,
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
+            effective_to=None,
+            is_active=True,
+        ),
+        RegulatoryRuleModel(
+            id="FSSAI-REG5-2",
+            rule_code="FSSAI-2020-Reg5(2)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(2)",
+            target_field="ingredientsList",
+            title="Ingredients List in Descending Order of Weight",
+            description=(
+                "Every packaged food product must list all ingredients on the label in descending "
+                "order of their composition by weight or volume (m/m or v/v) at the time of "
+                "manufacture. Compound ingredients that constitute more than 5% of the final "
+                "product must also declare their sub-ingredients. Additives must be listed with "
+                "their INS (International Numbering System) number and function class (e.g., "
+                "\"Acidity Regulator (INS 330)\")."
+            ),
+            category_scope="FOOD",
+            validation_spec={
+                "type": "ingredients_list",
+                "order": "descending_by_weight_volume",
+                "compound_ingredient_threshold_percent": 5,
+                "additive_format": "Function_class (INS NNN) or Function_class (Name)",
+                "allergen_highlighting": "Bold or underline"
             },
             severity="HIGH",
-            is_mandatory=False,
+            is_mandatory=True,
             is_conditional=True,
-            condition_description="Applies to packaged commodities with limited shelf life",
+            condition_description="Applies to all packaged food products",
+            min_fine_inr=50000.0,
+            max_fine_inr=200000.0,
+            imprisonment_months=0,
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
+            effective_to=None,
+            is_active=True,
+        ),
+        RegulatoryRuleModel(
+            id="FSSAI-REG5-3",
+            rule_code="FSSAI-2020-Reg5(3)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(3) & Schedule VII",
+            target_field="nutritionalInfo",
+            title="Mandatory Nutritional Information Panel (Per 100g/100ml)",
+            description=(
+                "Every packaged food must display a Nutritional Information panel declaring per 100g or 100ml: "
+                "(1) Energy in kcal, (2) Protein in g, (3) Carbohydrate in g including Total Sugars in g, "
+                "(4) Added Sugars in g, (5) Total Fat in g including Saturated Fat in g and Trans Fat in g, "
+                "(6) Sodium in mg. High Fat, Salt, and Sugar (HFSS) products must display a front-of-pack "
+                "nutrition label as per Schedule VII criteria."
+            ),
+            category_scope="FOOD",
+            validation_spec={
+                "type": "nutritional_panel",
+                "mandatory_nutrients": [
+                    {"name": "Energy", "unit": "kcal"},
+                    {"name": "Protein", "unit": "g"},
+                    {"name": "Carbohydrate", "unit": "g"},
+                    {"name": "Total Sugars", "unit": "g"},
+                    {"name": "Added Sugars", "unit": "g"},
+                    {"name": "Total Fat", "unit": "g"},
+                    {"name": "Saturated Fat", "unit": "g"},
+                    {"name": "Trans Fat", "unit": "g"},
+                    {"name": "Sodium", "unit": "mg"}
+                ],
+                "per_unit": "per 100g or per 100ml",
+                "hfss_front_of_pack": "Required if product meets Schedule VII HFSS criteria"
+            },
+            severity="HIGH",
+            is_mandatory=True,
+            is_conditional=True,
+            condition_description="Applies to all packaged food products except single-ingredient unprocessed foods",
+            min_fine_inr=50000.0,
+            max_fine_inr=200000.0,
+            imprisonment_months=0,
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
+            effective_to=None,
+            is_active=True,
+        ),
+        RegulatoryRuleModel(
+            id="FSSAI-REG5-4",
+            rule_code="FSSAI-2020-Reg5(4)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(4)",
+            target_field="vegNonVegIndicator",
+            title="Veg / Non-Veg Symbol Display",
+            description=(
+                "Every packaged food must display the prescribed veg/non-veg symbol: "
+                "VEGETARIAN: green filled circle inside a green square border. "
+                "NON-VEGETARIAN: brown filled upward-pointing triangle inside a brown square border. "
+                "The symbol must be on the PDP in close proximity to the product name."
+            ),
+            category_scope="FOOD",
+            validation_spec={
+                "type": "veg_non_veg_symbol",
+                "veg_symbol": "Green circle in green square",
+                "non_veg_symbol": "Brown triangle in brown square",
+                "placement": "PDP, near product name",
+                "exempt_categories": ["Raw agriculture produce", "Fresh fruits & vegetables"]
+            },
+            severity="MEDIUM",
+            is_mandatory=True,
+            is_conditional=True,
+            condition_description="Applies to all packaged food products. Exemptions for raw produce.",
             min_fine_inr=25000.0,
             max_fine_inr=100000.0,
             imprisonment_months=0,
-            gazette_notification_no="G.S.R. 882(E)",
-            gazette_date="2011-02-24",
-            effective_from="2011-04-01",
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
+            effective_to=None,
+            is_active=True,
+        ),
+        RegulatoryRuleModel(
+            id="FSSAI-REG5-8",
+            rule_code="FSSAI-2020-Reg5(8)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(8) & Schedule IX",
+            target_field="allergenDeclaration",
+            title="Mandatory Allergen Warning Declaration",
+            description=(
+                "Products containing any of the Schedule IX prescribed allergens must declare "
+                "\"Contains: [Allergen]\" or highlight allergen names in bold/underline in the "
+                "ingredients list. Schedule IX allergens include: Cereals containing gluten "
+                "(wheat, rye, barley, oats), Crustaceans, Eggs, Fish, Peanuts, Soybeans, "
+                "Milk (including lactose), Tree nuts, Celery, Mustard, Sesame seeds, "
+                "Sulphur dioxide (> 10 mg/kg), Lupin, Molluscs."
+            ),
+            category_scope="FOOD",
+            validation_spec={
+                "type": "allergen_declaration",
+                "schedule_ix_allergens": [
+                    "Gluten", "Wheat", "Rye", "Barley", "Oats",
+                    "Crustaceans", "Eggs", "Fish", "Peanuts", "Soybeans",
+                    "Milk", "Lactose", "Tree nuts", "Celery", "Mustard",
+                    "Sesame", "Sulphur dioxide", "Sulphites", "Lupin", "Molluscs"
+                ],
+                "declaration_format": "Contains: [allergen_name]",
+                "highlighting": "Bold or underline in ingredients list"
+            },
+            severity="CRITICAL",
+            is_mandatory=True,
+            is_conditional=True,
+            condition_description="Required when product contains any Schedule IX allergen",
+            min_fine_inr=100000.0,
+            max_fine_inr=500000.0,
+            imprisonment_months=6,
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
+            effective_to=None,
+            is_active=True,
+        ),
+        RegulatoryRuleModel(
+            id="FSSAI-REG5-10",
+            rule_code="FSSAI-2020-Reg5(10)",
+            act_name="Food Safety and Standards (Labelling and Display) Regulations, 2020",
+            section_clause="Regulation 5(10)",
+            target_field="expiryDate",
+            title="Expiry / Best Before / Use By Date Declaration",
+            description=(
+                "Every packaged food must declare either \"Expiry Date\", \"Best Before\", or "
+                "\"Use By\" date on the package. The declaration must be easily legible and "
+                "either printed directly or on a separate sticker that is permanently affixed. "
+                "For products with a shelf life ≤ 3 months, DD/MM/YYYY is required. "
+                "For products > 3 months shelf life, MM/YYYY is acceptable."
+            ),
+            category_scope="FOOD",
+            validation_spec={
+                "type": "expiry_date",
+                "accepted_labels": ["Expiry Date", "Best Before", "Use By", "BB", "Exp.", "BB Date"],
+                "short_shelf_life_format": "DD/MM/YYYY (for shelf life <= 3 months)",
+                "long_shelf_life_format": "MM/YYYY (for shelf life > 3 months)",
+                "must_not_be_past": True
+            },
+            severity="CRITICAL",
+            is_mandatory=True,
+            is_conditional=True,
+            condition_description="Applies to all food products. Date must be declared on primary package.",
+            min_fine_inr=50000.0,
+            max_fine_inr=300000.0,
+            imprisonment_months=6,
+            gazette_notification_no="FSSAI F.No. 1-116/FSSAI/Imports/2021",
+            gazette_date="2022-09-01",
+            effective_from="2022-10-01",
             effective_to=None,
             is_active=True,
         ),

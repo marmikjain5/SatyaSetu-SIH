@@ -17,6 +17,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useLegalReviewStore } from '../../store/legalReviewStore';
+import { useHygieneStore } from '../../store/hygieneStore';
 import { DocumentPanel } from '../../components/legalReview/DocumentPanel';
 import { AnalysisSummary } from '../../components/legalReview/AnalysisSummary';
 import { FindingCard } from '../../components/legalReview/FindingCard';
@@ -24,6 +25,8 @@ import { ChatAssistant } from '../../components/legalReview/ChatAssistant';
 import { ViolationAssessmentPanel } from '../../components/legalReview/ViolationAssessmentPanel';
 import { HumanVerificationPanel } from '../../components/legalReview/HumanVerificationPanel';
 import { PublicationPanel } from '../../components/legalReview/PublicationPanel';
+import { createReviewDocumentFromViolation } from '../../lib/legalReviewIntegration';
+import type { HygieneViolation } from '../../types/hygiene';
 
 export const AILegalReviewAgent: React.FC = () => {
   const {
@@ -41,10 +44,30 @@ export const AILegalReviewAgent: React.FC = () => {
     setReviewerNotes,
   } = useLegalReviewStore();
 
+  const { getFactoryById } = useHygieneStore();
+  const location = useLocation();
+  const hasLoadedRef = useRef(false);
+
   // Mobile disclosure states
   const [showMobileSource, setShowMobileSource] = useState(false);
   const [showMobileFindings, setShowMobileFindings] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
+
+  // Receive hygiene violation from navigation state
+  useEffect(() => {
+    const state = location.state as { hygieneViolation?: HygieneViolation } | null;
+    if (state?.hygieneViolation && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      const violation = state.hygieneViolation;
+      const factory = getFactoryById(violation.factoryId);
+      const factoryName = factory?.name;
+      const reviewDoc = createReviewDocumentFromViolation(violation, factoryName);
+      loadExternalDocument(reviewDoc, violation, factoryName);
+
+      // Clear navigation state to prevent re-loading on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, getFactoryById, loadExternalDocument]);
 
   // ── Workflow step computation ─────────────────────────────────────────
   const workflowSteps = sourceViolation
@@ -215,7 +238,7 @@ export const AILegalReviewAgent: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left Panel: Source Violation + Document + Analysis + Assessment + Findings + Verification + Publication */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Source Violation Context (only for external-originated reviews) */}
+          {/* Source Violation Context (only for hygiene-originated reviews) */}
           {sourceViolation && (
             <Card>
               <CardHeader>
@@ -340,7 +363,7 @@ export const AILegalReviewAgent: React.FC = () => {
           {/* Analysis Summary (shown after analysis) */}
           {analysisResult && <AnalysisSummary result={analysisResult} />}
 
-          {/* Violation Assessment Panel (PRD-aligned) */}
+          {/* Violation Assessment Panel (PRD-aligned, only for hygiene violations) */}
           {violationAssessment && (
             <ViolationAssessmentPanel assessment={violationAssessment} />
           )}
@@ -384,7 +407,7 @@ export const AILegalReviewAgent: React.FC = () => {
             </>
           )}
 
-          {/* Human Verification Panel (PRD workflow) */}
+          {/* Human Verification Panel (PRD workflow, only for hygiene violations) */}
           {violationAssessment && (
             <HumanVerificationPanel
               assessment={violationAssessment}
@@ -394,7 +417,7 @@ export const AILegalReviewAgent: React.FC = () => {
             />
           )}
 
-          {/* Publication Panel (PRD workflow) */}
+          {/* Publication Panel (PRD workflow, only for hygiene violations) */}
           {violationAssessment && (
             <PublicationPanel
               assessment={violationAssessment}
@@ -407,8 +430,10 @@ export const AILegalReviewAgent: React.FC = () => {
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-slate-400 shrink-0" />
               <p className="text-[11px] text-slate-500">
-                <span className="font-semibold">Sample Document Review Mode</span> — Statutory
-                AI analysis has evaluated the document against regulatory guidelines.
+                <span className="font-semibold">Sample Document Review Mode</span> — This
+                is a standalone document review. For the full PRD workflow (Violation → AI
+                Review → Human Verification → Publication), navigate from a Factory Hygiene
+                violation using "Review with AI".
               </p>
             </div>
           )}

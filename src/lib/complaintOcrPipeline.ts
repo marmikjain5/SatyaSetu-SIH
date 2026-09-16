@@ -192,6 +192,7 @@ export async function processMultiEvidenceImages(
           expiryDate: '',
           batchNumber: '',
           customerCare: '',
+          fssaiLicense: '',
           barcode: '',
           rawText: '',
           confidence: 0,
@@ -237,6 +238,7 @@ export async function processMultiEvidenceImages(
     if (ext.customerCare && !consolidatedSummary.customerCare) consolidatedSummary.customerCare = ext.customerCare;
     if (ext.packingDate && !consolidatedSummary.packingDate) consolidatedSummary.packingDate = ext.packingDate;
     if (ext.expiryDate && !consolidatedSummary.expiryDate) consolidatedSummary.expiryDate = ext.expiryDate;
+    if (ext.fssaiLicense && !consolidatedSummary.fssaiLicense) consolidatedSummary.fssaiLicense = ext.fssaiLicense;
 
     // Check for receipt price extraction if tagged as Receipt/Invoice or text contains receipt markers
     if (item.tag === 'Receipt / Invoice' || /receipt|bill|invoice|total|paid/i.test(ocrRes.rawText)) {

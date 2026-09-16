@@ -28,7 +28,7 @@ export const LandingFooter: React.FC = () => {
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Packaged Commodities Rules 2011</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Legal Metrology Amendment Rules 2022 (USP)</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">E-Commerce PCR Rules, 2017</li>
-              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Bureau of Indian Standards (BIS) Act 2016</li>
+              <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">FSSAI Packaging Regulations 2018</li>
               <li className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Consumer Protection (E-Commerce) Rules 2020</li>
             </ul>
           </div>

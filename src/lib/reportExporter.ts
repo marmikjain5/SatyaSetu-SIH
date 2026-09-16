@@ -505,8 +505,8 @@ function generateSingleProductReportHtml(report: ComplianceInspectionReport): st
           <td>${productInfo.countryOfOrigin}</td>
         </tr>
         <tr>
-          <td><strong>Customer Care Contact</strong></td>
-          <td>${productInfo.customerCare}</td>
+          <td><strong>FSSAI License / BIS</strong></td>
+          <td>${productInfo.fssaiLicense}</td>
           <td><strong>Barcode / GTIN</strong></td>
           <td>${productInfo.barcode}</td>
         </tr>
@@ -1171,7 +1171,7 @@ function generateSessionReportHtml(report: ComplianceInspectionReport): string {
   <!-- ════════════════ PAGE 2: CONSOLIDATED VIOLATIONS MATRIX & READABILITY ════════════════ -->
   <div class="page">
     <div class="section-title">
-      <span>3. Consolidated Legal Metrology Violations Matrix</span>
+      <span>3. Consolidated Legal Metrology &amp; FSSAI Violations Matrix</span>
       <span class="sec-num">SEC-03</span>
     </div>
 
@@ -1458,8 +1458,8 @@ export function exportReportToDocx(report: ComplianceInspectionReport): void {
         <tr><td>Manufacturer</td><td>${productInfo.manufacturer}</td><td>Net Quantity</td><td>${productInfo.netQuantity}</td></tr>
         <tr><td>Address</td><td>${productInfo.address}</td><td>Mfg / Packing Date</td><td>${productInfo.manufacturingDate || productInfo.packingDate}</td></tr>
         <tr><td>Batch Number</td><td>${productInfo.batchNumber}</td><td>Expiry Date</td><td>${productInfo.expiryDate}</td></tr>
-        <tr><td>Country of Origin</td><td>${productInfo.countryOfOrigin}</td><td>Customer Care</td><td>${productInfo.customerCare}</td></tr>
-        <tr><td>Importer Details</td><td>${productInfo.importer}</td><td>Barcode / GTIN</td><td>${productInfo.barcode}</td></tr>
+        <tr><td>Country of Origin</td><td>${productInfo.countryOfOrigin}</td><td>FSSAI License</td><td>${productInfo.fssaiLicense}</td></tr>
+        <tr><td>Customer Care</td><td>${productInfo.customerCare}</td><td>Barcode / GTIN</td><td>${productInfo.barcode}</td></tr>
       </table>
 
       <h2>2. LEGAL METROLOGY RULE VALIDATION MATRIX</h2>

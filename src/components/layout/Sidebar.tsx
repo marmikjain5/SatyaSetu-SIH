@@ -14,6 +14,7 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
+  Factory,
   Scale,
   X,
 } from 'lucide-react';
@@ -78,10 +79,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       to: '/dashboard/scanner',
-      label: 'Product Scanner',
+      label: userRole === 'manufacturer' ? 'Upload & Verify Declarations' : 'Product Scanner',
       icon: ScanLine,
       badge: undefined,
-      roles: ['admin', 'inspector'],
+      roles: ['admin', 'inspector', 'manufacturer'],
+    },
+    {
+      to: '/dashboard/factory-certification',
+      label: 'Factory Hygiene Proof',
+      icon: Factory,
+      roles: ['manufacturer', 'admin'],
     },
     {
       to: '/dashboard/violations',
@@ -109,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: MessageSquareWarning,
       badge: newComplaintsCount > 0 ? `${newComplaintsCount}` : undefined,
       badgeVariant: 'warning' as const,
-      roles: ['admin', 'inspector', 'consumer'],
+      roles: ['admin', 'inspector', 'consumer'], // Exclude manufacturer
     },
     {
       to: '/dashboard/analytics',
@@ -123,6 +130,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: BookOpen,
       badge: 'RAG',
       badgeVariant: 'warning' as const,
+      roles: ['admin', 'inspector'],
+    },
+    {
+      to: '/dashboard/factory-hygiene',
+      label: 'Factory Hygiene',
+      icon: Factory,
       roles: ['admin', 'inspector'],
     },
     {
@@ -171,6 +184,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider">
                     {userRole === 'consumer'
                       ? 'Consumer Portal'
+                      : userRole === 'manufacturer'
+                      ? 'Brand Compliance'
                       : 'Compliance Intel'}
                   </div>
                 </div>
@@ -182,6 +197,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
                   userRole === 'consumer'
                     ? 'bg-emerald-600'
+                    : userRole === 'manufacturer'
+                    ? 'bg-indigo-600'
                     : 'bg-blue-600'
                 }`}
               >
@@ -225,6 +242,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       ? 'primary'
                       : user.role === 'inspector'
                       ? 'warning'
+                      : user.role === 'manufacturer'
+                      ? 'secondary'
                       : 'success'
                   }
                   size="sm"

@@ -39,37 +39,57 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
   onClose,
   onReportDiscrepancy,
 }) => {
+  const [copiedLicense, setCopiedLicense] = useState(false);
+
   if (!product) return null;
+
+  const handleCopyLicense = () => {
+    if (product.fssaiLicenseNumber) {
+      navigator.clipboard.writeText(product.fssaiLicenseNumber);
+      setCopiedLicense(true);
+      setTimeout(() => setCopiedLicense(false), 2000);
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={product.title}
-      subtitle={`Statutory Public Inspection Dossier • Verified for Legal Metrology Standards`}
+      subtitle={`Statutory Public Inspection Dossier • Verified for Legal Metrology & FSSAI Standards`}
       maxWidth="4xl"
     >
       <div className="space-y-6 text-xs text-slate-700">
-        {/* Banner Strip: Manufacturer Details, Pricing, & Verification Status */}
+        {/* Banner Strip: FSSAI License, Status, & Verification Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Manufacturer & Origin Card */}
+          {/* FSSAI Card */}
           <div className="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-200">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
-                <Building2 className="h-4 w-4 text-emerald-600" />
-                <span>Manufacturer & Origin</span>
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <span>FSSAI / Regulatory License</span>
               </span>
               <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">
-                Verified
+                Active
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between">
-              <span className="font-bold text-emerald-950 text-sm truncate">
-                {product.manufacturer}
+              <span className="font-mono font-bold text-emerald-950 text-sm">
+                {product.fssaiLicenseNumber || 'Registered Food Business'}
               </span>
+              {product.fssaiLicenseNumber && (
+                <button
+                  type="button"
+                  onClick={handleCopyLicense}
+                  className="p-1 text-emerald-700 hover:text-emerald-950 hover:bg-emerald-200/50 rounded transition-colors"
+                  title="Copy License Number"
+                >
+                  {copiedLicense ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
+                </button>
+              )}
             </div>
             <p className="text-[11px] text-emerald-700 mt-1">
-              Country of Origin: {product.countryOfOrigin || 'India'}
+              Food Safety & Standards Authority of India Registration
             </p>
           </div>
 
@@ -289,7 +309,7 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
                   </table>
                   <div className="p-2 bg-slate-50 text-[10px] text-slate-400 font-sans border-t border-slate-100 flex items-center justify-between">
                     <span>Serving Size: {product.nutritionalInfo.servingSize || '100 g'}</span>
-                    <span>Standard Reference: Legal Metrology Declarations</span>
+                    <span>Standard Reference: FSSAI Labelling Reg. 2020</span>
                   </div>
                 </div>
               </div>
@@ -333,7 +353,7 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
         <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
             <Info className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-            <span>Public transparency data provided in compliance with Statutory Legal Metrology Standards.</span>
+            <span>Public transparency data provided in compliance with Statutory Legal Metrology & FSSAI Standards.</span>
           </div>
 
           <div className="flex items-center gap-3 justify-end">

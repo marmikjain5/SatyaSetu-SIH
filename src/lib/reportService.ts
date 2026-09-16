@@ -144,7 +144,7 @@ export class ReportGenerationEngine {
     const coverPage: ReportCoverPageData = {
       reportId,
       inspectionTitle: 'STATUTORY PACKAGING COMPLIANCE INSPECTION REPORT',
-      subTitle: 'Legal Metrology (Packaged Commodities) Rules, 2011 Standards Verification',
+      subTitle: 'Legal Metrology (Packaged Commodities) Rules, 2011 & FSSAI Standards Verification',
       issuingAuthority: 'Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India',
       scanTimestamp: scanRecord.timestamp,
       formattedDate,
@@ -176,6 +176,7 @@ export class ReportGenerationEngine {
       packingDate: data?.packingDate || 'Not Detected',
       expiryDate: data?.expiryDate || 'Not Detected',
       customerCare: data?.customerCare || 'Not Detected',
+      fssaiLicense: data?.fssaiLicense || 'Not Detected',
       barcode: data?.barcode || 'Not Detected',
     };
 
@@ -305,7 +306,7 @@ export class ReportGenerationEngine {
     }
 
     const recommendations: ReportRecommendationsData = {
-      correctiveActions: correctiveActions.length > 0 ? correctiveActions : ['Packaging conforms to current Legal Metrology standards. No corrective action required.'],
+      correctiveActions: correctiveActions.length > 0 ? correctiveActions : ['Packaging conforms to current Legal Metrology and FSSAI standards. No corrective action required.'],
       missingDeclarationsRemediation: missingRemediation,
       readabilityImprovements: readabilityImprovements,
       legalEnforcementSteps: legalSteps,
@@ -313,7 +314,7 @@ export class ReportGenerationEngine {
 
     // ── 10. Final Verdict & Penalty Exposure ────────────────────
     let verdictTitle = 'COMPLIANT — STATUTORY CLEARANCE GRANTED';
-    let summaryRemarks = customRemarks || 'The scanned package exhibits full statutory compliance with Legal Metrology (Packaged Commodities) Rules, 2011.';
+    let summaryRemarks = customRemarks || 'The scanned package exhibits full statutory compliance with Legal Metrology (Packaged Commodities) Rules, 2011 and FSSAI Packaging Regulations.';
 
     if (overallStatus === 'non-compliant') {
       verdictTitle = 'NON-COMPLIANT — STATUTORY VIOLATION DETECTED';
@@ -540,7 +541,7 @@ export class ReportGenerationEngine {
     const coverPage: ReportCoverPageData = {
       reportId,
       inspectionTitle: 'COMPREHENSIVE MULTI-COMMODITY INSPECTION SESSION REPORT',
-      subTitle: `Official Regulatory Inspection Record • ${targetScans.length} Products Audited under Legal Metrology Act, 2009`,
+      subTitle: `Official Regulatory Inspection Record • ${targetScans.length} Products Audited under Legal Metrology Act, 2009 & FSSAI Standards`,
       issuingAuthority: 'Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India',
       scanTimestamp: targetScans[0]?.timestamp || now.toISOString(),
       formattedDate,
@@ -573,6 +574,7 @@ export class ReportGenerationEngine {
       packingDate: formattedDate,
       expiryDate: 'Verified per product ledger',
       customerCare: 'Recorded per SKU',
+      fssaiLicense: 'Verified across samples',
       barcode: `${targetScans.length} GTIN/Barcodes recorded`,
     };
 
@@ -672,7 +674,7 @@ export class ReportGenerationEngine {
       legalSteps.push('Record advisory warnings in the Central Legal Metrology Regulatory Ledger.');
     } else {
       correctiveActions.push(
-        `All ${targetScans.length} products audited in this inspection session fully conform with Legal Metrology (Packaged Commodities) Rules, 2011.`
+        `All ${targetScans.length} products audited in this inspection session fully conform with Legal Metrology (Packaged Commodities) Rules, 2011 and FSSAI standards.`
       );
       legalSteps.push('Issue formal Clearance Certificate for all inspected commodity batches.');
     }

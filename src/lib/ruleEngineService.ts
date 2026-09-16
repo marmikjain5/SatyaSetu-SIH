@@ -390,6 +390,39 @@ function validateImporter(
   };
 }
 
+function validateFSSAI(
+  field: DeclarationField | undefined,
+  rule: LegalMetrologyRule
+): ValidationOutcome {
+  const value = field?.value?.trim() || '';
+  if (!value) {
+    return {
+      status: 'warning',
+      evidence: '(Not detected)',
+      expectedStandard: '14-digit FSSAI License Number (required for food products).',
+      recommendation: rule.recommendations[0],
+    };
+  }
+
+  // FSSAI-2020-Reg5(1): exactly 14 digits, starting with 1 (registration) or 2 (license)
+  if (!/^[12]\d{13}$/.test(value)) {
+    return {
+      status: 'fail',
+      evidence: value,
+      expectedStandard:
+        'FSSAI License must be exactly 14 numeric digits, starting with 1 (registration) or 2 (license).',
+      recommendation: rule.recommendations[0],
+    };
+  }
+
+  return {
+    status: 'pass',
+    evidence: value,
+    expectedStandard: 'Valid 14-digit FSSAI License Number (format: 1XXXXXXXXXXXXX or 2XXXXXXXXXXXXX).',
+    recommendation: '',
+  };
+}
+
 /**
  * Validates Unit Sale Price (USP) per g or per ml.
  * Rule: PCR-2022-R6(1)(aa) — G.S.R. 779(E), effective 1 Jan 2023
@@ -496,6 +529,7 @@ const VALIDATOR_MAP: Record<string, ValidatorFn> = {
   validateCountryOfOrigin: (field, rule) => validateCountryOfOrigin(field, rule),
   validateBatchNumber: (field, rule) => validateBatchNumber(field, rule),
   validateImporter: (field, rule, ctx) => validateImporter(field, rule, ctx.countryOfOrigin),
+  validateFSSAI: (field, rule) => validateFSSAI(field, rule),
   validateUnitSalePrice: (field, rule) => validateUnitSalePrice(field, rule),
   validateFontHeight: (field, rule) => validateFontHeight(field, rule),
   validateDualMRP: (field, rule, ctx) => validateDualMRP(field, rule, ctx.rawText),

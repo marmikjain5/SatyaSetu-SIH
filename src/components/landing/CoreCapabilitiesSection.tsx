@@ -37,7 +37,7 @@ export const CoreCapabilitiesSection: React.FC = () => {
       title: 'Compliance Verification',
       subtitle: 'Statutory Act & Schedule Validation Matrix',
       description:
-        'Cross-checks physical package OCR against Legal Metrology (Packaged Commodities) Rules 2011, CCPA Directives, and E-Commerce Marketplace declarations.',
+        'Cross-checks physical package OCR against Legal Metrology (Packaged Commodities) Rules 2011, FSSAI Section 23, and E-Commerce Marketplace declarations.',
       icon: ShieldCheck,
       badge: 'Automated SCN',
       metrics: ['Unit Sale Price (USP) Calculation', 'Dual-MRP Detection', 'Origin Cross-Check'],

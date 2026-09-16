@@ -92,7 +92,7 @@ export const LiveProductCapture: React.FC = () => {
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => { });
+          videoRef.current.play().catch(() => {});
         }
       }, 100);
     } catch (err: any) {
@@ -160,8 +160,6 @@ export const LiveProductCapture: React.FC = () => {
               </h2>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Capture the mandatory declaration panel.
-                Take a live photo or upload packaging labels to verify mandatory Legal Metrology statutory declarations.
-
               </p>
             </div>
 

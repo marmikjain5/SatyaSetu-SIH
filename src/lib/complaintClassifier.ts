@@ -518,7 +518,7 @@ export const CATEGORY_PATTERNS: CategoryPatternDefinition[] = [
     code: 'general_packaging_issue',
     label: 'General Statutory Packaging Compliance Violation',
     keywords: [
-      'non-compliant', 'violation', 'statutory', 'symbol', 'bis', 'packaging', 'rules',
+      'non-compliant', 'violation', 'statutory', 'symbol', 'fssai', 'bis', 'packaging', 'rules',
       'उल्लंघन', 'ಉಲ್ಲಂಘನೆ', 'மீறுதல்',
     ],
     phrases: [
@@ -527,22 +527,26 @@ export const CATEGORY_PATTERNS: CategoryPatternDefinition[] = [
       'packaging non compliant',
       'missing statutory notice',
       'veg symbol missing',
+      'fssai license missing',
       'bis mark missing',
       'packaging rules violated',
       'statutory violation',
       // Hindi
       'पैकेजिंग के नियमों का उल्लंघन',
       'वेज सिंबल नहीं है',
+      'fssai लाइसेंस नहीं है',
       // Kannada
       'ಪ್ಯಾಕೇಜಿಂಗ್ ನಿಯಮಗಳ ಉಲ್ಲಂಘನೆ',
       'ವೆಜ್ ಚಿಹ್ನೆ ಇಲ್ಲ',
+      'fssai ಲೈಸೆನ್ಸ್ ಇಲ್ಲ',
       // Tamil
       'பேக்கேஜிங் விதிகளை மீறுதல்',
       'வெஜ் குறியீடு இல்லை',
+      'fssai உரிமம் இல்லை',
     ],
     regexes: [
       /packaging\s+(?:non-compliant|violation|issue)/i,
-      /missing\s+(?:bis|veg\s+symbol|license|declaration)/i,
+      /missing\s+(?:fssai|bis|veg\s+symbol|license)/i,
       /statutory\s+declaration\s+missing/i,
       /(?:नियमों\s*का\s*उल्लंघन|ನಿಯಮಗಳ\s*ಉಲ್ಲಂಘನೆ|விதிகளை\s*மீறுதல்)/i,
     ],

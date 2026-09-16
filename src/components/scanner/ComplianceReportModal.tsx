@@ -48,6 +48,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
 }) => {
   const { addReport } = useReportStore();
   const { user } = useAuthStore();
+  const isManufacturer = user?.role === 'manufacturer';
   const [activeTab, setActiveTab] = useState<'report' | 'customize'>('report');
   const [copiedHash, setCopiedHash] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -152,15 +153,19 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold font-mono tracking-widest uppercase px-2 py-0.5 rounded border text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900/60">
-                  OFFICIAL STATUTORY INSPECTION RECORD
+                <span className={`text-[10px] font-bold font-mono tracking-widest uppercase px-2 py-0.5 rounded border ${
+                  isManufacturer
+                    ? 'text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-900/60'
+                    : 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900/60'
+                }`}>
+                  {isManufacturer ? 'PRE-MARKET COMPLIANCE AUDIT RECORD' : 'OFFICIAL STATUTORY INSPECTION RECORD'}
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
                   {report.reportId}
                 </span>
               </div>
               <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
-                Compliance Inspection Report Generator
+                {isManufacturer ? 'Product Packaging Compliance Report' : 'Compliance Inspection Report Generator'}
               </h2>
             </div>
           </div>
@@ -189,7 +194,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 )}
               >
                 <Edit3 className="h-3 w-3" />
-                <span>Inspector Sign-Off</span>
+                <span>{isManufacturer ? 'Sign-Off & Notes' : 'Inspector Sign-Off'}</span>
               </button>
             </div>
 
@@ -245,7 +250,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               </div>
               <div className="min-w-0 truncate">
                 <h2 className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  Compliance Report
+                  {isManufacturer ? 'Packaging Report' : 'Compliance Report'}
                 </h2>
                 <div className="font-mono text-[10px] text-slate-500 truncate">
                   {report.reportId}
@@ -309,10 +314,12 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                 <UserCheck className="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
                 <div>
                   <h4 className="font-bold">
-                    Inspector Authentication & Customization
+                    {isManufacturer ? 'Compliance Officer Authentication & Remarks' : 'Inspector Authentication & Customization'}
                   </h4>
                   <p className="mt-0.5 text-blue-700 dark:text-blue-400">
-                    Modify inspecting officer credentials, legal department jurisdiction, and enforcement directives before exporting the official document.
+                    {isManufacturer
+                      ? 'Modify internal QA / Compliance Officer credentials and remarks before generating the final compliance report.'
+                      : 'Modify inspecting officer credentials, legal department jurisdiction, and enforcement directives before exporting the official document.'}
                   </p>
                 </div>
               </div>
@@ -418,17 +425,19 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span>MINISTRY OF CONSUMER AFFAIRS</span>
                 </div>
                 <h1 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
-                  Comprehensive Multi-Commodity Inspection Session Report
+                  {isManufacturer
+                    ? 'Comprehensive Multi-Product Packaging Compliance Report'
+                    : 'Comprehensive Multi-Commodity Inspection Session Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; Legal Metrology Act, 2009 • {report.auditedProducts?.length || 0} Products Audited
+                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards • {report.auditedProducts?.length || 0} Products Audited
                 </p>
               </div>
 
               {/* Identification Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-mono">
                 <div>
-                  <span className="text-slate-500">INSPECTION SESSION ID: </span>
+                  <span className="text-slate-500">{isManufacturer ? 'AUDIT SESSION ID: ' : 'INSPECTION SESSION ID: '}</span>
                   <span className="font-bold text-blue-700 dark:text-blue-400">{coverPage.reportId}</span>
                 </div>
                 <div>
@@ -612,7 +621,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
               {(report.consolidatedViolations || []).length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center justify-between">
-                    <span>3. Consolidated Legal Metrology Violations Matrix</span>
+                    <span>3. Consolidated Legal Metrology &amp; FSSAI Violations Matrix</span>
                     <span className="font-mono text-[10px] text-slate-400">SEC-03</span>
                   </h4>
 
@@ -735,10 +744,12 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span>MINISTRY OF CONSUMER AFFAIRS</span>
                 </div>
                 <h1 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
-                  Statutory Packaged Commodity Inspection Report
+                  {isManufacturer
+                    ? 'Statutory Packaged Commodity Compliance Report'
+                    : 'Statutory Packaged Commodity Inspection Report'}
                 </h1>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; Legal Metrology Act, 2009
+                  Under Legal Metrology (Packaged Commodities) Rules, 2011 &amp; FSSAI Packaging Standards
                 </p>
               </div>
 
@@ -749,7 +760,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   <span className="font-bold text-blue-700 dark:text-blue-400">{coverPage.reportId}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">INSPECTION DATE: </span>
+                  <span className="text-slate-500">{isManufacturer ? 'AUDIT DATE: ' : 'INSPECTION DATE: '}</span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">{coverPage.formattedDate}</span>
                 </div>
               </div>
@@ -854,8 +865,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                         <td className="p-2">{productInfo.countryOfOrigin}</td>
                       </tr>
                       <tr>
-                        <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">Customer Care</td>
-                        <td className="p-2">{productInfo.customerCare}</td>
+                        <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">FSSAI License</td>
+                        <td className="p-2">{productInfo.fssaiLicense}</td>
                         <td className="p-2 text-slate-600 dark:text-slate-400 font-sans">Barcode / GTIN</td>
                         <td className="p-2">{productInfo.barcode}</td>
                       </tr>

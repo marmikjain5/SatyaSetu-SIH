@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS products (
     status VARCHAR(64) NOT NULL DEFAULT 'compliant', -- compliant, non-compliant, under-review, notice-issued
     compliance_score INTEGER NOT NULL DEFAULT 100, -- 0 to 100
     ocr_confidence NUMERIC(5, 2) NOT NULL DEFAULT 95.0,
+    fssai_license_number VARCHAR(64),
     ingredients_list JSONB DEFAULT '[]'::jsonb,
     nutritional_info JSONB DEFAULT '{}'::jsonb,
     customer_care_contact TEXT,

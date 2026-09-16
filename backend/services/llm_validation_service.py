@@ -87,9 +87,14 @@ STATUTORY_RULE_MANDATES: Dict[str, Dict[str, str]] = {
         "mandate": "For imported packages, importer full legal name and complete Indian address with PIN code are mandatory.",
         "eval_guide": "If imported product lacks importer details/PIN, CONFIRM finding.",
     },
-    "PCR-EXP-1": {
-        "statute": "Legal Metrology (Packaged Commodities) Rules, 2011 & Consumer Protection Guidelines",
-        "mandate": "Expiry Date / Best Before Date declaration must NOT be in the past relative to the evaluation date.",
+    "FSSAI-REG5-1": {
+        "statute": "Regulation 5(1), Food Safety & Standards (Labelling & Display) Regulations, 2020",
+        "mandate": "14-digit FSSAI license number starting with 1 or 2 alongside FSSAI logo is mandatory on food packages.",
+        "eval_guide": "If missing, invalid length, or invalid starting digit, CONFIRM violation.",
+    },
+    "FSSAI-REG5-10": {
+        "statute": "Regulation 5(10), Food Safety & Standards (Labelling & Display) Regulations, 2020",
+        "mandate": "Expiry Date / Best Before Date is mandatory for food products and must NOT be in the past relative to the evaluation date.",
         "eval_guide": "If date is earlier than evaluation date, product is EXPIRED (CRITICAL VIOLATION). Do not confuse date format with expiration.",
     },
 }
@@ -136,6 +141,8 @@ def _has_affirmative_text_evidence(rule_id: str, field_key: str, extracted_field
         return bool(re.search(r'made\s*in\s*india|country\s*of\s*origin\s*:\s*india|origin\s*:\s*india', raw, re.I))
     elif rule_id == "PCR-R6-1F":
         return bool(re.search(r'\b[\w\.-]+@[\w\.-]+\.\w+\b|\b\d{3,5}[-\s]?\d{6,8}\b|\b1800[-\s]?\d{3}[-\s]?\d{3,4}\b', raw, re.I))
+    elif rule_id == "FSSAI-REG5-1":
+        return bool(re.search(r'\b(?:1|2)\d{13}\b', raw))
     elif rule_id == "PCR-R6-1B":
         return bool(re.search(r'\b\d+\.?\d*\s*(?:g|gm|grams?|kg|ml|l|ltr|mg|pieces?|units?)\b', raw, re.I))
     
@@ -176,7 +183,7 @@ def _build_verification_prompt(
             "eval_guidance":  mandate_info.get("eval_guide", "Verify if evidence complies with statutory mandate."),
         })
 
-    prompt = f"""You are a senior Indian statutory compliance officer specializing in the Legal Metrology Act 2009, Packaged Commodities Rules 2011, and Consumer Protection Act 2019.
+    prompt = f"""You are a senior Indian statutory compliance officer specializing in the Legal Metrology Act 2009, Packaged Commodities Rules 2011, and FSSAI Regulations 2020.
 Evaluation Date: {eval_date_str}
 
 A deterministic statutory engine flagged the following compliance issues on a product label.

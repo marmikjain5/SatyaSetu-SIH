@@ -51,6 +51,7 @@ const HINDI_WORD_MAP: Record<string, string> = {
   rupaye: 'रुपये',
   rs: 'रु',
   mrp: 'MRP',
+  fssai: 'FSSAI',
   bis: 'BIS',
 };
 
@@ -77,6 +78,7 @@ const KANNADA_WORD_MAP: Record<string, string> = {
   billu: 'ಬಿಲ್ಲು',
   bill: 'ಬಿಲ್',
   mrp: 'MRP',
+  fssai: 'FSSAI',
 };
 
 const TAMIL_WORD_MAP: Record<string, string> = {
@@ -100,6 +102,7 @@ const TAMIL_WORD_MAP: Record<string, string> = {
   kadai: 'கடை',
   bill: 'பில்',
   mrp: 'MRP',
+  fssai: 'FSSAI',
 };
 
 // Hindi Devanagari character mappings
@@ -286,7 +289,7 @@ function transliterateWord(word: string, lang: SupportedLanguage): string {
   if (!word || lang === 'en') return word;
 
   // Preserve uppercase acronyms, numbers, symbols
-  if (/^[A-Z0-9\W]+$/.test(word) || /^(mrp|bis|rs|inr|kg|g|l|ml)$/i.test(word)) {
+  if (/^[A-Z0-9\W]+$/.test(word) || /^(mrp|fssai|bis|rs|inr|kg|g|l|ml)$/i.test(word)) {
     return word.toUpperCase();
   }
 

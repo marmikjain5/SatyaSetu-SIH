@@ -92,7 +92,7 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
 
     const newProduct: Product = {
       id: productId,
-      sku: `SKU-SCAN-${Math.floor(100 + Math.random() * 900)}`,
+      sku: scanData?.fssaiLicenseNumber ? `SKU-FSSAI-${scanData.fssaiLicenseNumber.slice(-4)}` : `SKU-SCAN-${Math.floor(100 + Math.random() * 900)}`,
       title: scanData?.productName || 'Scanned Packaged Commodity',
       brand: scanData?.brandName || 'Brand (Extracted from OCR)',
       manufacturer: scanData?.manufacturerName || scanData?.packerName || 'Manufacturer Extracted via OCR',
@@ -109,6 +109,7 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
       customerCareContact: scanData?.consumerCareEmail || scanData?.consumerCarePhone || scanData?.consumerCareDetails || 'Declared on package',
       customerCarePhone: scanData?.consumerCarePhone,
       customerCareEmail: scanData?.consumerCareEmail,
+      fssaiLicenseNumber: scanData?.fssaiLicenseNumber,
       manufacturerAddress: scanData?.manufacturerAddress,
       packerAddress: scanData?.packerAddress,
       unitSalePrice: typeof scanData?.unitSalePrice === 'string' ? scanData.unitSalePrice : undefined,

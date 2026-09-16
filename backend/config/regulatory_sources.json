@@ -22,6 +22,25 @@
     ]
   },
   {
+    "source_id": "fssai",
+    "name": "Food Safety and Standards Authority of India (FSSAI)",
+    "authority": "FSSAI",
+    "base_url": "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php",
+    "jurisdiction": "India (Food & Agriculture)",
+    "description": "Regulations governing packaging, labelling, display requirements, nutritional info, FSSAI license logo display, and vegetarian/non-vegetarian symbols.",
+    "document_types": [
+      "act",
+      "regulation",
+      "amendment",
+      "advisory",
+      "order"
+    ],
+    "official_gazette_references": [
+      "F. No. 1-1164/FSSAI/Imports/2014 - Labelling Regulations",
+      "F. No. M&L/1(71)2011/FSSAI - Food Safety and Standards (Labelling and Display) Regulations 2020"
+    ]
+  },
+  {
     "source_id": "bis",
     "name": "Bureau of Indian Standards (BIS)",
     "authority": "BIS",

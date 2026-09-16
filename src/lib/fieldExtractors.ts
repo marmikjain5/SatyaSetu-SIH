@@ -2,7 +2,7 @@
  * Legal Metrology Field-Specific Smart Extractors & Statutory Validation Engine
  *
  * Implements dedicated extraction, normalization, and statutory compliance checks
- * under the Legal Metrology (Packaged Commodities) Rules, 2011.
+ * under the Legal Metrology (Packaged Commodities) Rules, 2011 & FSSAI Regulations.
  *
  * Extracts bounding box evidence coordinates mapped to original image dimensions.
  */
@@ -127,6 +127,12 @@ export const STATUTORY_RULES: Record<DeclarationFieldKey, StatutoryRuleDefinitio
     ruleDescription: 'Name, address, telephone number, and email address for consumer redressal.',
     isMandatory: true,
     category: 'consumer_redressal',
+  },
+  fssaiLicense: {
+    ruleCode: 'FSSAI-2011-SEC31',
+    ruleDescription: '14-digit FSSAI License Number and logo on all food business packages.',
+    isMandatory: false,
+    category: 'statutory_license',
   },
   barcode: {
     ruleCode: 'GS1-INDIA-EAN13',
@@ -421,7 +427,65 @@ function validateNetQuantity(value: string): { status: ValidationStatus; message
   };
 }
 
-// ─── 3. Dates Extractors (Mfg, Pkg, Expiry) ──────────────────────
+// ─── 3. FSSAI License Number Extractor & Validator ──────────────
+
+const FSSAI_REGEXES: RegExp[] = [
+  /(?:fssai|lic\.?\s*(?:no|number)?\.?|license\s*no\.?)\s*[:;.\-]?\s*([0-9]{14})\b/gi,
+  /\bfssai\b.*?([0-9]{14})\b/gi,
+  /\b([12][0-9]{13})\b/g, // Standard 14-digit FSSAI starting with 1 or 2
+];
+
+function extractFSSAICandidates(pass: MultiPassOCRData): CandidateResult[] {
+  const results: CandidateResult[] = [];
+
+  for (const line of pass.lines) {
+    const lineText = line.text;
+    const hasFSSAIKeyword = /fssai|licence|license|lic\s*no/i.test(lineText);
+
+    for (const pattern of FSSAI_REGEXES) {
+      pattern.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(lineText)) !== null) {
+        const lic = match[1].trim();
+        if (lic.length === 14) {
+          const score = hasFSSAIKeyword ? 0.98 : 0.75;
+          results.push({
+            value: lic,
+            rawValue: match[0],
+            rawMatch: lineText.trim(),
+            score,
+            bbox: line.bbox,
+          });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+function validateFSSAI(value: string): { status: ValidationStatus; message: string } {
+  if (!value) {
+    return {
+      status: 'missing',
+      message: 'No 14-digit FSSAI License Number detected on packaging.',
+    };
+  }
+
+  if (!/^\d{14}$/.test(value)) {
+    return {
+      status: 'non-compliant',
+      message: `Invalid FSSAI format (${value}). Must be exactly 14 numeric digits.`,
+    };
+  }
+
+  return {
+    status: 'compliant',
+    message: `Valid 14-digit FSSAI License Number (${value}) adhering to FSS Act Sec 31.`,
+  };
+}
+
+// ─── 4. Dates Extractors (Mfg, Pkg, Expiry) ──────────────────────
 
 const DATE_REGEXES: RegExp[] = [
   /(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/g,
@@ -568,7 +632,7 @@ function extractBarcodeCandidates(pass: MultiPassOCRData): CandidateResult[] {
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(lineText)) !== null) {
         const digits = match[1];
-        // Exclude common false positives like dates
+        // Exclude common false positives like dates or FSSAI
         if (digits.length === 13) {
           const score = hasBarcodeKeyword ? 0.95 : 0.65;
           results.push({
@@ -675,7 +739,7 @@ function extractAddressCandidates(pass: MultiPassOCRData): CandidateResult[] {
       if (match) {
         let val = lineText.substring(match.index! + match[0].length).trim();
         for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
-          if (/^(?:mfg|mrp|customer|net\s*wt|batch|exp|use\s*by)/i.test(lines[j].text)) break;
+          if (/^(?:mfg|mrp|customer|net\s*wt|batch|exp|use\s*by|fssai)/i.test(lines[j].text)) break;
           val += `, ${lines[j].text}`;
           if (/\b[1-9][0-9]{5}\b/.test(lines[j].text)) break; // PIN code terminator
         }
@@ -805,7 +869,7 @@ function extractProductNameCandidates(pass: MultiPassOCRData): CandidateResult[]
   const results: CandidateResult[] = [];
   const lines = pass.lines;
 
-  const headerKeywords = /^(?:mfg|manufactured|imported|marketed|customer|helpline|net\s*(?:wt|qty)|m\.?\s*r\.?\s*p|maximum\s*retail|address|regd|best\s*before|use\s*by|exp|ingredients|nutrition|pkg|pkd|batch|lic)/i;
+  const headerKeywords = /^(?:mfg|manufactured|imported|marketed|customer|helpline|net\s*(?:wt|qty)|m\.?\s*r\.?\s*p|maximum\s*retail|address|regd|best\s*before|use\s*by|exp|ingredients|nutrition|pkg|pkd|batch|fssai|lic)/i;
 
   for (let i = 0; i < Math.min(6, lines.length); i++) {
     const lineText = lines[i].text.trim();
@@ -847,6 +911,7 @@ export function extractAllLegalDeclarations(
     expiryDate: selectBestCandidate(passes, imgDimensions, extractExpiryDateCandidates),
     batchNumber: selectBestCandidate(passes, imgDimensions, extractBatchCandidates),
     customerCare: selectBestCandidate(passes, imgDimensions, extractCustomerCareCandidates),
+    fssaiLicense: selectBestCandidate(passes, imgDimensions, extractFSSAICandidates),
     barcode: selectBestCandidate(passes, imgDimensions, extractBarcodeCandidates),
   };
 
@@ -866,6 +931,7 @@ export function extractAllLegalDeclarations(
     'expiryDate',
     'batchNumber',
     'customerCare',
+    'fssaiLicense',
     'barcode',
     'unitSalePrice',
   ];
@@ -884,6 +950,7 @@ export function extractAllLegalDeclarations(
     expiryDate: 'Expiry / Best Before Date',
     batchNumber: 'Batch / Lot Number',
     customerCare: 'Customer Care Details',
+    fssaiLicense: 'FSSAI License Number',
     barcode: 'Barcode / GTIN',
   };
 
@@ -906,6 +973,10 @@ export function extractAllLegalDeclarations(
         valMsg = v.message;
       } else if (key === 'netQuantity') {
         const v = validateNetQuantity(raw.value);
+        valStatus = v.status;
+        valMsg = v.message;
+      } else if (key === 'fssaiLicense') {
+        const v = validateFSSAI(raw.value);
         valStatus = v.status;
         valMsg = v.message;
       } else if (key === 'address' && !/\b\d{6}\b/.test(raw.value)) {
