@@ -4,6 +4,8 @@ import type {
   UploadedImage,
   ExtractedProductData,
   ScanAngle,
+  BatchVerificationResult,
+  MRPVerificationResult,
 } from '../types/scan';
 import type { ComplianceValidationResult } from '../types/ruleEngine';
 import type { ReadabilityAnalysisResult } from '../types/readability';
@@ -16,6 +18,7 @@ import {
 } from '../lib/scanComplaintCorrelator';
 import { consolidateMultiAngleExtractions } from '../lib/multiAngleConsolidator';
 import { useComplianceStore } from './complianceStore';
+import { verifyBatch, verifyMRP } from '../lib/batchVerificationService';
 import {
   MOCK_SCANS,
   MOCK_VALIDATION_RESULTS,
@@ -40,6 +43,10 @@ interface ScanState {
   correlationResults: Record<string, ScanCorrelationResult>;
   /** Readability analysis results keyed by scan ID */
   readabilityResults: Record<string, ReadabilityAnalysisResult>;
+  /** Batch number verification results keyed by scan ID */
+  batchVerificationResults: Record<string, BatchVerificationResult>;
+  /** MRP vs Product Directory verification results keyed by scan ID */
+  mrpVerificationResults: Record<string, MRPVerificationResult>;
 
   // Actions
   addImages: (files: File[]) => void;
@@ -114,6 +121,8 @@ export const useScanStore = create<ScanState>((set, get) => ({
   validationResults: MOCK_VALIDATION_RESULTS,
   correlationResults: {},
   readabilityResults: MOCK_READABILITY_RESULTS,
+  batchVerificationResults: {},
+  mrpVerificationResults: {},
 
   loadSampleImage: async (imageUrl: string, fileName: string) => {
     try {
@@ -346,6 +355,25 @@ export const useScanStore = create<ScanState>((set, get) => ({
         validationResult
       );
 
+      // Step 7: Historical Batch Verification & Dual MRP Detection
+      // We need the current list of scans + the just-completed scan to compare against.
+      const existingScans = get().scans; // prior scans (does NOT include completedScan yet)
+      const allScansForVerification = [completedScan, ...existingScans];
+
+      const batchResult = verifyBatch(
+        completedScan.id,
+        masterExtractedData.batchNumber || '',
+        masterExtractedData.expiryDate || '',
+        allScansForVerification
+      );
+
+      const directoryProducts = useComplianceStore.getState().products;
+      const mrpResult = verifyMRP(
+        masterExtractedData.mrp || '',
+        masterExtractedData.productName || '',
+        directoryProducts
+      );
+
       set((state) => ({
         scans: [completedScan, ...state.scans],
         currentScan: completedScan,
@@ -364,6 +392,14 @@ export const useScanStore = create<ScanState>((set, get) => ({
         readabilityResults: {
           ...state.readabilityResults,
           [completedScan.id]: masterReadability,
+        },
+        batchVerificationResults: {
+          ...state.batchVerificationResults,
+          [completedScan.id]: batchResult,
+        },
+        mrpVerificationResults: {
+          ...state.mrpVerificationResults,
+          [completedScan.id]: mrpResult,
         },
         isProcessing: false,
         uploadedImages: [],
@@ -430,12 +466,16 @@ export const useScanStore = create<ScanState>((set, get) => ({
       const { [id]: _remVal, ...remainingValidation } = state.validationResults;
       const { [id]: _remCorr, ...remainingCorrelation } = state.correlationResults;
       const { [id]: _remRead, ...remainingReadability } = state.readabilityResults;
+      const { [id]: _remBatch, ...remainingBatch } = state.batchVerificationResults;
+      const { [id]: _remMrp, ...remainingMrp } = state.mrpVerificationResults;
       return {
         scans: state.scans.filter((s) => s.id !== id),
         currentScan: state.currentScan?.id === id ? null : state.currentScan,
         validationResults: remainingValidation,
         correlationResults: remainingCorrelation,
         readabilityResults: remainingReadability,
+        batchVerificationResults: remainingBatch,
+        mrpVerificationResults: remainingMrp,
       };
     });
   },
@@ -447,6 +487,8 @@ export const useScanStore = create<ScanState>((set, get) => ({
       validationResults: {},
       correlationResults: {},
       readabilityResults: {},
+      batchVerificationResults: {},
+      mrpVerificationResults: {},
     });
   },
 
