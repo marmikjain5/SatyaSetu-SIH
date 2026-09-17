@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useComplianceStore } from './store/complianceStore';
 import { LandingPage } from './pages/LandingPage';
 import { AboutPage } from './pages/AboutPage';
 import { LoginPage } from './pages/LoginPage';
@@ -19,6 +20,11 @@ import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
 export function App() {
+  const fetchComplaints = useComplianceStore((s) => s.fetchComplaints);
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
   return (
     <BrowserRouter>
       <ScrollToAnchor />

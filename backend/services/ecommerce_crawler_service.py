@@ -15,6 +15,7 @@ Architecture:
   2. Fallback only when live network requests are blocked/offline
   3. Deterministic Statutory Rule Engine integration
   4. Automatic Violation logging & draft legal notice generation
+  5. Direct PostgreSQL / Supabase DB persistence for live compliance audits
 """
 
 import os
@@ -43,14 +44,14 @@ CRAWLER_AUTO_INTERVAL_HOURS = int(os.getenv("CRAWLER_AUTO_INTERVAL_HOURS", "24")
 DEFAULT_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9,hi;q=0.8",
+    "Accept-Language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7,hi;q=0.6",
     "Accept-Encoding": "gzip, deflate, br",
     "Cache-Control": "no-cache",
     "Pragma": "no-cache",
-    "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Windows"',
     "Sec-Fetch-Dest": "document",
@@ -62,8 +63,6 @@ DEFAULT_HEADERS = {
 
 
 # ─── Live Catalog Targets (Real Active Products Across 5 Marketplaces) ───────
-# These represent real URLs of packaged commodities across regulated sectors.
-# The scraper ALWAYS attempts live scraping on these URLs first!
 TARGET_PRODUCTS = [
     {
         "platform": "Amazon",
@@ -81,7 +80,7 @@ TARGET_PRODUCTS = [
         "default_mfg_date": "04/2026",
         "default_customer_care": "care@adaniwilmar.in / 1800-233-9999",
         "image_url": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],  # Clean product
+        "known_compliance_issues": [],
     },
     {
         "platform": "Amazon",
@@ -246,25 +245,121 @@ class EcommerceCrawlerService:
             self.execution_logs.pop(0)
         logger.info(f"[{level}] {message}")
 
+    # ─── Database Persistence Layer (Supabase PostgreSQL) ────────────────────
+
+    def _persist_to_db(self, inspected_record: Dict[str, Any]):
+        """
+        Saves the inspected product and any detected statutory violations
+        into Supabase / PostgreSQL tables (ProductModel and ViolationModel).
+        """
+        try:
+            from database import SessionLocal
+            from models.db_models import ProductModel, ViolationModel
+        except Exception as e:
+            logger.debug(f"[Database] Could not import db models for crawler persistence: {e}")
+            return
+
+        db = SessionLocal()
+        try:
+            prod_data = inspected_record.get("product", {})
+            audit_data = inspected_record.get("audit", {})
+            sku = prod_data.get("sku", f"SKU-{random.randint(1000, 9999)}")
+            prod_id = f"PROD-CRAWL-{sku.replace('/', '-')}"
+
+            # Check if product exists in DB
+            existing_prod = db.query(ProductModel).filter((ProductModel.id == prod_id) | (ProductModel.sku == sku)).first()
+
+            status = audit_data.get("status", "compliant")
+            violations_count = audit_data.get("violations_count", 0)
+            score = audit_data.get("compliance_score", 95)
+
+            if not existing_prod:
+                db_prod = ProductModel(
+                    id=prod_id,
+                    sku=sku,
+                    title=prod_data.get("title", "Packaged Commodity"),
+                    brand=prod_data.get("brand", "Unknown"),
+                    manufacturer_name=prod_data.get("manufacturer") or "Registered Manufacturer",
+                    category=prod_data.get("category", "Packaged Commodities"),
+                    platform=prod_data.get("platform", "Direct"),
+                    product_url=prod_data.get("url", ""),
+                    image_url=prod_data.get("image_url", "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600"),
+                    mrp=float(prod_data.get("mrp", 0.0)),
+                    listed_price=float(prod_data.get("listed_price", 0.0)),
+                    net_weight=prod_data.get("net_weight", ""),
+                    mfg_date=prod_data.get("mfg_date", ""),
+                    country_of_origin=prod_data.get("country_of_origin", "India"),
+                    customer_care_contact=prod_data.get("customer_care", ""),
+                    status=status,
+                    compliance_score=score,
+                    violations_count=violations_count,
+                    ocr_confidence=98 if inspected_record.get("is_live") else 90,
+                    missing_mandatory_fields=[v.get("title") for v in audit_data.get("violations", [])],
+                    regulatory_acts=["Legal Metrology Act, 2009", "Legal Metrology (Packaged Commodities) Rules, 2011"],
+                )
+                db.add(db_prod)
+                db.flush()
+            else:
+                existing_prod.status = status
+                existing_prod.compliance_score = score
+                existing_prod.violations_count = violations_count
+                db.flush()
+
+            # Insert new violations if any
+            for v in audit_data.get("violations", []):
+                v_id = f"VIO-CRAWL-{sku}-{v.get('rule_code', 'R6')}"
+                existing_vio = db.query(ViolationModel).filter(ViolationModel.id == v_id).first()
+                if not existing_vio:
+                    new_vio = ViolationModel(
+                        id=v_id,
+                        case_number=audit_data.get("draft_notice", {}).get("case_number") or f"CASE-2026-{random.randint(1000, 9999)}",
+                        product_id=prod_id,
+                        product_name=prod_data.get("title", ""),
+                        brand=prod_data.get("brand", ""),
+                        manufacturer_name=prod_data.get("manufacturer") or "Seller of Record",
+                        platform=prod_data.get("platform", "Amazon"),
+                        rule_code=v.get("rule_code", "RULE-6-1"),
+                        act_name=v.get("act", "Legal Metrology Act, 2009"),
+                        section=v.get("section", "Rule 6(1)"),
+                        description=v.get("title", "Statutory non-compliance detected by autonomous crawler"),
+                        severity=v.get("severity", "CRITICAL"),
+                        status="Notice Issued" if audit_data.get("draft_notice") else "Open",
+                        extracted_value=str(v.get("evidence", "")),
+                        expected_standard=str(v.get("expected", "")),
+                        penalty_estimate=float(v.get("fine_inr", 25000.0)),
+                        assigned_officer="Central Metrology Autonomous Inspector",
+                        notice_id=audit_data.get("draft_notice", {}).get("case_number"),
+                    )
+                    db.add(new_vio)
+
+            db.commit()
+            self.log_event("SUCCESS", f"[Database] Persisted audit record & violations for [{sku}] into Supabase DB")
+        except Exception as e:
+            db.rollback()
+            self.log_event("WARN", f"[Database] Failed to persist audit record to DB: {e}")
+        finally:
+            db.close()
+
     # ─── Tier 1 to 3 Live Scraping Engines ────────────────────────────────────
 
     async def _try_scraperapi(self, url: str) -> Optional[str]:
         """Attempt scraping via ScraperAPI residential proxy (if key provided)."""
-        if not SCRAPER_API_KEY:
+        apiKey = SCRAPER_API_KEY or os.getenv("SCRAPER_API_KEY", "").strip()
+        if not apiKey:
             return None
 
-        self.log_event("DEBUG", f"[ScraperAPI] Attempting live proxy request for {url}")
+        self.log_event("INFO", f"[ScraperAPI] Attempting live proxy request for {url}")
         api_endpoint = "https://api.scraperapi.com"
         params = {
-            "api_key": SCRAPER_API_KEY,
+            "api_key": apiKey,
             "url": url,
-            "render": "true",
             "country_code": "in",
+            "keep_headers": "true",
         }
         try:
             async with httpx.AsyncClient(timeout=25.0) as client:
                 response = await client.get(api_endpoint, params=params)
-                if response.status_code == 200 and len(response.text) > 1000:
+                if response.status_code == 200 and len(response.text) > 800:
                     self.log_event("SUCCESS", f"[ScraperAPI] Live scrape succeeded for {url} ({len(response.text)} bytes)")
                     return response.text
                 self.log_event("WARN", f"[ScraperAPI] Returned status {response.status_code}")
@@ -273,32 +368,40 @@ class EcommerceCrawlerService:
         return None
 
     async def _try_jina_reader(self, url: str) -> Optional[str]:
-        """Attempt scraping via Jina AI Reader (free, no key required)."""
+        """Attempt scraping via Jina AI Reader (free headless markdown extractor)."""
         self.log_event("INFO", f"[Jina Reader] Attempting free live headless scrape for {url}")
         jina_url = f"https://r.jina.ai/{url}"
-        headers = {"Accept": "text/markdown,text/plain"}
+        headers = {
+            "Accept": "text/markdown,text/plain",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            "X-Return-Format": "markdown",
+            "X-With-Generated-Alt": "true",
+            "X-No-Cache": "true",
+        }
         if JINA_API_KEY:
             headers["Authorization"] = f"Bearer {JINA_API_KEY}"
 
         try:
-            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            async with httpx.AsyncClient(timeout=22.0, follow_redirects=True) as client:
                 response = await client.get(jina_url, headers=headers)
-                if response.status_code == 200 and len(response.text) > 500:
-                    self.log_event("SUCCESS", f"[Jina Reader] Live headless scrape succeeded ({len(response.text)} bytes)")
-                    return response.text
+                if response.status_code == 200 and len(response.text) > 400:
+                    # Check for rate limit or generic error text
+                    if "Jina Reader - Rate limit exceeded" not in response.text and "Target URL returned error" not in response.text:
+                        self.log_event("SUCCESS", f"[Jina Reader] Live headless scrape succeeded ({len(response.text)} bytes)")
+                        return response.text
                 self.log_event("WARN", f"[Jina Reader] Returned status {response.status_code}")
         except Exception as e:
-            self.log_event("WARN", f"[Jina Reader] Live request timed out / failed: {str(e)}")
+            self.log_event("WARN", f"[Jina Reader] Live request failed: {str(e)}")
         return None
 
     async def _try_direct_stealth(self, url: str) -> Optional[str]:
-        """Attempt direct HTTP request using browser headers."""
+        """Attempt direct HTTP request using browser headers and OpenGraph extraction."""
         self.log_event("INFO", f"[Direct Stealth] Attempting direct HTTP request for {url}")
         try:
             async with httpx.AsyncClient(timeout=15.0, headers=DEFAULT_HEADERS, follow_redirects=True) as client:
                 response = await client.get(url)
-                if response.status_code == 200 and len(response.text) > 2000:
-                    # Check if blocked by Amazon robot check or Flipkart captcha
+                if response.status_code == 200 and len(response.text) > 1500:
+                    # Check if blocked by robot check
                     if "api-services-support@amazon.com" in response.text or "Type the characters you see" in response.text:
                         self.log_event("WARN", "[Direct Stealth] Marketplace returned CAPTCHA robot check")
                         return None
@@ -311,12 +414,11 @@ class EcommerceCrawlerService:
 
     async def fetch_page_content(self, url: str) -> Tuple[Optional[str], str]:
         """
-        Attempts actual live scraping first.
-        Cascade:
+        Attempts actual live scraping with cascade fallback.
+        Priority:
           1. ScraperAPI (if key configured)
-          2. Jina AI Reader
+          2. Jina AI Reader (live headless markdown extraction)
           3. Direct Stealth HTTP
-        Returns: (html_or_markdown_content, method_used)
         """
         # 1. ScraperAPI
         content = await self._try_scraperapi(url)
@@ -333,8 +435,7 @@ class EcommerceCrawlerService:
         if content:
             return content, "direct_stealth"
 
-        # Fallback indicated
-        return None, "live_failed"
+        return None, "fallback_catalog"
 
     # ─── Statutory Declaration Parser ─────────────────────────────────────────
 
@@ -371,7 +472,7 @@ class EcommerceCrawlerService:
             "dietary_type": "Vegetarian",
         }
 
-        # If we got live scraped content, attempt dynamic regex/DOM extraction to enrich fields!
+        # If live scraped content is available, parse dynamic values
         if raw_content:
             text = raw_content
 
@@ -379,7 +480,7 @@ class EcommerceCrawlerService:
             title_m = re.search(r"Title:\s*([^\n\r]+)", text, re.I) or re.search(r"<title>([^<]+)</title>", text, re.I)
             if title_m:
                 clean_title = title_m.group(1).split("|")[0].split("-")[0].strip()
-                if len(clean_title) > 5:
+                if len(clean_title) > 5 and not clean_title.lower().startswith("robot"):
                     extracted["title"] = clean_title
 
             # Country of Origin extraction
@@ -425,7 +526,6 @@ class EcommerceCrawlerService:
             )
             if mfg_m:
                 clean_mfg = mfg_m.group(1).strip()
-                # filter out HTML tags if present
                 clean_mfg = re.sub(r"<[^>]+>", "", clean_mfg).strip()
                 if len(clean_mfg) > 8:
                     extracted["manufacturer"] = clean_mfg
@@ -450,7 +550,7 @@ class EcommerceCrawlerService:
         passed_rules: List[str] = []
         compounding_fine_inr = 0.0
 
-        # Check 1: Rule 6(1)(a) - Manufacturer / Packer Complete Name & Address
+        # Check 1: Rule 6(1)(a) - Manufacturer / Packer Identity & Complete Address
         mfg = (product.get("manufacturer") or "").strip()
         if not mfg:
             violations.append({
@@ -460,11 +560,11 @@ class EcommerceCrawlerService:
                 "title": "Missing Manufacturer / Packer Identity",
                 "severity": "CRITICAL",
                 "evidence": "(Not declared on listing)",
-                "expected": "Full legal business name and registered premises address of manufacturer/packer/importer.",
+                "expected": "Full legal name and complete registered premises address of manufacturer/packer/importer.",
                 "fine_inr": 25000.0,
             })
             compounding_fine_inr += 25000.0
-        elif len(mfg) < 25 or not any(kw in mfg.lower() for kw in ["road", "street", "plot", "sector", "estate", "nagar", "floor", "building", "dist", "pincode", "pin", "-", "west bengal", "maharashtra", "delhi", "karnataka", "tamil nadu", "gujarat", "uttar pradesh"]):
+        elif len(mfg) < 25 or not re.search(r"\b(road|street|plot|sector|estate|nagar|floor|building|dist|pin|pincode|\d{6})\b", mfg, re.I):
             warnings.append({
                 "rule_code": "RULE-6-1-A-ADDR",
                 "act": "Legal Metrology (Packaged Commodities) Rules, 2011",
@@ -479,7 +579,7 @@ class EcommerceCrawlerService:
         else:
             passed_rules.append("Rule 6(1)(a): Manufacturer details verified")
 
-        # Check 2: Rule 6(1)(b) & Rule 6(10) - Country of Origin on E-Commerce
+        # Check 2: Rule 6(1)(b) & Rule 6(10) (2017 Amendment) - Country of Origin on E-Commerce
         origin = (product.get("country_of_origin") or "").strip()
         if not origin:
             violations.append({
@@ -658,7 +758,7 @@ class EcommerceCrawlerService:
     # ─── Inspection Execution Pipeline ────────────────────────────────────────
 
     async def inspect_single_product(self, product_meta: Dict[str, Any]) -> Dict[str, Any]:
-        """Inspects one product: tries live scrape first, audits, logs."""
+        """Inspects one product: tries live scrape first, audits, logs, and persists to DB."""
         url = product_meta.get("url", "")
         platform = product_meta.get("platform", "E-Commerce")
         sku = product_meta.get("sku", "UNKNOWN-SKU")
@@ -669,7 +769,6 @@ class EcommerceCrawlerService:
         raw_content, scrape_method = await self.fetch_page_content(url)
 
         if not raw_content:
-            # ONLY fall back if all actual live requests failed
             self.log_event("WARN", f"[Fallback] Live scraping unreachable/blocked for {url}. Utilizing catalog benchmark data.")
             scrape_method = "fallback_catalog"
 
@@ -684,6 +783,9 @@ class EcommerceCrawlerService:
             "scrape_method": scrape_method,
             "is_live": scrape_method != "fallback_catalog",
         }
+
+        # Persist directly into Supabase PostgreSQL
+        self._persist_to_db(inspected_record)
 
         self.history_records.insert(0, inspected_record)
         if len(self.history_records) > 200:
@@ -780,11 +882,10 @@ class EcommerceCrawlerService:
         return await self.inspect_single_product(meta)
 
     def get_status(self) -> Dict[str, Any]:
-        """Returns current scheduler state and stats."""
-        total_inspected = len(self.history_records)
-        non_compliant = sum(1 for r in self.history_records if r["audit"]["status"] == "non-compliant")
-        compliant = sum(1 for r in self.history_records if r["audit"]["status"] == "compliant")
-        total_penalties = sum(r["audit"]["estimated_penalty_inr"] for r in self.history_records)
+        """Returns the current state and metrics for the dashboard."""
+        non_compliant = sum(1 for r in self.history_records if r.get("audit", {}).get("status") == "non-compliant")
+        compliant = sum(1 for r in self.history_records if r.get("audit", {}).get("status") == "compliant")
+        total_penalties = sum(r.get("audit", {}).get("estimated_penalty_inr", 0.0) for r in self.history_records)
 
         return {
             "service": "SatyaSetu Autonomous E-Commerce Compliance Inspector",
@@ -793,13 +894,13 @@ class EcommerceCrawlerService:
             "interval_hours": CRAWLER_AUTO_INTERVAL_HOURS,
             "last_run_timestamp": self.last_run_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") if self.last_run_timestamp else None,
             "next_run_timestamp": self.next_run_timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") if self.next_run_timestamp else None,
-            "total_inspected": total_inspected,
+            "total_inspected": len(self.history_records),
             "compliant_count": compliant,
             "non_compliant_count": non_compliant,
             "total_penalties_exposed_inr": total_penalties,
-            "scraper_api_configured": bool(SCRAPER_API_KEY),
+            "scraper_api_configured": bool(SCRAPER_API_KEY or os.getenv("SCRAPER_API_KEY")),
             "jina_api_configured": bool(JINA_API_KEY),
-            "free_engines_active": ["Jina AI Reader (Zero-Key)", "Direct Stealth HTTP"],
+            "free_engines_active": ["Jina AI Reader (Markdown)", "Direct Stealth HTTP"],
         }
 
 
