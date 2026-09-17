@@ -16,6 +16,7 @@ import { MOCK_VIOLATIONS } from '../data/mockViolations';
 import { MOCK_MANUFACTURERS } from '../data/mockManufacturers';
 import { MOCK_COMPLAINTS } from '../data/mockComplaints';
 import { MOCK_RULES } from '../data/mockComplianceData';
+import { complaintService } from '../services/complaintService';
 
 interface ComplianceState {
   products: Product[];
@@ -26,6 +27,7 @@ interface ComplianceState {
   selectedProduct: Product | null;
   selectedViolation: Violation | null;
   searchQuery: string;
+  isLoadingComplaints: boolean;
 
   // Actions
   addProduct: (product: Product) => void;
@@ -40,20 +42,21 @@ interface ComplianceState {
   setSearchQuery: (query: string) => void;
   issueNotice: (violationId: string, customNoticeText?: string) => string;
   resolveViolation: (violationId: string) => void;
-  addComplaint: (complaint: Omit<Complaint, 'id' | 'ticketId' | 'submittedAt' | 'status'> | Complaint) => void;
-  addFullComplaint: (complaint: Complaint) => void;
+  fetchComplaints: () => Promise<void>;
+  addComplaint: (complaint: Omit<Complaint, 'id' | 'ticketId' | 'submittedAt' | 'status'> | Complaint) => Promise<void>;
+  addFullComplaint: (complaint: Complaint) => Promise<void>;
   updateOfficerDecision: (
     complaintId: string,
     action: OfficerActionType,
     notes: string,
     officerName?: string,
     assignedInspector?: string
-  ) => void;
-  updateComplaint: (complaint: Complaint) => void;
+  ) => Promise<void>;
+  updateComplaint: (complaint: Complaint) => Promise<void>;
   toggleRule: (ruleId: string) => void;
 }
 
-export const useComplianceStore = create<ComplianceState>((set) => ({
+export const useComplianceStore = create<ComplianceState>((set, get) => ({
   products: MOCK_PRODUCTS,
   violations: MOCK_VIOLATIONS,
   manufacturers: MOCK_MANUFACTURERS,
@@ -62,11 +65,35 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
   selectedProduct: null,
   selectedViolation: null,
   searchQuery: '',
+  isLoadingComplaints: false,
 
   addProduct: (product) => {
     set((state) => ({
       products: [product, ...state.products],
     }));
+  },
+
+  fetchComplaints: async () => {
+    set({ isLoadingComplaints: true });
+    try {
+      const dbComplaints = await complaintService.getComplaints();
+      if (dbComplaints && dbComplaints.length > 0) {
+        // Merge with existing unique mock complaints if not already present
+        set((state) => {
+          const dbIds = new Set(dbComplaints.map((c) => c.ticketId));
+          const nonConflictingMock = state.complaints.filter((c) => !dbIds.has(c.ticketId));
+          return {
+            complaints: [...dbComplaints, ...nonConflictingMock],
+            isLoadingComplaints: false,
+          };
+        });
+      } else {
+        set({ isLoadingComplaints: false });
+      }
+    } catch (err) {
+      console.warn('[Store] Using local/cached complaints fallback:', err);
+      set({ isLoadingComplaints: false });
+    }
   },
 
   addScannedProduct: (scanData, imageUrl, confidence, validationResult) => {
@@ -188,34 +215,49 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
     }));
   },
 
-  addComplaint: (complaintData) => {
+  addComplaint: async (complaintData) => {
+    let newComplaint: Complaint;
     if ('ticketId' in complaintData && 'id' in complaintData) {
-      set((state) => ({
-        complaints: [complaintData as Complaint, ...state.complaints],
-      }));
-      return;
+      newComplaint = complaintData as Complaint;
+    } else {
+      const ticketId = `NCH-GRV-2025-${Math.floor(10000 + Math.random() * 90000)}`;
+      newComplaint = {
+        ...(complaintData as any),
+        id: `CMP-${Date.now()}`,
+        ticketId,
+        submittedAt: 'Just now',
+        status: 'New',
+      };
     }
 
-    const ticketId = `NCH-GRV-2025-${Math.floor(10000 + Math.random() * 90000)}`;
-    const newComplaint: Complaint = {
-      ...(complaintData as any),
-      id: `CMP-${Date.now()}`,
-      ticketId,
-      submittedAt: 'Just now',
-      status: 'New',
-    };
+    // 1. Optimistic UI update
     set((state) => ({
       complaints: [newComplaint, ...state.complaints],
     }));
+
+    // 2. Persist directly to Supabase DB via FastAPI
+    try {
+      await complaintService.createComplaint(newComplaint);
+    } catch (err) {
+      console.warn('[Store] Complaint saved locally; backend DB sync encountered:', err);
+    }
   },
 
-  addFullComplaint: (complaint) => {
+  addFullComplaint: async (complaint) => {
+    // 1. Optimistic UI update
     set((state) => ({
       complaints: [complaint, ...state.complaints],
     }));
+
+    // 2. Persist directly to Supabase DB via FastAPI
+    try {
+      await complaintService.createComplaint(complaint);
+    } catch (err) {
+      console.warn('[Store] Full complaint saved locally; backend DB sync encountered:', err);
+    }
   },
 
-  updateOfficerDecision: (complaintId, action, notes, officerName = 'Inspector Officer', assignedInspector) => {
+  updateOfficerDecision: async (complaintId, action, notes, officerName = 'Inspector Officer', assignedInspector) => {
     const actionStatusMap: Record<OfficerActionType, Complaint['status']> = {
       ACCEPT_INVESTIGATION: 'Investigation',
       REJECT: 'Rejected',
@@ -237,23 +279,24 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
     const newStatus = actionStatusMap[action] || 'Investigation';
     const actionLabel = actionLabelMap[action] || action;
 
+    const newRecord: OfficerDecisionRecord = {
+      id: `odr-${Date.now()}`,
+      timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      officerName,
+      action,
+      actionLabel,
+      notes,
+      assignedInspector,
+    };
+
+    let updatedComplaintTarget: Complaint | undefined;
+
     set((state) => ({
       complaints: state.complaints.map((c) => {
         if (c.id !== complaintId) return c;
 
-        const newRecord: OfficerDecisionRecord = {
-          id: `odr-${Date.now()}`,
-          timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-          officerName,
-          action,
-          actionLabel,
-          notes,
-          assignedInspector,
-        };
-
         const existingHistory = c.officerDecisionHistory || [];
-
-        return {
+        const updated = {
           ...c,
           status: newStatus,
           assignedOfficer: officerName,
@@ -265,16 +308,42 @@ export const useComplianceStore = create<ComplianceState>((set) => ({
               }
             : undefined,
         };
+        updatedComplaintTarget = updated;
+        return updated;
       }),
     }));
+
+    // Sync officer decision to Supabase
+    if (updatedComplaintTarget) {
+      try {
+        await complaintService.updateComplaint(complaintId, {
+          status: newStatus,
+          assigned_officer: officerName,
+          officer_decision_history: updatedComplaintTarget.officerDecisionHistory,
+        });
+      } catch (err) {
+        console.warn('[Store] Officer decision saved locally; backend DB sync encountered:', err);
+      }
+    }
   },
 
-  updateComplaint: (updatedComplaint) => {
+  updateComplaint: async (updatedComplaint) => {
     set((state) => ({
       complaints: state.complaints.map((c) =>
         c.id === updatedComplaint.id ? updatedComplaint : c
       ),
     }));
+
+    try {
+      await complaintService.updateComplaint(updatedComplaint.id, {
+        status: updatedComplaint.status,
+        assigned_officer: updatedComplaint.assignedOfficer,
+        officer_decision_history: updatedComplaint.officerDecisionHistory,
+        needs_review: updatedComplaint.needsReview,
+      });
+    } catch (err) {
+      console.warn('[Store] Update saved locally; backend DB sync encountered:', err);
+    }
   },
 
   toggleRule: (ruleId) => {
