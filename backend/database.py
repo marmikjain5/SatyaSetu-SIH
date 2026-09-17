@@ -17,6 +17,10 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5432/satyadrishti"
 )
+if DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.strip().strip('"').strip("'")
+    # Remove Prisma-specific ?pgbouncer=true param — not supported by psycopg2
+    DATABASE_URL = DATABASE_URL.split("?")[0]
 
 # Detect if PostgreSQL or SQLite
 is_sqlite = DATABASE_URL.startswith("sqlite")
