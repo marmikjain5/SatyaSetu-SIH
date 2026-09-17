@@ -23,6 +23,10 @@ from pathlib import Path
 DEFAULT_OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 DEFAULT_OLLAMA_VISION_MODEL = os.getenv("OLLAMA_VISION_MODEL", "qwen2.5-vl")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+POLLINATIONS_API_KEY = os.getenv("POLLINATIONS_API_KEY", "")
+POLLINATIONS_BASE_URL = os.getenv("POLLINATIONS_BASE_URL", "https://text.pollinations.ai")
+POLLINATIONS_VISION_MODEL = os.getenv("POLLINATIONS_VISION_MODEL", "openai")
+
 
 STATUTORY_VISION_PROMPT = """You are SatyaDrishti's statutory packaging compliance inspector under the Legal Metrology Act, 2009, Legal Metrology (Packaged Commodities) Rules 2011/2022, and Consumer Protection Regulations.
 
@@ -219,6 +223,109 @@ class OllamaVisionProvider:
             return res if res else None
 
 
+class PollinationsVisionProvider:
+    """Cloud Vision Extraction via Pollinations AI API."""
+
+    def __init__(
+        self,
+        api_key: str = POLLINATIONS_API_KEY,
+        base_url: str = POLLINATIONS_BASE_URL,
+        model_name: str = POLLINATIONS_VISION_MODEL,
+        timeout_seconds: int = 60,
+    ):
+        self.api_key = api_key or os.getenv("POLLINATIONS_API_KEY", "")
+        self.base_url = (base_url or os.getenv("POLLINATIONS_BASE_URL", "https://text.pollinations.ai")).rstrip("/")
+        self.model_name = model_name or os.getenv("POLLINATIONS_VISION_MODEL", "openai")
+        self.timeout = timeout_seconds
+
+    def is_available(self) -> bool:
+        enabled = os.getenv("POLLINATIONS_ENABLED", "true").lower() in ("true", "1", "yes")
+        return bool(enabled and (self.api_key or "pollinations.ai" in self.base_url))
+
+
+
+    def extract_declarations(self, base64_image: str) -> Tuple[Optional[Dict[str, Any]], str]:
+        if not self.is_available():
+            return None, "Pollinations AI not configured/available."
+
+        models_to_try = [self.model_name]
+        if "openai" not in models_to_try:
+            models_to_try.append("openai")
+
+
+        url = f"{self.base_url}/v1/chat/completions" if not self.base_url.endswith("/v1/chat/completions") else self.base_url
+
+        for m_name in models_to_try:
+            payload = {
+                "model": m_name,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": STATUTORY_VISION_PROMPT},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "temperature": 0.1,
+                "response_format": {"type": "json_object"}
+            }
+
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "SatyaDrishti-VisionAgent"
+            }
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
+
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers=headers)
+
+            try:
+                import time
+                start_t = time.time()
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    if resp.status == 200:
+                        resp_json = json.loads(resp.read().decode("utf-8"))
+                        choices = resp_json.get("choices", [])
+                        raw_text = ""
+                        if choices:
+                            raw_text = choices[0].get("message", {}).get("content", "")
+                        elif "content" in resp_json:
+                            raw_text = resp_json.get("content", "")
+
+                        elapsed = time.time() - start_t
+                        print(f"[Pollinations Vision] Model: {m_name} | Elapsed: {elapsed:.2f}s")
+
+                        parser = OllamaVisionProvider()
+                        extracted = parser._clean_and_parse_json(raw_text) or {}
+
+                        statutory_keys = {
+                            "productName", "mrp", "netQuantity", "manufacturer",
+                            "manufacturerAddress", "manufacturingDate", "expiryDate",
+                            "batchNumber", "fssaiLicense", "customerCare", "countryOfOrigin"
+                        }
+                        has_statutory_fields = any(
+                            k in statutory_keys and isinstance(v, str) and v.strip() and v != "(Not detected)"
+                            for k, v in extracted.items()
+                        )
+                        if has_statutory_fields:
+                            return extracted, raw_text
+
+
+            except Exception as e:
+                print(f"[Pollinations Vision] Model {m_name} failed: {e}")
+                continue
+
+        return None, "All Pollinations Vision models failed or rate-limited."
+
+
+
 class GeminiVisionProvider:
     """Cloud Vision Extraction via Google Gemini API."""
 
@@ -279,12 +386,14 @@ class GeminiVisionProvider:
 class HybridVisionService:
     """
     Orchestrates Vision Extraction across:
-      1. Local Ollama Vision (qwen2.5-vl / minicpm-v)
-      2. Cloud Gemini Flash Vision
-      3. Fallback flag to client/local OCR
+      1. Cloud Pollinations AI Vision (Priority 1)
+      2. Local Ollama Vision (qwen2.5-vl / minicpm-v) (Fallback 1)
+      3. Cloud Gemini Flash Vision (Fallback 2)
+      4. Fallback flag to client/local OCR
     """
 
     def __init__(self):
+        self.pollinations = PollinationsVisionProvider()
         self.ollama = OllamaVisionProvider()
         self.gemini = GeminiVisionProvider()
 
@@ -302,7 +411,18 @@ class HybridVisionService:
                 "fields": {}
             }
 
-        # 1. Attempt Local Ollama Vision
+        # 1. Attempt Cloud Pollinations AI Vision
+        if self.pollinations.is_available():
+            extracted, raw = self.pollinations.extract_declarations(base64_img)
+            if extracted and isinstance(extracted, dict) and len(extracted) > 0:
+                return {
+                    "status": "success",
+                    "provider": f"Cloud-Pollinations-{self.pollinations.model_name}",
+                    "raw_text": extracted.get("rawDetectedText", raw),
+                    "fields": extracted
+                }
+
+        # 2. Attempt Local Ollama Vision
         if self.ollama.is_available():
             extracted, raw = self.ollama.extract_declarations(base64_img)
             if extracted and isinstance(extracted, dict):
@@ -313,7 +433,7 @@ class HybridVisionService:
                     "fields": extracted
                 }
 
-        # 2. Attempt Cloud Gemini Vision
+        # 3. Attempt Cloud Gemini Vision
         if self.gemini.is_available():
             extracted, raw = self.gemini.extract_declarations(base64_img)
             if extracted and isinstance(extracted, dict):
@@ -324,14 +444,15 @@ class HybridVisionService:
                     "fields": extracted
                 }
 
-        # 3. Neither vision LLM available -> notify caller to use OCR fallback
+        # 4. Neither vision LLM available -> notify caller to use OCR fallback
         return {
             "status": "fallback_to_ocr",
             "provider": "none",
-            "message": "Local Ollama server (http://localhost:11434) and GEMINI_API_KEY unavailable. Proceeding with OCR fallback.",
+            "message": "Pollinations AI, Ollama server, and GEMINI_API_KEY unavailable. Proceeding with OCR fallback.",
             "fields": {}
         }
 
 
 # Singleton instance
 vision_service = HybridVisionService()
+

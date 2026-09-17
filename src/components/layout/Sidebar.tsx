@@ -16,6 +16,7 @@ import {
   BookOpen,
   Scale,
   X,
+
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -109,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: MessageSquareWarning,
       badge: newComplaintsCount > 0 ? `${newComplaintsCount}` : undefined,
       badgeVariant: 'warning' as const,
-      roles: ['admin', 'inspector', 'consumer'],
+      roles: ['admin', 'inspector', 'consumer'], // Exclude manufacturer
     },
     {
       to: '/dashboard/analytics',
@@ -133,6 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
+
   ];
 
   const navItems = allNavItems.filter((item) => item.roles.includes(userRole));

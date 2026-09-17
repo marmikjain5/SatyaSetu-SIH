@@ -70,6 +70,7 @@ export interface DeclarationField {
   ruleDescription: string;
   isMandatory: boolean;
   category: DeclarationFieldCategory;
+  rawMatch?: string;
 }
 
 /** Per-field confidence scores (0–100) */
