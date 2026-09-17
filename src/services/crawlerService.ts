@@ -99,7 +99,7 @@ export interface CrawlerLogEntry {
   details?: Record<string, any>;
 }
 
-const BACKEND_BASE_URL = 'http://localhost:8000';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Built-in catalog benchmarks for client-side fallback if backend server is unreachable
 const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
