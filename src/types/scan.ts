@@ -189,3 +189,45 @@ export interface OCRResult {
 /** Progress callback signature */
 export type OCRProgressCallback = (progress: number, status: string) => void;
 
+// ─── Historical Batch Verification & Dual MRP Detection Types ────────────────
+
+/**
+ * Result of comparing the current scan's batch number against all prior session scans.
+ *
+ * - `verified`          — Same batch number found in history with matching expiry date.
+ * - `fraud_alert`       — Same batch number found with a DIFFERENT expiry date → High Risk.
+ * - `no_previous_record`— First time this batch number has been scanned in this session.
+ */
+export interface BatchVerificationResult {
+  batchNumber: string;
+  status: 'verified' | 'fraud_alert' | 'no_previous_record';
+  /** Scan ID of the first prior scan that shares this batch number */
+  previousScanId?: string;
+  /** Expiry date extracted from the first prior matching scan */
+  previousExpiryDate?: string;
+  /** Expiry date extracted from the current scan */
+  currentExpiryDate?: string;
+  /** Human-readable message summarising the result */
+  message: string;
+}
+
+/**
+ * Result of comparing the scanned MRP against the central Product Directory entry.
+ *
+ * - `verified`  — Scanned MRP matches (within ±2 tolerance) the Product Directory MRP.
+ * - `mismatch`  — MRP values differ → Possible Dual MRP fraud.
+ * - `not_found` — No matching product found in the directory; comparison not possible.
+ */
+export interface MRPVerificationResult {
+  status: 'verified' | 'mismatch' | 'not_found';
+  /** Parsed numeric MRP extracted from the OCR scan */
+  scannedMRP: number;
+  /** MRP recorded in the Product Directory for the matched product */
+  directoryMRP?: number;
+  /** Absolute difference between the two MRP values */
+  difference?: number;
+  /** Title of the directory product that was matched */
+  matchedProductTitle?: string;
+  /** Human-readable message summarising the result */
+  message: string;
+}

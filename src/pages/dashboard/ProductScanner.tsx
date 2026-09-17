@@ -11,6 +11,7 @@ import {
   Download,
   FileCheck,
   ChevronDown,
+  Database,
 } from 'lucide-react';
 import { useScanStore } from '../../store/scanStore';
 import { useReportStore } from '../../store/reportStore';
@@ -30,6 +31,7 @@ import { RecommendationsCard } from '../../components/scanner/RecommendationsCar
 import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
 import { ComplianceReportModal } from '../../components/scanner/ComplianceReportModal';
 import { ReportHistoryModal } from '../../components/scanner/ReportHistoryModal';
+import { HistoricalIntelligencePanel } from '../../components/scanner/HistoricalIntelligencePanel';
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
@@ -302,33 +304,54 @@ export const ProductScanner: React.FC = () => {
         <ComplianceResultsPanel />
       </div>
 
+      {/* Historical Batch Verification & Dual MRP Detection Panel */}
+      {currentScan?.status === 'completed' && <HistoricalIntelligencePanel />}
+
       {/* Mobile Progressive Disclosure for Secondary Panels */}
       <div className="block lg:hidden space-y-4">
         {currentScan?.status === 'completed' && (
-          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
-            <button
-              onClick={() => setShowMobileDeepAnalytics(!showMobileDeepAnalytics)}
-              className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-blue-600" />
-                <span>Readability & Rule Audit ({showMobileDeepAnalytics ? 'Hide' : 'Show'})</span>
-              </span>
-              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileDeepAnalytics ? 'rotate-180' : ''}`} />
-            </button>
-            {showMobileDeepAnalytics && (
-              <div className="p-3 space-y-4 border-t border-slate-200 dark:border-slate-800">
-                <ReadabilityAnalysisPanel />
-                <ScanCorrelationCard />
-                {currentScan?.extractedData && (
-                  <div className="space-y-4">
-                    <RuleAuditView />
-                    <RecommendationsCard />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <>
+            {/* Historical Intelligence accordion on mobile */}
+            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+              <details className="group">
+                <summary className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer list-none">
+                  <span className="flex items-center gap-2">
+                    <Database className="h-4 w-4 text-violet-600" />
+                    <span>Historical Intelligence</span>
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" />
+                </summary>
+                <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+                  <HistoricalIntelligencePanel />
+                </div>
+              </details>
+            </div>
+
+            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+              <button
+                onClick={() => setShowMobileDeepAnalytics(!showMobileDeepAnalytics)}
+                className="w-full flex items-center justify-between p-3.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-600" />
+                  <span>Readability & Rule Audit ({showMobileDeepAnalytics ? 'Hide' : 'Show'})</span>
+                </span>
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showMobileDeepAnalytics ? 'rotate-180' : ''}`} />
+              </button>
+              {showMobileDeepAnalytics && (
+                <div className="p-3 space-y-4 border-t border-slate-200 dark:border-slate-800">
+                  <ReadabilityAnalysisPanel />
+                  <ScanCorrelationCard />
+                  {currentScan?.extractedData && (
+                    <div className="space-y-4">
+                      <RuleAuditView />
+                      <RecommendationsCard />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
