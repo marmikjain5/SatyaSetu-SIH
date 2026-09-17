@@ -14,6 +14,9 @@ if str(_backend_dir) not in sys.path:
 
 from api.routes.database_api import router as database_router
 from api.routes.extraction_api import router as extraction_router
+from api.routes.crawler_api import router as crawler_router
+from services.ecommerce_crawler_service import crawler_service
+import asyncio
 
 app = FastAPI(
     title="SatyaDrishti Regulatory Intelligence API",
@@ -33,6 +36,31 @@ app.add_middleware(
 # Register routers
 app.include_router(database_router)
 app.include_router(extraction_router)
+app.include_router(crawler_router)
+
+
+async def _autonomous_crawler_loop():
+    """Autonomous background worker: runs daily batch of 5 products without human intervention."""
+    # Allow server 5 seconds to warm up
+    await asyncio.sleep(5)
+    while True:
+        try:
+            if crawler_service.auto_schedule_active:
+                crawler_service.log_event("INFO", "[Autonomous Daemon] Waking up for scheduled daily 5-product batch")
+                await crawler_service.run_batch(batch_size=5)
+            # Sleep 24 hours (or configurable hours)
+            sleep_seconds = crawler_service.get_status().get("interval_hours", 24) * 3600
+            await asyncio.sleep(sleep_seconds)
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            crawler_service.log_event("ERROR", f"[Autonomous Daemon] Uncaught error in scheduler loop: {e}")
+            await asyncio.sleep(60)
+
+
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(_autonomous_crawler_loop())
 
 
 @app.get("/health")
@@ -41,6 +69,7 @@ def health_check():
         "status": "healthy",
         "service": "SatyaDrishti Regulatory Backend",
         "database": "PostgreSQL / SQLite Storage Engine Active",
+        "crawler_scheduler": "Active (Autonomous Daily 5-Product Batch)",
     }
 
 

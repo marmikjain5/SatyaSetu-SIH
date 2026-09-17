@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
+  Bot,
   ScanLine,
   ShieldAlert,
   Building2,
@@ -16,7 +17,6 @@ import {
   BookOpen,
   Scale,
   X,
-
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
@@ -75,6 +75,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Products',
       icon: Package,
       badge: 'Live',
+      roles: ['admin', 'inspector'],
+    },
+    {
+      to: '/dashboard/crawler',
+      label: 'E-Commerce Crawler',
+      icon: Bot,
+      badge: 'Auto',
+      badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
     {

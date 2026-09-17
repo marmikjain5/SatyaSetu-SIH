@@ -14,6 +14,7 @@ import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPo
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { AILegalReviewAgent } from './pages/dashboard/AILegalReviewAgent';
+import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
 
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
@@ -34,6 +35,7 @@ export function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<OverviewDashboard />} />
           <Route path="products" element={<ProductsIntelligence />} />
+          <Route path="crawler" element={<EcommerceCrawler />} />
           <Route path="scanner" element={<ProductScanner />} />
           <Route path="violations" element={<ViolationsLedger />} />
           <Route path="manufacturers" element={<ManufacturerRiskRanking />} />

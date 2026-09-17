@@ -13,6 +13,7 @@ import {
   Download,
   Plus,
   ScanLine,
+  Bot,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import { Product, PlatformType, ComplianceStatus } from '../../types/compliance';
@@ -77,6 +78,12 @@ export const ProductsIntelligence: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <Link to="/dashboard/crawler">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-xs">
+              <Bot className="h-3.5 w-3.5 text-indigo-600" />
+              <span>Autonomous Web Crawler (5/Day)</span>
+            </Button>
+          </Link>
           <Link to="/dashboard/scanner">
             <Button variant="primary" size="sm" className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
               <ScanLine className="h-3.5 w-3.5" />
