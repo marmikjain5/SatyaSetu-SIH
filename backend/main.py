@@ -14,6 +14,7 @@ if str(_backend_dir) not in sys.path:
 
 from api.routes.database_api import router as database_router
 from api.routes.extraction_api import router as extraction_router
+from api.routes.email_api import router as email_router
 from api.routes.crawler_api import router as crawler_router
 from services.ecommerce_crawler_service import crawler_service
 import asyncio
@@ -36,6 +37,8 @@ app.add_middleware(
 # Register routers
 app.include_router(database_router)
 app.include_router(extraction_router)
+app.include_router(email_router)
+
 app.include_router(crawler_router)
 
 
@@ -63,7 +66,8 @@ async def on_startup():
     asyncio.create_task(_autonomous_crawler_loop())
 
 
-@app.get("/health")
+@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health_check():
     return {
         "status": "healthy",
