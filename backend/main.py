@@ -35,8 +35,10 @@ app.include_router(database_router)
 app.include_router(extraction_router)
 
 
-@app.api_route("/", methods=["GET", "HEAD"])
-@app.api_route("/health", methods=["GET", "HEAD"])
+@app.get("/")
+@app.head("/")
+@app.get("/health")
+@app.head("/health")
 def health_check():
     return {
         "status": "healthy",
