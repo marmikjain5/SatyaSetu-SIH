@@ -14,6 +14,7 @@ if str(_backend_dir) not in sys.path:
 
 from api.routes.database_api import router as database_router
 from api.routes.extraction_api import router as extraction_router
+from api.routes.email_api import router as email_router
 
 app = FastAPI(
     title="SatyaDrishti Regulatory Intelligence API",
@@ -33,12 +34,12 @@ app.add_middleware(
 # Register routers
 app.include_router(database_router)
 app.include_router(extraction_router)
+app.include_router(email_router)
 
 
-@app.get("/")
-@app.head("/")
-@app.get("/health")
-@app.head("/health")
+
+@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health_check():
     return {
         "status": "healthy",
