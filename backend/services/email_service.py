@@ -290,23 +290,6 @@ def build_surprise_inspection_html_email(options: Dict[str, Any], sender_email: 
 </body>
 </html>"""
 
-      <div style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 12px; color: #475569;">
-        <strong>Authorized Officer Dispatch Command</strong>
-        <br>
-        SatyaSetu Automated Surveillance & Legal Metrology Enforcement Engine
-        <br>
-        <em>Government of India</em>
-      </div>
-    </div>
-
-    <div class="footer">
-      This is an official statutory inspection directive.<br>
-      Dispatched to: {recipient_email} • Generated from SatyaSetu Inspector Portal
-    </div>
-  </div>
-</body>
-</html>"""
-
 
 def send_scn_notice_email(options: Dict[str, Any]) -> Dict[str, Any]:
     """Dispatches Show Cause Notice email via backend Gmail REST API integration."""
