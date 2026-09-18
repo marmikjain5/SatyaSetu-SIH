@@ -290,7 +290,11 @@ def build_surprise_inspection_html_email(options: Dict[str, Any], sender_email: 
 </body>
 </html>"""
 
-        SatyaSetu Automated Surveillance & Legal Metrology Enforcement Engine<br>
+      <div style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 12px; color: #475569;">
+        <strong>Authorized Officer Dispatch Command</strong>
+        <br>
+        SatyaSetu Automated Surveillance & Legal Metrology Enforcement Engine
+        <br>
         <em>Government of India</em>
       </div>
     </div>

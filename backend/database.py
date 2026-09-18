@@ -50,6 +50,27 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+from sqlalchemy import text
+
+def run_migrations():
+    """Ensures existing tables are altered with newly added columns without data loss."""
+    try:
+        with engine.begin() as conn:
+            if is_sqlite:
+                try:
+                    conn.execute(text("ALTER TABLE complaints ADD COLUMN evidence_images JSON DEFAULT '[]'"))
+                except Exception:
+                    pass
+            else:
+                conn.execute(text("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS evidence_images JSON DEFAULT '[]'::json;"))
+                conn.execute(text("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS extracted_evidence_summary JSON DEFAULT '{}'::json;"))
+                conn.execute(text("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS evidence_urls JSON DEFAULT '[]'::json;"))
+                conn.execute(text("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS officer_decision_history JSON DEFAULT '[]'::json;"))
+        print("[Database] Schema column migrations completed successfully.")
+    except Exception as e:
+        print(f"[Database] Migration notice: {e}")
+
+
 def get_db():
     """FastAPI Dependency for database session."""
     db = SessionLocal()
@@ -57,3 +78,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
