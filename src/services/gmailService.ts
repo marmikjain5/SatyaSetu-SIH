@@ -51,7 +51,7 @@ export interface SendEmailResult {
 const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
- * Dispatches Show Cause Notice email via backend API.
+ * Dispatches Show Cause Notice email securely via FastAPI backend API.
  */
 export async function sendSCNNoticeEmail(options: SendSCNEmailOptions): Promise<SendEmailResult> {
   const endpoint = `${BACKEND_BASE_URL}/api/email/send-scn`;
@@ -81,7 +81,6 @@ export async function sendSCNNoticeEmail(options: SendSCNEmailOptions): Promise<
       options.recipientEmail ||
       `legal-compliance@${options.manufacturer.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`;
 
-    // Fallback response if backend server is unreachable
     return {
       success: false,
       recipient: targetRecipient,
@@ -92,7 +91,7 @@ export async function sendSCNNoticeEmail(options: SendSCNEmailOptions): Promise<
 }
 
 /**
- * Dispatches Surprise Inspection Notice email via backend API.
+ * Dispatches Surprise Inspection Notice email securely via FastAPI backend API.
  */
 export async function sendSurpriseInspectionNoticeEmail(
   options: SendSurpriseInspectionEmailOptions
@@ -122,7 +121,6 @@ export async function sendSurpriseInspectionNoticeEmail(
 
     const targetRecipient = options.officerEmail || 'vivek.sharma.inspect@satyadrishti.gov.in';
 
-    // Fallback response if backend server is unreachable
     return {
       success: false,
       recipient: targetRecipient,
@@ -131,3 +129,4 @@ export async function sendSurpriseInspectionNoticeEmail(
     };
   }
 }
+

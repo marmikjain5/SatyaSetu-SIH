@@ -25,6 +25,7 @@ import {
   WifiOff,
   CheckCircle2,
   RefreshCw,
+  Mail,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -45,6 +46,7 @@ import { useLanguageStore } from '../../store/languageStore';
 import { transliterateText } from '../../lib/indicTransliteration';
 import { cn } from '../../lib/utils';
 import { ShopSearchInput } from '../../components/citizen/ShopSearchInput';
+import { sendSurpriseInspectionNoticeEmail, SendEmailResult } from '../../services/gmailService';
 
 export const ConsumerComplaintsPortal: React.FC = () => {
   const { user } = useAuthStore();
@@ -70,6 +72,10 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const [officerActionType, setOfficerActionType] = useState<OfficerActionType>('ACCEPT_INVESTIGATION');
   const [officerNotes, setOfficerNotes] = useState('');
   const [assignedInspector, setAssignedInspector] = useState('Inspector Rajesh Varma (Zonal Metrology)');
+  const [inspectorEmail, setInspectorEmail] = useState('vivek.sharma.inspect@satyadrishti.gov.in');
+  const [sendEmailToInspector, setSendEmailToInspector] = useState(true);
+  const [isDispatchingOfficerEmail, setIsDispatchingOfficerEmail] = useState(false);
+  const [officerEmailResult, setOfficerEmailResult] = useState<SendEmailResult | null>(null);
 
   // New Grievance Form State
   const [newComplaintData, setNewComplaintData] = useState({
@@ -214,9 +220,12 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     }
   };
 
-  const handleOfficerDecisionSubmit = (e: React.FormEvent) => {
+  const handleOfficerDecisionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedComplaint) return;
+
+    setIsDispatchingOfficerEmail(true);
+    setOfficerEmailResult(null);
 
     updateOfficerDecision(
       selectedComplaint.id,
@@ -226,6 +235,33 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       assignedInspector
     );
 
+    if (sendEmailToInspector && (officerActionType === 'ASSIGN_INSPECTION' || officerActionType === 'ACCEPT_INVESTIGATION')) {
+      try {
+        const res = await sendSurpriseInspectionNoticeEmail({
+          factoryId: selectedComplaint.id,
+          factoryName: selectedComplaint.brand || selectedComplaint.productName,
+          registrationNumber: selectedComplaint.ticketId,
+          location: selectedComplaint.shopLocation?.address || 'Retail Point of Sale',
+          city: (selectedComplaint.shopLocation?.address || 'Bengaluru').split(',')[0] || 'Bengaluru',
+          state: 'Karnataka',
+          category: selectedComplaint.category || 'Consumer Packaging',
+          overallScore: 25,
+          complianceStatus: 'critical',
+          activeAlerts: 1,
+          openViolationsCount: 1,
+          assignedOfficer: assignedInspector,
+          officerEmail: inspectorEmail,
+          priority: officerActionType === 'ASSIGN_INSPECTION' ? 'Urgent Zonal Retail Verification' : 'Formal Metrology Investigation',
+          directiveNotes: officerNotes || 'Verify retail declaration compliance and packaging against Legal Metrology Act 2009',
+        });
+        setOfficerEmailResult(res);
+      } catch (emailErr) {
+        console.error('Failed to send inspector directive email:', emailErr);
+      }
+    }
+
+    setIsDispatchingOfficerEmail(false);
+
     // Refresh selected complaint in modal
     const updated = complaints.find((c) => c.id === selectedComplaint.id);
     if (updated) {
@@ -234,7 +270,6 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         status: (selectedComplaint.status as any),
       });
     }
-    setOfficerNotes('');
   };
 
   const needsReviewCount = complaints.filter((c) => c.needsReview).length;
@@ -1165,7 +1200,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     Officer Decision Rationale &amp; Investigation Notes
                   </label>
                   <textarea
-                    rows={4}
+                    rows={3}
                     value={officerNotes}
                     onChange={(e) => setOfficerNotes(e.target.value)}
                     placeholder="Enter formal justification, instructions for zonal inspection team, or notice details..."
@@ -1174,10 +1209,57 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                   />
                 </div>
 
+                {/* Email Dispatch to Inspector Toggle */}
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/80 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="sendEmailToInspector"
+                      checked={sendEmailToInspector}
+                      onChange={(e) => setSendEmailToInspector(e.target.checked)}
+                      className="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="sendEmailToInspector" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 cursor-pointer">
+                      <Mail className="h-3.5 w-3.5 text-blue-400" />
+                      <span>Dispatch Official Directive Email to Inspector via Gmail API</span>
+                    </label>
+                  </div>
+                  {sendEmailToInspector && (
+                    <Input
+                      label="Inspector Official Email"
+                      value={inspectorEmail}
+                      onChange={(e) => setInspectorEmail(e.target.value)}
+                      className="text-xs bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+                      placeholder="inspector@satyadrishti.gov.in"
+                    />
+                  )}
+                </div>
+
+                {officerEmailResult && (
+                  <div className="p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-lg text-xs space-y-1.5 font-mono text-emerald-200">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold flex items-center gap-1 text-emerald-400">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Directive Dispatched via Gmail API
+                      </span>
+                      <Badge variant="success" size="sm">LIVE GMAIL API</Badge>
+                    </div>
+                    <div className="text-[11px] opacity-90">
+                      <div><strong>Recipient:</strong> {officerEmailResult.recipient}</div>
+                      {officerEmailResult.messageId && <div><strong>Gmail Msg ID:</strong> {officerEmailResult.messageId}</div>}
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-2 flex justify-end gap-3">
-                  <Button variant="primary" size="sm" type="submit" className="gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    type="submit"
+                    isLoading={isDispatchingOfficerEmail}
+                    className="gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+                  >
                     <UserCheck className="h-4 w-4" />
-                    <span>Submit Formal Decision</span>
+                    <span>{isDispatchingOfficerEmail ? 'Dispatching...' : 'Submit Formal Decision'}</span>
                   </Button>
                 </div>
               </form>

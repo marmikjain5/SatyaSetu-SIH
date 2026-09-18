@@ -30,6 +30,9 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onScheduleInspection?: (manufacturer: Manufacturer) => void;
+  onIssueSCN?: (manufacturer: Manufacturer, violation?: Violation) => void;
+  onExportPDF?: (manufacturer: Manufacturer) => void;
+  onAddToWatchList?: (manufacturer: Manufacturer) => void;
 }
 
 const RISK_COLORS = {
@@ -59,6 +62,9 @@ export const ManufacturerDossierModal: React.FC<Props> = ({
   isOpen,
   onClose,
   onScheduleInspection,
+  onIssueSCN,
+  onExportPDF,
+  onAddToWatchList,
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'violations' | 'actions'>('overview');
   const navigate = useNavigate();
@@ -405,14 +411,20 @@ export const ManufacturerDossierModal: React.FC<Props> = ({
                         key={action.label}
                         disabled={action.disabled}
                         onClick={() => {
-                          if (action.label.includes('Schedule') && onScheduleInspection) {
+                          if (action.label.includes('Show Cause Notice') && onIssueSCN) {
+                            onIssueSCN(mfg, linkedViolations[0]);
+                          } else if (action.label.includes('Schedule') && onScheduleInspection) {
                             onScheduleInspection(mfg);
-                          } else {
-                            alert(`Action triggered: ${action.label}\n\n(This is a demo — in production this would log to the enforcement ledger.)`);
+                          } else if (action.label.includes('Export') && onExportPDF) {
+                            onExportPDF(mfg);
+                          } else if (action.label.includes('Watch List') && onAddToWatchList) {
+                            onAddToWatchList(mfg);
+                          } else if (action.label.includes('Show Cause Notice')) {
+                            navigate(`/dashboard/violations?entity=${encodeURIComponent(mfg.name.split(' ')[0])}`);
                           }
                         }}
                         className={cn(
-                          'w-full flex items-start gap-3 p-4 rounded-xl text-white text-left transition-all',
+                          'w-full flex items-start gap-3 p-4 rounded-xl text-white text-left transition-all cursor-pointer',
                           action.disabled ? 'opacity-40 cursor-not-allowed bg-slate-400' : action.color
                         )}
                       >
