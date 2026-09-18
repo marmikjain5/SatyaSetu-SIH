@@ -13,13 +13,15 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
-import { Manufacturer } from '../../types/compliance';
+import { Manufacturer, Violation, ViolationSeverity } from '../../types/compliance';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ManufacturerSatelliteMap } from '../../components/maps/ManufacturerSatelliteMap';
 import { ManufacturerDossierModal } from './ManufacturerDossierModal';
+import { ScheduleInspectionModal } from '../../components/manufacturers/ScheduleInspectionModal';
+import { LegalNoticeModal } from './LegalNoticeModal';
 
 type ViewMode = 'split' | 'map' | 'grid';
 
@@ -37,6 +39,9 @@ export const ManufacturerRiskRanking: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [selectedMfg, setSelectedMfg] = useState<Manufacturer | null>(null);
   const [dossierOpen, setDossierOpen] = useState(false);
+  const [inspectionMfg, setInspectionMfg] = useState<Manufacturer | null>(null);
+  const [scnViolation, setScnViolation] = useState<Violation | null>(null);
+  const [watchListAlert, setWatchListAlert] = useState<string | null>(null);
 
   const tiers = ['All', 'Critical', 'High', 'Moderate', 'Low'];
 
@@ -64,8 +69,53 @@ export const ManufacturerRiskRanking: React.FC = () => {
     }
   };
 
+  const handleScheduleInspection = (mfg: Manufacturer) => {
+    setDossierOpen(false);
+    setInspectionMfg(mfg);
+  };
+
+  const handleIssueSCN = (mfg: Manufacturer, existingViolation?: Violation) => {
+    setDossierOpen(false);
+    const targetViolation: Violation = existingViolation || {
+      id: `VIO-SCN-${Date.now()}`,
+      caseNumber: `LM-${mfg.zone.split(' ')[0] || 'BLR'}-${Date.now().toString().slice(-4)}`,
+      productId: `PROD-MFG-${Date.now()}`,
+      productName: mfg.brands[0] ? `${mfg.brands[0]} Packaged Commodity` : `${mfg.name} Core SKU`,
+      brand: mfg.brands[0] || mfg.name,
+      manufacturer: mfg.name,
+      platform: 'Physical Retail / Zonal Market',
+      ruleCode: 'LM-SEC-36',
+      actName: 'Legal Metrology Act 2009',
+      section: 'Section 36',
+      description: `Contravention of mandatory packaging declarations & Legal Metrology standards detected at facility in ${mfg.zone}. Risk Score: ${mfg.riskScore}/100.`,
+      penaltyEstimate: Math.max(25000, mfg.riskScore * 1000),
+      assignedOfficer: 'Inspector Arjun Nair (Bengaluru City Zone 1)',
+      severity: (mfg.riskTier === 'Critical' ? 'critical' : mfg.riskTier === 'High' ? 'high' : 'medium') as ViolationSeverity,
+      status: 'Open',
+      detectedAt: 'Today',
+      evidence: {
+        type: 'Factory Inspection + OCR Measurement',
+        extractedValue: 'Non-compliant statutory declarations / Missing USP',
+        expectedStandard: 'Full compliance with Rule 6, Legal Metrology (Packaged Commodities) Rules 2011',
+      },
+      customerCareEmail: `legal-compliance@${mfg.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+    };
+    setScnViolation(targetViolation);
+  };
+
+  const handleAddToWatchList = (mfg: Manufacturer) => {
+    setWatchListAlert(`Entity "${mfg.name}" has been placed on Enhanced Statutory Monitoring Watch List.`);
+    setTimeout(() => setWatchListAlert(null), 4000);
+  };
+
   return (
     <div className="space-y-5">
+      {watchListAlert && (
+        <div className="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+          <span>{watchListAlert}</span>
+          <button onClick={() => setWatchListAlert(null)} className="text-blue-500 hover:text-blue-800 text-sm">✕</button>
+        </div>
+      )}
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -208,6 +258,27 @@ export const ManufacturerRiskRanking: React.FC = () => {
         violations={violations}
         isOpen={dossierOpen}
         onClose={() => setDossierOpen(false)}
+        onScheduleInspection={handleScheduleInspection}
+        onIssueSCN={handleIssueSCN}
+        onAddToWatchList={handleAddToWatchList}
+      />
+
+      {/* ── Schedule Inspection Directive Modal ── */}
+      <ScheduleInspectionModal
+        manufacturer={inspectionMfg}
+        isOpen={!!inspectionMfg}
+        onClose={() => setInspectionMfg(null)}
+      />
+
+      {/* ── Show Cause Notice (SCN) Drafting & Dispatch Modal ── */}
+      <LegalNoticeModal
+        violation={scnViolation}
+        isOpen={!!scnViolation}
+        onClose={() => setScnViolation(null)}
+        onDispatch={(vioId) => {
+          setWatchListAlert(`Statutory Show Cause Notice officially dispatched via Gmail API!`);
+          setTimeout(() => setWatchListAlert(null), 5000);
+        }}
       />
     </div>
   );
