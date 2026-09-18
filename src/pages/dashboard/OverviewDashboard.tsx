@@ -179,7 +179,7 @@ export const OverviewDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* ── DESKTOP KPI STATS GRID (Unchanged desktop layout >=md) ── */}
+      {/* ── DESKTOP KPI STATS GRID ── */}
       <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Products Analyzed"
@@ -187,35 +187,36 @@ export const OverviewDashboard: React.FC = () => {
           change="+14.2%"
           trend="up"
           trendLabel="vs last month"
-          icon={Package}
           variant="accent"
         />
         <StatCard
           title="Violations Flagged"
+          titleClassName="text-red-600 dark:text-red-400 font-bold"
           value={formatNumber(NATIONAL_STATS.violationsDetected)}
+          valueClassName="text-red-600 dark:text-red-400 font-bold font-mono"
           change="+8.1%"
           trend="up"
           trendLabel="Critical: 1,420"
-          icon={ShieldAlert}
           variant="danger"
         />
         <StatCard
           title="High-Risk Manufacturers"
+          titleClassName="text-amber-700 dark:text-amber-400 font-bold"
           value={formatNumber(manufacturers.filter((m) => m.riskScore >= 60).length)}
           change="Live Sync"
           trend="down"
           trendLabel="Bengaluru Industrial Hubs"
-          icon={Building2}
           variant="warning"
         />
         <StatCard
-          title="Citizen Complaints"
+          title="Citizen Grievances & Complaints"
+          titleClassName="text-red-600 dark:text-red-400 font-bold"
           value={formatNumber(NATIONAL_STATS.consumerComplaints)}
+          valueClassName="text-red-600 dark:text-red-400 font-bold font-mono"
           change="6.4 Days"
           trend="neutral"
           trendLabel="Avg Resolution SLA"
-          icon={MessageSquareWarning}
-          variant="success"
+          variant="danger"
         />
       </div>
 
@@ -308,74 +309,91 @@ export const OverviewDashboard: React.FC = () => {
       </div>
 
       {/* Bottom Row: Priority Cases & Zonal Risk Matrix */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Priority Cases Ledger Preview */}
-        <div className="lg:col-span-7">
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>
-                  <ShieldAlert className="h-4 w-4 text-red-600" />
-                  <span>High-Priority Enforcement Queue</span>
-                </CardTitle>
-                <CardDescription>
-                  Urgent statutory notices requiring officer authorization or hearing.
-                </CardDescription>
-              </div>
-              <Link to="/dashboard/violations">
-                <Button variant="ghost" size="sm" className="text-xs text-blue-600">
-                  View All ({violations.length}) →
-                </Button>
-              </Link>
-            </CardHeader>
-
-            <div className="divide-y divide-slate-100 text-xs">
-              {violations.slice(0, 4).map((violation) => (
-                <div
-                  key={violation.id}
-                  onClick={() => handleInspectViolation(violation.id)}
-                  className="p-3 sm:p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-2"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                    <div
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-mono font-bold text-[10px] sm:text-xs shrink-0 ${
-                        violation.severity === 'critical'
-                          ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-900'
-                          : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
-                      }`}
-                    >
-                      {violation.platform.slice(0, 3).toUpperCase()}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span className="truncate max-w-[130px] sm:max-w-xs">{violation.productName}</span>
-                      </div>
-                      <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
-                        {violation.caseNumber} • {violation.ruleCode}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs">
-                        {formatCurrency(violation.penaltyEstimate)}
-                      </div>
-                      <div className="text-[10px] text-slate-400">Est. Section 36 Penalty</div>
-                    </div>
-                    <StatusBadge status={violation.status} />
-                    <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
-                  </div>
+        <div className="lg:col-span-7 flex flex-col">
+          <Card className="flex flex-col h-full justify-between">
+            <div>
+              <CardHeader>
+                <div>
+                  <CardTitle>
+                    <ShieldAlert className="h-4 w-4 text-red-600" />
+                    <span className="text-red-600 dark:text-red-400 font-bold">High-Priority Enforcement Queue</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Urgent statutory notices requiring officer authorization or hearing.
+                  </CardDescription>
                 </div>
-              ))}
+                <Link to="/dashboard/violations">
+                  <Button variant="ghost" size="sm" className="text-xs text-blue-600">
+                    View All ({violations.length}) →
+                  </Button>
+                </Link>
+              </CardHeader>
+
+              <div className="divide-y divide-slate-100 text-xs">
+                {violations.slice(0, 7).map((violation) => (
+                  <div
+                    key={violation.id}
+                    onClick={() => handleInspectViolation(violation.id)}
+                    className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-2"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <div
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-mono font-bold text-[9px] sm:text-[10px] shrink-0 ${
+                          violation.severity === 'critical'
+                            ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-900'
+                            : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
+                        }`}
+                      >
+                        {violation.platform.slice(0, 3).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                          <span className="truncate max-w-[130px] sm:max-w-xs">{violation.productName}</span>
+                        </div>
+                        <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
+                          {violation.caseNumber} • {violation.ruleCode}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs">
+                          {formatCurrency(violation.penaltyEstimate)}
+                        </div>
+                        <div className="text-[10px] text-slate-400">Est. Penalty</div>
+                      </div>
+                      <StatusBadge status={violation.status} />
+                      <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 mt-auto">
+              <span className="flex items-center gap-1 font-mono">
+                <ShieldAlert className="h-3.5 w-3.5 text-red-600" />
+                Active Legal Metrology Notices
+              </span>
+              <Link
+                to="/dashboard/violations"
+                className="text-blue-600 font-semibold hover:underline flex items-center gap-1"
+              >
+                <span>View All Enforcement Cases ({violations.length})</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </Card>
         </div>
 
         {/* Bengaluru Zonal & Industrial Risk Matrix */}
-        <div className="lg:col-span-5">
-          <Card>
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="lg:col-span-5 flex flex-col">
+          <Card className="flex flex-col h-full justify-between">
+            <div>
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="flex items-center gap-1.5">
                   <Building2 className="h-4 w-4 text-blue-600" />
@@ -601,22 +619,23 @@ export const OverviewDashboard: React.FC = () => {
                 </table>
               )}
             </div>
+          </div>
 
-            <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-              <span className="flex items-center gap-1 font-mono">
-                <MapPin className="h-3.5 w-3.5 text-blue-600" />
-                Bengaluru City Circle (BBMP)
-              </span>
-              <Link
-                to="/dashboard/manufacturers"
-                className="text-blue-600 font-semibold hover:underline flex items-center gap-1"
-              >
-                <span>View Manufacturer Tab ({manufacturers.length} Units)</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </Card>
-        </div>
+          <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 mt-auto">
+            <span className="flex items-center gap-1 font-mono">
+              <MapPin className="h-3.5 w-3.5 text-blue-600" />
+              Bengaluru City Circle (BBMP)
+            </span>
+            <Link
+              to="/dashboard/manufacturers"
+              className="text-blue-600 font-semibold hover:underline flex items-center gap-1"
+            >
+              <span>View Manufacturer Tab ({manufacturers.length} Units)</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </Card>
+      </div>
       </div>
     </div>
   );

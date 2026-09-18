@@ -59,62 +59,47 @@ export const NationalComplianceTrajectoryChart: React.FC<NationalComplianceTraje
         {/* 3 Mini KPI Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
           {/* Card 1: Total Scans */}
-          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/70 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-blue-100/60 text-blue-600 shrink-0">
-              <Package className="h-4 w-4" />
+          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/70 flex flex-col justify-center min-w-[110px]">
+            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+              Total Scans
             </div>
-            <div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                Total Scans
-              </div>
-              <div className="text-base font-extrabold text-slate-900 font-mono leading-tight">
-                3.8M
-              </div>
-              <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
-                <ArrowUpRight className="h-3 w-3" />
-                <span>+42%</span>
-                <span className="text-slate-400 font-normal ml-0.5">vs prev 6M</span>
-              </div>
+            <div className="text-base font-extrabold text-slate-900 font-mono leading-tight">
+              3.8M
+            </div>
+            <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5 mt-0.5">
+              <ArrowUpRight className="h-3 w-3" />
+              <span>+42%</span>
+              <span className="text-slate-400 font-normal ml-0.5">vs prev 6M</span>
             </div>
           </div>
 
           {/* Card 2: Confirmed Violations */}
-          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/70 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-red-100/60 text-red-600 shrink-0">
-              <ShieldAlert className="h-4 w-4" />
+          <div className="bg-red-50/40 rounded-xl p-3 border border-red-200/60 flex flex-col justify-center min-w-[110px]">
+            <div className="text-[10px] text-red-600 font-bold uppercase tracking-wider">
+              Confirmed Violations
             </div>
-            <div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                Confirmed Violations
-              </div>
-              <div className="text-base font-extrabold text-slate-900 font-mono leading-tight">
-                12.4K
-              </div>
-              <div className="text-[10px] text-red-600 font-semibold flex items-center gap-0.5">
-                <ArrowDownRight className="h-3 w-3" />
-                <span>-18%</span>
-                <span className="text-slate-400 font-normal ml-0.5">vs prev 6M</span>
-              </div>
+            <div className="text-base font-extrabold text-red-600 font-mono leading-tight">
+              12.4K
+            </div>
+            <div className="text-[10px] text-red-600 font-semibold flex items-center gap-0.5 mt-0.5">
+              <ArrowDownRight className="h-3 w-3" />
+              <span>-18%</span>
+              <span className="text-red-400 font-normal ml-0.5">vs prev 6M</span>
             </div>
           </div>
 
           {/* Card 3: Compliance Rate */}
-          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/70 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-emerald-100/60 text-emerald-600 shrink-0">
-              <Target className="h-4 w-4" />
+          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/70 flex flex-col justify-center min-w-[110px]">
+            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+              Compliance Rate
             </div>
-            <div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                Compliance Rate
-              </div>
-              <div className="text-base font-extrabold text-slate-900 font-mono leading-tight">
-                99.7%
-              </div>
-              <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
-                <ArrowUpRight className="h-3 w-3" />
-                <span>+0.3%</span>
-                <span className="text-slate-400 font-normal ml-0.5">vs prev 6M</span>
-              </div>
+            <div className="text-base font-extrabold text-slate-900 font-mono leading-tight">
+              99.7%
+            </div>
+            <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5 mt-0.5">
+              <ArrowUpRight className="h-3 w-3" />
+              <span>+0.3%</span>
+              <span className="text-slate-400 font-normal ml-0.5">vs prev 6M</span>
             </div>
           </div>
         </div>
