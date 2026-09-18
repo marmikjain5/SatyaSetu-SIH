@@ -216,20 +216,25 @@ export async function buildEvidenceBackedComplaintCase(
     ocrEvidenceExtracted += ` Scanner detected ${scannerDetectedDiscrepancies.length} additional label discrepancy(s).`;
   }
 
-  const caseCorrelationSummary: CaseCorrelationSummary = {
-    complainantAllegation,
-    ocrEvidenceExtracted,
-    regulatoryMappingSummary: `Mapped primary claim & ${scannerDetectedDiscrepancies.length} scanner-detected label issues to ${matchedRegulatoryItems.length} active statutory rule(s) via Regulatory RAG. Top reference: ${aiMatchedRule}.`,
-    verificationStatus: 'Pending Human Officer Review',
-  };
+  const assignedInspector = input.shopLocation?.name 
+    ? `Inspector Vivek Sharma (${input.shopLocation.name} Zonal Metrology)`
+    : 'Inspector Vivek Sharma (Zonal Metrology Cell)';
 
   const initialOfficerRecord: OfficerDecisionRecord = {
     id: `odr-${Date.now()}`,
     timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-    officerName: 'System Ingestion Triage Engine',
-    action: 'ACCEPT_INVESTIGATION',
-    actionLabel: 'Case Ingested & Triaged',
-    notes: `Case dossier synthesized from consumer claims, multi-evidence OCR, label discrepancy scanning (${scannerDetectedDiscrepancies.length} issues detected), and Regulatory RAG context.`,
+    officerName: 'SatyaSetu Automated Enforcement Engine',
+    action: 'ASSIGN_INSPECTION',
+    actionLabel: 'Assigned Zonal Metrology Officer for On-Site Inspection',
+    notes: `Automated Inspection Directive: Multi-evidence OCR & statutory rule engine verified consumer grievance and label discrepancy (${scannerDetectedDiscrepancies.length} issues detected). Automatically assigned to ${assignedInspector} for on-site physical inspection.`,
+    assignedInspector,
+  };
+
+  const caseCorrelationSummary: CaseCorrelationSummary = {
+    complainantAllegation,
+    ocrEvidenceExtracted,
+    regulatoryMappingSummary: `Mapped primary claim & ${scannerDetectedDiscrepancies.length} scanner-detected label issues to ${matchedRegulatoryItems.length} active statutory rule(s) via Regulatory RAG. Top reference: ${aiMatchedRule}.`,
+    verificationStatus: 'Assigned for Inspection',
   };
 
   const ticketId = `NCH-GRV-2026-${Math.floor(10000 + Math.random() * 90000)}`;
@@ -256,16 +261,17 @@ export async function buildEvidenceBackedComplaintCase(
     regulatoryMappingResult,
     caseCorrelationSummary,
     officerDecisionHistory: [initialOfficerRecord],
-    status: classification.needsReview ? 'Triaged' : 'New',
+    assignedOfficer: assignedInspector,
+    status: 'Assigned for Inspection',
     priority: classification.confidenceScore > 80 || scannerDetectedDiscrepancies.length > 2 ? 'Urgent' : 'High',
     submittedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     sentimentScore: Math.round((0.7 + (classification.confidenceScore / 100) * 0.28) * 100) / 100,
     aiMatchedRule,
-    needsReview: classification.needsReview,
+    needsReview: false,
     scannerDetectedDiscrepancies,
     shopLocation: input.shopLocation,
   };
 
-  onProgress?.(100, 'Complaint Case Dossier Successfully Built');
+  onProgress?.(100, 'Complaint Case Dossier Successfully Built & Automatically Assigned for Inspection');
   return complaint;
 }

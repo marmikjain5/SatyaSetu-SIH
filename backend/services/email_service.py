@@ -65,78 +65,117 @@ def _get_oauth2_access_token(client_id: str, client_secret: str, refresh_token: 
 def build_scn_html_email(options: Dict[str, Any], sender_email: str, recipient_email: str) -> str:
     """Constructs HTML formatted Show Cause Notice email body."""
     penalty_estimate = options.get("penaltyEstimate", 0)
-    # Format penalty in INR format (e.g. ₹50,000)
     try:
         formatted_penalty = f"₹{int(penalty_estimate):,}"
     except Exception:
         formatted_penalty = f"₹{penalty_estimate}"
 
     issue_date = datetime.now().strftime("%d %B %Y")
+    notice_ref = options.get('noticeReference', 'SCN-2026-NOTICE')
+    case_no = options.get('caseNumber', 'CASE-2026')
+    manufacturer = options.get('manufacturer', 'Target Entity')
+    product_name = options.get('productName', '')
+    brand = options.get('brand', '')
+    platform = options.get('platform', 'Direct')
 
     return f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>
-    body {{ font-family: Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 20px; }}
-    .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }}
-    .header {{ background-color: #0f172a; color: #ffffff; text-align: center; padding: 20px; }}
-    .header h1 {{ margin: 0; font-size: 16px; letter-spacing: 1px; }}
-    .header p {{ margin: 5px 0 0 0; font-size: 11px; color: #94a3b8; }}
-    .body {{ padding: 24px; font-size: 13px; line-height: 1.6; }}
-    .meta-box {{ background: #f1f5f9; padding: 12px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #2563eb; }}
-    .contravention-box {{ background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px; margin: 15px 0; }}
-    .contravention-title {{ color: #b91c1c; font-weight: bold; margin-bottom: 5px; }}
-    .footer {{ background: #f8fafc; text-align: center; padding: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; }}
-    .badge {{ display: inline-block; background: #dc2626; color: #ffffff; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 10px; }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; color: #0f172a; margin: 0; padding: 24px 12px; }}
+    .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(15,23,42,0.08); }}
+    .header {{ background-color: #0f172a; color: #ffffff; text-align: left; padding: 24px 28px; border-bottom: 3px solid #dc2626; }}
+    .header-tag {{ display: inline-block; background: #dc2626; color: #ffffff; padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }}
+    .header h1 {{ margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }}
+    .header p {{ margin: 4px 0 0 0; font-size: 11px; color: #94a3b8; letter-spacing: 0.3px; }}
+    .body {{ padding: 28px; font-size: 13px; line-height: 1.6; color: #334155; }}
+    .grid-meta {{ display: table; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; border-spacing: 0; }}
+    .grid-cell {{ display: table-cell; padding: 12px 16px; font-size: 12px; border-right: 1px solid #e2e8f0; }}
+    .grid-cell:last-child {{ border-right: none; }}
+    .cell-label {{ font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }}
+    .cell-val {{ font-weight: 700; color: #0f172a; }}
+    .card-recipient {{ background: #ffffff; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; }}
+    .card-recipient h4 {{ margin: 0 0 4px 0; font-size: 14px; color: #0f172a; font-weight: 700; }}
+    .contravention-box {{ background: #fff5f5; border: 1px solid #fed7d7; border-left: 4px solid #dc2626; border-radius: 8px; padding: 16px; margin: 20px 0; }}
+    .contravention-title {{ color: #991b1b; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }}
+    .data-row {{ margin-bottom: 6px; font-size: 12px; }}
+    .data-row strong {{ color: #0f172a; width: 130px; display: inline-block; }}
+    .penalty-banner {{ background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 16px; margin: 20px 0; text-align: center; }}
+    .penalty-title {{ font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; }}
+    .penalty-amount {{ font-size: 22px; font-weight: 900; color: #1e3a8a; margin: 2px 0; }}
+    .signature-block {{ margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 12px; color: #475569; }}
+    .footer {{ background: #f8fafc; text-align: center; padding: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; line-height: 1.4; }}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>CENTRAL CONSUMER PROTECTION AUTHORITY (CCPA)</h1>
+      <div class="header-tag">Statutory Notice under LM Act 2009</div>
+      <h1>Central Consumer Protection Authority</h1>
       <p>Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India</p>
     </div>
     
     <div class="body">
-      <div style="text-align: right;"><span class="badge">STATUTORY SUMMONS</span></div>
-      
-      <div class="meta-box">
-        <strong>NOTICE REFERENCE:</strong> {options.get('noticeReference', '')}<br>
-        <strong>CASE FILE NUMBER:</strong> {options.get('caseNumber', '')}<br>
-        <strong>DATE OF ISSUANCE:</strong> {issue_date}
+      <div class="grid-meta">
+        <div class="grid-cell">
+          <div class="cell-label">Notice Ref</div>
+          <div class="cell-val">{notice_ref}</div>
+        </div>
+        <div class="grid-cell">
+          <div class="cell-label">Case File</div>
+          <div class="cell-val">{case_no}</div>
+        </div>
+        <div class="grid-cell">
+          <div class="cell-label">Issued Date</div>
+          <div class="cell-val">{issue_date}</div>
+        </div>
       </div>
 
-      <p><strong>TO:</strong><br>
-      The Managing Director / Authorized Compliance Officer<br>
-      <strong>{options.get('manufacturer', '')}</strong><br>
-      Product / Brand: {options.get('productName', '')} ({options.get('brand', '')})<br>
-      E-Commerce Marketplace: {options.get('platform', '')}</p>
+      <div class="card-recipient">
+        <div style="font-size: 10px; font-weight: 700; color: #0284c7; text-transform: uppercase; margin-bottom: 2px;">Notice Addressee</div>
+        <h4>{manufacturer}</h4>
+        <div style="font-size: 12px; color: #475569;">
+          <strong>Product:</strong> {product_name} ({brand}) | <strong>Platform:</strong> {platform}
+        </div>
+      </div>
 
-      <p><strong>SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 & 39 OF LEGAL METROLOGY ACT, 2009 (PACKAGED COMMODITIES RULES, 2011)</strong></p>
+      <p style="margin: 0 0 14px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+        SUBJECT: SHOW CAUSE NOTICE — LEGAL METROLOGY ACT, 2009 (SECTION 36 & 39)
+      </p>
 
-      <p>1. WHEREAS, automated optical surveillance and algorithmic compliance audit conducted by the National SatyaDrishti Intelligence Platform has uncovered prima facie statutory non-compliance in respect of the pre-packaged commodity marketed by your entity.</p>
+      <p style="margin: 0 0 14px 0;">
+        You are hereby notified that an automated optical compliance audit conducted by the <strong>SatyaSetu Intelligence Portal</strong> detected statutory non-compliance in respect of the pre-packaged product listed above.
+      </p>
 
       <div class="contravention-box">
-        <div class="contravention-title">SPECIFIC CONTRAVENTION RECORD</div>
-        <strong>Contravention:</strong> {options.get('description', '')}<br>
-        <strong>Statutory Clause:</strong> {options.get('section', '')} ({options.get('actName', '')})<br>
-        <strong>Optical Evidence Record:</strong> {options.get('extractedValue', '')}<br>
-        <strong>Prescribed Standard:</strong> {options.get('expectedStandard', '')}
+        <div class="contravention-title">Detected Contravention Record</div>
+        <div class="data-row"><strong>Violation:</strong> {options.get('description', '')}</div>
+        <div class="data-row"><strong>Statutory Act:</strong> {options.get('section', '')} ({options.get('actName', '')})</div>
+        <div class="data-row"><strong>Optical Evidence:</strong> <span style="font-family: monospace; color: #b91c1c; font-weight: 700;">{options.get('extractedValue', '')}</span></div>
+        <div class="data-row"><strong>Prescribed Standard:</strong> {options.get('expectedStandard', '')}</div>
       </div>
 
-      <p>2. NOW THEREFORE, you are hereby called upon to <strong>SHOW CAUSE</strong> in writing within <strong>fifteen (15) days</strong> of receipt of this notice as to why penal proceedings involving compoundable penalty up to <strong>{formatted_penalty}</strong> and legal prosecution should not be initiated against your company and designated directors.</p>
+      <div class="penalty-banner">
+        <div class="penalty-title">Potential Compoundable Statutory Fine</div>
+        <div class="penalty-amount">{formatted_penalty}</div>
+        <div style="font-size: 11px; color: #3b82f6; font-weight: 600;">Response Required Within 15 Business Days</div>
+      </div>
 
-      <div style="margin-top: 25px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
-        <strong>Digitally Signed & Dispatched By:</strong><br>
-        {options.get('assignedOfficer', '')}<br>
-        <em>Authorized Regulatory Officer, Legal Metrology Enforcement Division</em>
+      <p style="margin: 0 0 14px 0;">
+        <strong>REQUIRED ACTION:</strong> Please show cause in writing within <strong>fifteen (15) days</strong> from the receipt of this notice explaining why penal proceedings should not be initiated against your company and designated directors.
+      </p>
+
+      <div class="signature-block">
+        <strong>Digitally Dispatched By:</strong><br>
+        <span style="font-weight: 700; color: #0f172a;">{options.get('assignedOfficer', '')}</span><br>
+        <em>Authorized Regulatory Officer, Legal Metrology Division, Govt. of India</em>
       </div>
     </div>
 
     <div class="footer">
-      This is an official statutory communication generated by SatyaDrishti Legal Enforcement Engine.<br>
-      Sent from: {sender_email} • Delivered to: {recipient_email}
+      Official Statutory Communication • SatyaSetu Legal Metrology Directorate<br>
+      Dispatched to: {recipient_email}
     </div>
   </div>
 </body>
@@ -147,7 +186,7 @@ def build_surprise_inspection_html_email(options: Dict[str, Any], sender_email: 
     """Constructs HTML formatted Surprise Inspection Order email body."""
     import random
     directive_ref = f"INSP-DIR-{random.randint(100000, 999999)}"
-    timestamp_str = datetime.now().strftime("%A, %d %B %Y, %I:%M:%S %p")
+    timestamp_str = datetime.now().strftime("%d %b %Y, %I:%M %p")
 
     location = options.get("location", "")
     city = options.get("city", "")
@@ -164,97 +203,92 @@ def build_surprise_inspection_html_email(options: Dict[str, Any], sender_email: 
 
     notes_html = ""
     if directive_notes:
-        notes_html = f'<p style="margin-top: 10px; font-size: 12px; font-style: italic; color: #92400e;"><strong>Special Notes:</strong> {directive_notes}</p>'
+        notes_html = f'<div style="margin-top: 10px; padding: 8px 12px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; font-size: 11px; color: #d48806;"><strong>Special Directive Notes:</strong> {directive_notes}</div>'
 
     return f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>
-    body {{ font-family: Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 20px; }}
-    .container {{ max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }}
-    .header {{ background-color: #0f172a; color: #ffffff; text-align: center; padding: 24px; border-bottom: 4px solid #dc2626; }}
-    .header h1 {{ margin: 0; font-size: 18px; letter-spacing: 1.5px; font-weight: 800; text-transform: uppercase; }}
-    .header p {{ margin: 6px 0 0 0; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }}
-    .body {{ padding: 28px; font-size: 13px; line-height: 1.6; }}
-    .urgent-banner {{ background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 16px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 20px; display: flex; items-center; justify-content: space-between; }}
-    .meta-grid {{ background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 8px; margin: 16px 0; display: grid; gap: 8px; }}
-    .meta-item {{ font-size: 12px; }}
-    .meta-label {{ font-weight: bold; color: #475569; width: 140px; display: inline-block; }}
-    .factory-card {{ background: #eff6ff; border-left: 4px solid #2563eb; padding: 16px; border-radius: 6px; margin: 20px 0; }}
-    .score-badge {{ display: inline-block; background: {score_color}; color: white; padding: 3px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }}
-    .directive-box {{ background: #fffbebfb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 6px; margin: 20px 0; }}
-    .maps-box {{ background: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px 16px; border-radius: 8px; margin: 16px 0; }}
-    .maps-btn {{ display: inline-block; background-color: #16a34a; color: #ffffff !important; text-decoration: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; font-size: 12px; margin-top: 8px; }}
-    .footer {{ background: #f8fafc; text-align: center; padding: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; color: #0f172a; margin: 0; padding: 24px 12px; }}
+    .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(15,23,42,0.08); }}
+    .header {{ background-color: #0f172a; color: #ffffff; text-align: left; padding: 24px 28px; border-bottom: 3px solid #dc2626; }}
+    .header-badge {{ display: inline-block; background: #dc2626; color: #ffffff; padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }}
+    .header h1 {{ margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }}
+    .header p {{ margin: 4px 0 0 0; font-size: 11px; color: #94a3b8; letter-spacing: 0.3px; }}
+    .body {{ padding: 28px; font-size: 13px; line-height: 1.6; color: #334155; }}
+    .meta-grid {{ display: table; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; border-spacing: 0; }}
+    .meta-cell {{ display: table-cell; padding: 12px 16px; font-size: 12px; border-right: 1px solid #e2e8f0; }}
+    .meta-cell:last-child {{ border-right: none; }}
+    .cell-label {{ font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }}
+    .cell-val {{ font-weight: 700; color: #0f172a; }}
+    .factory-card {{ background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin: 20px 0; }}
+    .factory-name {{ font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 4px; }}
+    .maps-btn {{ display: inline-block; background-color: #16a34a; color: #ffffff !important; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 12px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+    .footer {{ background: #f8fafc; text-align: center; padding: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; line-height: 1.4; }}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>SatyaSetu Intelligence & Enforcement Portal</h1>
-      <p>Central Consumer Protection Authority • Ministry of Consumer Affairs, Govt. of India</p>
+      <div class="header-badge">🚨 Inspection Directive</div>
+      <h1>SatyaSetu Enforcement Portal</h1>
+      <p>Central Consumer Protection Authority • Govt. of India</p>
     </div>
     
     <div class="body">
-      <div class="urgent-banner">
-        <span>🚨 URGENT: UNANNOUNCED SURPRISE INSPECTION DIRECTIVE</span>
-      </div>
-      
-      <p><strong>OFFICIAL ORDER ISSUED TO:</strong><br>
-      <strong>{options.get('assignedOfficer', '')}</strong><br>
-      Regulatory Compliance & Enforcement Division</p>
-
       <div class="meta-grid">
-        <div class="meta-item"><span class="meta-label">DIRECTIVE REF:</span> <strong>{directive_ref}</strong></div>
-        <div class="meta-item"><span class="meta-label">DISPATCH TIMESTAMP:</span> <span>{timestamp_str}</span></div>
-        <div class="meta-item"><span class="meta-label">PRIORITY STATUS:</span> <span style="color: #dc2626; font-weight: bold;">{priority}</span></div>
+        <div class="meta-cell">
+          <div class="cell-label">Directive Ref</div>
+          <div class="cell-val">{directive_ref}</div>
+        </div>
+        <div class="meta-cell">
+          <div class="cell-label">Dispatch Time</div>
+          <div class="cell-val">{timestamp_str}</div>
+        </div>
+        <div class="meta-cell">
+          <div class="cell-label">Priority</div>
+          <div class="cell-val" style="color: #dc2626;">{priority}</div>
+        </div>
       </div>
 
-      <p>In accordance with statutory powers vested under the Legal Metrology Act, 2009 and Central Compliance Guidelines, you are hereby ordered to conduct an <strong>immediate, unannounced surprise physical inspection</strong> of the following manufacturing facility:</p>
+      <p style="margin: 0 0 14px 0;">
+        <strong>ASSIGNED INSPECTOR:</strong> {options.get('assignedOfficer', '')}<br>
+        You are hereby directed to execute an <strong>unannounced physical inspection</strong> of the facility specified below:
+      </p>
 
       <div class="factory-card">
-        <div style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-bottom: 6px;">{factory_name}</div>
-        <div style="font-size: 12px; color: #3b82f6; margin-bottom: 12px;">Category: {options.get('category', '')}</div>
-        
-        <div class="meta-item"><span class="meta-label">Registration No:</span> {options.get('registrationNumber', '')}</div>
-        <div class="meta-item"><span class="meta-label">Facility Location:</span> {location}, {city}, {state}</div>
-        <div class="meta-item" style="margin-top: 8px;">
-          <span class="meta-label">Compliance Score:</span>
-          <span class="score-badge">{overall_score}/100 ({compliance_status})</span>
+        <div class="factory-name">{factory_name}</div>
+        <div style="font-size: 12px; color: #2563eb; margin-bottom: 8px;"><strong>Category:</strong> {options.get('category', '')} | <strong>Reg No:</strong> {options.get('registrationNumber', '')}</div>
+        <div style="font-size: 12px; color: #334155;"><strong>Facility Address:</strong> {location}, {city}, {state}</div>
+        <div style="margin-top: 10px;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Compliance Health:</span>
+          <span style="display: inline-block; background: {score_color}; color: white; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 11px; margin-left: 6px;">
+            {overall_score}/100 ({compliance_status})
+          </span>
         </div>
-        <div class="meta-item" style="margin-top: 4px;">
-          <span class="meta-label">Active Alerts:</span> <strong>{options.get('activeAlerts', 0)} alerts</strong> | 
-          <span class="meta-label" style="width: auto;">Open Violations:</span> <strong>{options.get('openViolationsCount', 0)} open</strong>
-        </div>
-      </div>
-
-      <!-- ── Google Maps Navigation Box ── -->
-      <div class="maps-box">
-        <div style="font-weight: bold; color: #15803d; font-size: 13px;">📍 FACILITY LOCATION & NAVIGATION</div>
-        <div style="font-size: 12px; color: #166534; margin-top: 4px;">
-          <strong>Target Address:</strong> {location}, {city}, {state}
-        </div>
-        <a href="{maps_url}" target="_blank" class="maps-btn">
-          🗺️ Open Directions on Google Maps &rarr;
-        </a>
-        <div style="font-size: 10px; color: #15803d; margin-top: 6px; word-break: break-all;">
-          Direct Link: <a href="{maps_url}" target="_blank" style="color: #15803d;">{maps_url}</a>
-        </div>
-      </div>
-
-      <div class="directive-box">
-        <div style="font-weight: bold; color: #b45309; margin-bottom: 6px;">INSPECTION SCOPE & MANDATE:</div>
-        <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #78350f;">
-          <li>Inspect packaged commodities for mandatory Legal Metrology (PCR 2011) declarations.</li>
-          <li>Audit net quantity declarations and check for weight/volume discrepancies.</li>
-          <li>Verify Maximum Retail Price (MRP) declarations and check for dual pricing or smudging.</li>
-          <li>Verify manufacturer, packer, and importer address and contact declarations.</li>
-        </ul>
         {notes_html}
       </div>
 
-      <p>Please log inspection findings, high-resolution photographic evidence, and formal verification records back into the SatyaSetu Inspector Portal immediately upon conclusion of the audit.</p>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px; margin: 20px 0; text-align: center;">
+        <div style="font-weight: 700; color: #166534; font-size: 12px;">📍 Facility Map Navigation</div>
+        <a href="{maps_url}" target="_blank" class="maps-btn">
+          🗺️ Open Google Maps Directions &rarr;
+        </a>
+      </div>
+
+      <p style="margin: 0; font-size: 12px; color: #64748b;">
+        Please record physical inspection findings and photographic evidence into the SatyaSetu Inspector Portal immediately upon completion.
+      </p>
+    </div>
+
+    <div class="footer">
+      Official Statutory Enforcement Order • Central Consumer Protection Authority<br>
+      Dispatched to: {recipient_email}
+    </div>
+  </div>
+</body>
+</html>"""
 
       <div style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 12px; color: #475569;">
         <strong>Authorized Officer Dispatch Command</strong>

@@ -78,17 +78,17 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
               print-color-adjust: exact !important;
             }
             body {
-              font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
               color: #0f172a;
               background: #ffffff;
               margin: 0;
-              padding: 12px;
+              padding: 16px;
               font-size: 11px;
               line-height: 1.5;
             }
             .printable-scn-document {
-              background-color: #f8fafc !important;
-              border: 1.5px solid #cbd5e1 !important;
+              background-color: #ffffff !important;
+              border: 1px solid #e2e8f0 !important;
               border-radius: 12px;
               padding: 24px;
               width: 100%;
@@ -291,91 +291,84 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
           <div
             ref={noticePaperRef}
             id="printable-scn-notice"
-            className="printable-scn-document p-6 bg-slate-50 rounded-xl border border-slate-300 font-mono text-slate-800 space-y-4 relative shadow-inner"
+            className="printable-scn-document p-6 bg-white rounded-xl border border-slate-200 font-sans text-slate-800 space-y-4 relative shadow-sm"
           >
             {/* Gov Crest Header */}
-            <div className="text-center pb-4 border-b border-slate-300 space-y-1">
-              <div className="font-bold text-sm tracking-wide uppercase text-slate-900">
-                CENTRAL CONSUMER PROTECTION AUTHORITY (CCPA)
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div>
+                <div className="font-extrabold text-sm tracking-tight uppercase text-slate-900">
+                  CENTRAL CONSUMER PROTECTION AUTHORITY (CCPA)
+                </div>
+                <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+                </div>
               </div>
-              <div className="text-[11px] text-slate-600">
-                Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
-              </div>
-              <div className="text-[10px] text-slate-500">
-                Krishi Bhawan, Dr. Rajendra Prasad Road, New Delhi - 110001
-              </div>
+              <Badge variant="danger" size="sm" className="font-sans text-[10px] uppercase font-bold tracking-wider px-2.5 py-1">
+                STATUTORY SUMMONS
+              </Badge>
             </div>
 
-            {/* Notice Metadata */}
-            <div className="flex justify-between items-start text-[11px]">
+            {/* Notice Metadata Cards */}
+            <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-[11px]">
               <div>
-                <div>
-                  <strong>NOTICE REF:</strong> {noticeReference}
-                </div>
-                <div>
-                  <strong>CASE FILE:</strong> {violation.caseNumber}
-                </div>
-                <div>
-                  <strong>DATE:</strong> 26 February 2025
-                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Notice Ref</div>
+                <div className="font-bold text-slate-900 font-mono text-xs">{noticeReference}</div>
               </div>
-              <div className="text-right">
-                <Badge variant="danger" size="sm" className="font-mono text-[10px] uppercase font-bold tracking-wider">
-                  STATUTORY SUMMONS
-                </Badge>
-                <div className="text-[10px] text-slate-500 mt-1">Reply Mandated in 15 Days</div>
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Case File</div>
+                <div className="font-bold text-slate-900 font-mono text-xs">{violation.caseNumber}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reply Deadline</div>
+                <div className="font-bold text-red-600">15 Business Days</div>
               </div>
             </div>
 
             {/* Notice Addressee */}
-            <div className="pt-2 text-[11px] space-y-0.5">
-              <div className="font-bold">TO:</div>
-              <div>The Principal Officer / Managing Director</div>
-              <div className="font-semibold text-slate-900">{violation.manufacturer}</div>
-              <div className="text-slate-600">Product / Brand: {violation.productName} ({violation.brand})</div>
-              <div className="text-slate-600">E-Commerce Marketplace: {violation.platform}</div>
+            <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100 text-[11px] space-y-0.5">
+              <div className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Notice Addressee</div>
+              <div className="font-bold text-slate-900 text-xs">{violation.manufacturer}</div>
+              <div className="text-slate-600">
+                <strong>Product:</strong> {violation.productName} ({violation.brand}) | <strong>Platform:</strong> {violation.platform}
+              </div>
             </div>
 
-            {/* Notice Body */}
-            <div className="pt-3 space-y-2 text-[11px] leading-relaxed text-slate-800">
-              <p className="font-bold uppercase tracking-wide">
-                SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 & 39 OF LEGAL METROLOGY ACT, 2009 (PACKAGED COMMODITIES RULES, 2011)
-              </p>
+            {/* Notice Subject & Body */}
+            <div className="space-y-3 text-[11px] leading-relaxed text-slate-700">
+              <div className="p-2.5 bg-slate-100/70 rounded-lg font-bold text-slate-900 text-xs tracking-tight">
+                SUBJECT: SHOW CAUSE NOTICE UNDER SECTION 36 & 39 OF LEGAL METROLOGY ACT, 2009 (PCR 2011)
+              </div>
 
               <p>
-                1. WHEREAS, automated optical inspection and algorithmic audit conducted by the National Compliance Intelligence System has uncovered prima facie non-compliance in respect of the pre-packaged commodity marketed by your entity.
+                An optical inspection conducted by the <strong>SatyaSetu Intelligence Portal</strong> has identified statutory non-compliance in the pre-packaged product listed above.
               </p>
 
-              <div className="p-3 bg-white rounded-lg border border-slate-300 space-y-1">
-                <div>
-                  <strong className="text-red-700">SPECIFIC CONTRAVENTION:</strong> {violation.description}
-                </div>
-                <div>
-                  <strong>STATUTORY CLAUSE:</strong> {violation.section} ({violation.actName})
-                </div>
-                <div>
-                  <strong>OPTICAL EVIDENCE RECORD:</strong> {violation.evidence.extractedValue}
-                </div>
-                <div>
-                  <strong>PRESCRIBED STANDARD:</strong> {violation.evidence.expectedStandard}
+              {/* Violation Details Card */}
+              <div className="p-3.5 bg-red-50/60 rounded-lg border border-red-200/80 space-y-1.5">
+                <div className="text-[10px] font-bold text-red-800 uppercase tracking-wider">Detected Contravention Details</div>
+                <div className="text-slate-900 font-semibold text-xs">{violation.description}</div>
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-red-200/60 text-[11px]">
+                  <div><strong>Statutory Clause:</strong> {violation.section} ({violation.actName})</div>
+                  <div><strong>Prescribed Standard:</strong> {violation.evidence.expectedStandard}</div>
+                  <div><strong>Optical Evidence:</strong> <span className="font-mono text-red-700 font-bold">{violation.evidence.extractedValue}</span></div>
+                  <div><strong>Estimated Fine:</strong> <span className="font-bold text-slate-900">{formatCurrency(violation.penaltyEstimate)}</span></div>
                 </div>
               </div>
 
               <p>
-                2. NOW THEREFORE, you are hereby called upon to SHOW CAUSE in writing within fifteen (15) days of receipt of this notice as to why penal proceedings under Section 36(1) / Section 89, involving a compoundable fine of up to{' '}
-                <strong className="text-slate-900">{formatCurrency(violation.penaltyEstimate)}</strong> and prosecution, should not be initiated against your company and its designated directors.
+                You are hereby directed to <strong>SHOW CAUSE</strong> in writing within <strong>fifteen (15) days</strong> of receipt of this notice explaining why compounding penalties and legal proceedings should not be initiated against your entity.
               </p>
             </div>
 
             {/* Signature Block */}
-            <div className="pt-4 border-t border-slate-300 flex justify-between items-end text-[11px]">
+            <div className="pt-3 border-t border-slate-200 flex justify-between items-end text-[11px]">
               <div>
-                <div className="text-[10px] text-slate-500">DIGITALLY SIGNED & VERIFIED BY:</div>
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Digitally Verified By</div>
                 <div className="font-bold text-slate-900">{violation.assignedOfficer}</div>
                 <div className="text-slate-500">Authorized Regulatory Officer, CCPA</div>
               </div>
               <div className="text-right">
-                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                   <Shield className="h-3 w-3" />
                   E-GOV CRYPTO SIGNATURE VALID
                 </span>
