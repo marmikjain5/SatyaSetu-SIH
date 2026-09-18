@@ -144,7 +144,7 @@ export const EcommerceCrawler: React.FC = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-2xl shadow-xl border border-indigo-900/50">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-100 via-indigo-100 to-slate-100 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 text-slate-900 dark:text-white p-6 rounded-2xl shadow-xl border border-indigo-200 dark:border-indigo-900/50">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
             <span className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
@@ -158,7 +158,7 @@ export const EcommerceCrawler: React.FC = () => {
               Autonomous Daemon Active
             </span>
           </div>
-          <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
             Continuously crawls major Indian e-commerce marketplaces (<span className="text-amber-300 font-medium">Amazon</span>,{' '}
             <span className="text-blue-300 font-medium">Flipkart</span>,{' '}
             <span className="text-yellow-300 font-medium">Blinkit</span>,{' '}
@@ -172,7 +172,7 @@ export const EcommerceCrawler: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setShowApiGuideModal(true)}
-            className="text-xs bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-700 gap-1.5 shadow-sm"
+            className="text-xs bg-slate-200/80 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 gap-1.5 shadow-sm"
           >
             <Key className="h-3.5 w-3.5 text-indigo-400" />
             <span>Scraper API Config</span>
@@ -329,11 +329,11 @@ export const EcommerceCrawler: React.FC = () => {
       </Card>
 
       {/* Live Activity & Crawler Terminal Log */}
-      <Card className="bg-slate-950 text-slate-200 border-slate-800 shadow-lg overflow-hidden font-mono text-xs">
-        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
+      <Card className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-800 shadow-lg overflow-hidden font-mono text-xs">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-200/90 dark:bg-slate-900/90 border-b border-slate-300 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Terminal className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-semibold text-slate-300 text-[11px] tracking-wide uppercase">
+            <span className="font-semibold text-slate-600 dark:text-slate-300 text-[11px] tracking-wide uppercase">
               Live Autonomous Crawler Execution Stream
             </span>
           </div>
@@ -357,7 +357,7 @@ export const EcommerceCrawler: React.FC = () => {
               >
                 {log.level}
               </span>
-              <span className="text-slate-300">{log.message}</span>
+              <span className="text-slate-600 dark:text-slate-300">{log.message}</span>
             </div>
           ))}
         </div>
@@ -598,7 +598,7 @@ export const EcommerceCrawler: React.FC = () => {
       {activeNoticeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="px-6 py-4 bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-white flex items-center justify-between border-b border-slate-300 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-indigo-400" />
                 <h3 className="text-base font-bold">
@@ -607,7 +607,7 @@ export const EcommerceCrawler: React.FC = () => {
               </div>
               <button
                 onClick={() => setActiveNoticeModal(null)}
-                className="text-slate-400 hover:text-white text-lg font-bold"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-bold"
               >
                 ✕
               </button>
@@ -672,7 +672,7 @@ export const EcommerceCrawler: React.FC = () => {
       {showApiGuideModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="px-6 py-4 bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-white flex items-center justify-between border-b border-slate-300 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Key className="h-5 w-5 text-indigo-400" />
                 <h3 className="text-base font-bold">
@@ -681,7 +681,7 @@ export const EcommerceCrawler: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowApiGuideModal(false)}
-                className="text-slate-400 hover:text-white text-lg font-bold"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-bold"
               >
                 ✕
               </button>

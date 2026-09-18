@@ -123,22 +123,8 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     category: 'Missing Importer Information (Imported Goods)',
     categoryCode: 'missing_importer',
     description: 'Bought this because the product page highlighted "Proudly Made in India". When the parcel arrived, the box clearly had a sticker saying "Imported & Distributed from Shenzhen PRC" without importer address.',
-    evidenceUrls: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
-    ],
-    evidenceImages: [
-      {
-        id: 'ev-03',
-        originalUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
-        annotatedUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
-        fileName: 'headphones_box_back_panel.jpg',
-        tag: 'Product Label / PDP',
-        uploadedAt: '2025-02-25 18:10 IST',
-        ocrConfidence: 89.0,
-        extractedRawText: 'AuraSound Pro Gen 3. Made in PRC. Imported by: [BLANK]. Country of Origin: China. MRP Rs 4,999.00',
-        detectedBBoxesCount: 3,
-      },
-    ],
+    evidenceUrls: [],
+    evidenceImages: [],
     extractedEvidenceSummary: {
       productName: 'AuraSound Active ANC Bluetooth Headphones Pro Gen 3',
       brand: 'AuraTech Global',
@@ -284,9 +270,7 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     category: 'General Statutory Packaging Compliance Violation',
     categoryCode: 'general_packaging_issue',
     description: 'The product packaging lacked the mandatory manufacturing license number, and the batch number on outer carton did not match the bottle inside.',
-    evidenceUrls: [
-      'https://images.unsplash.com/photo-1608248597358-1f34964cb75a?w=600&auto=format&fit=crop&q=80',
-    ],
+    evidenceUrls: [],
     extractedEvidenceSummary: {
       productName: 'GlowRadiance Vitamin C Serum 30ml',
       brand: 'LuxeGlow Skincare',

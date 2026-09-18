@@ -27,6 +27,7 @@ export interface BackendComplaintPayload {
   needs_review: boolean;
   extracted_evidence_summary?: Record<string, any>;
   evidence_urls?: string[];
+  evidence_images?: any[];
   assigned_officer?: string;
   officer_decision_history?: any[];
   submitted_at?: string;
@@ -65,6 +66,7 @@ export function toBackendComplaintPayload(c: Partial<Complaint>): BackendComplai
       scannerDetectedDiscrepancies: c.scannerDetectedDiscrepancies,
     },
     evidence_urls: c.evidenceUrls || [],
+    evidence_images: c.evidenceImages || [],
     assigned_officer: c.assignedOfficer || 'National Grievance Cell',
     officer_decision_history: c.officerDecisionHistory || [],
     submitted_at: c.submittedAt || new Date().toISOString().replace('T', ' ').substring(0, 19),
@@ -92,7 +94,7 @@ export function fromBackendComplaint(dbItem: any): Complaint {
     categoryCode: meta.categoryCode,
     description: dbItem.description,
     evidenceUrls: dbItem.evidence_urls || [],
-    evidenceImages: meta.evidenceImages,
+    evidenceImages: dbItem.evidence_images?.length ? dbItem.evidence_images : meta.evidenceImages,
     extractedEvidenceSummary: meta,
     classificationResult: meta.classificationResult,
     regulatoryMappingResult: meta.regulatoryMappingResult,

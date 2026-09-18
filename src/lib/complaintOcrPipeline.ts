@@ -14,6 +14,7 @@ import type {
   EvidenceTag,
   ExtractedEvidenceSummary,
 } from '../types/compliance';
+import { uploadEvidenceImage } from '../services/supabaseStorageService';
 
 export interface ProcessedEvidenceInput {
   fileOrUrl: File | string;
@@ -215,10 +216,18 @@ export async function processMultiEvidenceImages(
     // Generate annotated preview copy while leaving original intact
     const annotatedUrl = await createAnnotatedImageCopy(originalDataUrl, declarations);
 
+    // Upload images to Supabase Storage for persistent public URLs
+    const [persistentOriginalUrl, persistentAnnotatedUrl] = await Promise.all([
+      uploadEvidenceImage(originalDataUrl, `original-${item.fileName}`),
+      annotatedUrl
+        ? uploadEvidenceImage(annotatedUrl, `annotated-${item.fileName}`)
+        : Promise.resolve(undefined as string | undefined),
+    ]);
+
     evidenceImages.push({
       id: `ev-img-${Date.now()}-${i}`,
-      originalUrl: originalDataUrl,
-      annotatedUrl,
+      originalUrl: persistentOriginalUrl,
+      annotatedUrl: persistentAnnotatedUrl,
       fileName: item.fileName,
       tag: item.tag,
       uploadedAt: new Date().toISOString(),
