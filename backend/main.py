@@ -61,14 +61,15 @@ async def _autonomous_crawler_loop():
             await asyncio.sleep(60)
 
 
-from database import Base, engine
+from database import Base, engine, run_migrations
 import models.db_models  # Ensure all models are registered
 
 @app.on_event("startup")
 async def on_startup():
     try:
         Base.metadata.create_all(bind=engine)
-        print("[Database] Schema synchronized successfully.")
+        run_migrations()
+        print("[Database] Schema synchronized and migrated successfully.")
     except Exception as e:
         print(f"[Database] Schema sync warning: {e}")
     asyncio.create_task(_autonomous_crawler_loop())

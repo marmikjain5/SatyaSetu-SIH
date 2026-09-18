@@ -96,6 +96,30 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const [submissionProgress, setSubmissionProgress] = useState(0);
   const [submissionStatusText, setSubmissionStatusText] = useState('');
 
+  const currentConsumerName = user?.name || 'Ananya Verma';
+  const currentConsumerEmail = user?.email || 'consumer@demo.gov.in';
+
+  useEffect(() => {
+    if (user?.name || user?.email) {
+      setNewComplaintData((prev) => ({
+        ...prev,
+        consumerName: user.name || prev.consumerName,
+        consumerEmail: user.email || prev.consumerEmail,
+      }));
+    }
+  }, [user]);
+
+  // For a logged in consumer, all grievance records in their portal reflect their own personal identity
+  const displayedComplaints = complaints.map((c) =>
+    isConsumer
+      ? {
+          ...c,
+          consumerName: currentConsumerName,
+          consumerEmail: currentConsumerEmail,
+        }
+      : c
+  );
+
   const statuses = [
     'All',
     'New',
@@ -110,7 +134,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     'Resolved',
   ];
 
-  const filteredComplaints = complaints.filter((c) => {
+  const filteredComplaints = displayedComplaints.filter((c) => {
     const matchesSearch =
       c.ticketId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.consumerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
