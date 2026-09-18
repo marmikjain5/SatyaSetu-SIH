@@ -162,6 +162,7 @@ class ComplaintModel(Base):
     needs_review = Column(Boolean, nullable=False, default=False)
     extracted_evidence_summary = Column(JSON, default=dict)
     evidence_urls = Column(JSON, default=list)
+    evidence_images = Column(JSON, default=list)  # Full EvidenceImageItem[] with OCR metadata & Supabase Storage URLs
     assigned_officer = Column(String(255), nullable=True)
     officer_decision_history = Column(JSON, default=list)
     submitted_at = Column(String(64), nullable=True)

@@ -401,6 +401,7 @@ class ComplaintCreateSchema(BaseModel):
     needs_review: bool = False
     extracted_evidence_summary: Dict[str, Any] = Field(default_factory=dict)
     evidence_urls: List[str] = Field(default_factory=list)
+    evidence_images: List[Any] = Field(default_factory=list)
     assigned_officer: Optional[str] = None
     officer_decision_history: List[Any] = Field(default_factory=list)
     submitted_at: Optional[str] = None
@@ -445,6 +446,7 @@ def create_complaint(c_in: ComplaintCreateSchema, db: Session = Depends(get_db))
         needs_review=c_in.needs_review,
         extracted_evidence_summary=c_in.extracted_evidence_summary,
         evidence_urls=c_in.evidence_urls,
+        evidence_images=c_in.evidence_images,
         assigned_officer=c_in.assigned_officer or "Auto-Assigned Officer",
         officer_decision_history=c_in.officer_decision_history,
         submitted_at=c_in.submitted_at or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),

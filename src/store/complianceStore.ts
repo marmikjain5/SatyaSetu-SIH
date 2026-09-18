@@ -28,6 +28,7 @@ interface ComplianceState {
   selectedViolation: Violation | null;
   searchQuery: string;
   isLoadingComplaints: boolean;
+  backendOnline: boolean | null; // null = unknown (not yet fetched)
 
   // Actions
   addProduct: (product: Product) => void;
@@ -66,6 +67,7 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
   selectedViolation: null,
   searchQuery: '',
   isLoadingComplaints: false,
+  backendOnline: null,
 
   addProduct: (product) => {
     set((state) => ({
@@ -78,21 +80,22 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
     try {
       const dbComplaints = await complaintService.getComplaints();
       if (dbComplaints && dbComplaints.length > 0) {
-        // Merge with existing unique mock complaints if not already present
-        set((state) => {
-          const dbIds = new Set(dbComplaints.map((c) => c.ticketId));
-          const nonConflictingMock = state.complaints.filter((c) => !dbIds.has(c.ticketId));
-          return {
-            complaints: [...dbComplaints, ...nonConflictingMock],
-            isLoadingComplaints: false,
-          };
+        // DB is the source of truth — show DB complaints first, append any local mock
+        // complaints whose ticketId doesn't exist in DB (demo scaffolding only)
+        const dbIds = new Set(dbComplaints.map((c) => c.ticketId));
+        const localOnlyMocks = MOCK_COMPLAINTS.filter((c) => !dbIds.has(c.ticketId));
+        set({
+          complaints: [...dbComplaints, ...localOnlyMocks],
+          isLoadingComplaints: false,
+          backendOnline: true,
         });
       } else {
-        set({ isLoadingComplaints: false });
+        // Backend reachable but empty DB — keep mocks
+        set({ isLoadingComplaints: false, backendOnline: true });
       }
     } catch (err) {
-      console.warn('[Store] Using local/cached complaints fallback:', err);
-      set({ isLoadingComplaints: false });
+      console.warn('[Store] Backend unreachable — using local mock complaints:', err);
+      set({ isLoadingComplaints: false, backendOnline: false });
     }
   },
 

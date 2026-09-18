@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MessageSquareWarning,
   Search,
@@ -21,6 +21,10 @@ import {
   X as XIcon,
   Info,
   Store,
+  Database,
+  WifiOff,
+  CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -46,7 +50,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const { user } = useAuthStore();
   const isConsumer = user?.role === 'consumer';
   const { language, setLanguage, t } = useLanguageStore();
-  const { complaints, addFullComplaint, updateOfficerDecision } = useComplianceStore();
+  const { complaints, addFullComplaint, updateOfficerDecision, fetchComplaints, backendOnline, isLoadingComplaints } = useComplianceStore();
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
@@ -313,6 +321,56 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Backend Connection & Fallback Indicator Strip */}
+      {backendOnline === false && (
+        <div className="rounded-xl border border-amber-300 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 p-3.5 flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1 rounded-full bg-amber-200 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 shrink-0">
+              <WifiOff className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="font-bold">Offline Fallback Mode Active:</span>
+              <span className="ml-1 opacity-90">
+                Backend database is currently unreachable. Displaying cached complaints. Any newly lodged grievances are queued locally.
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchComplaints()}
+            disabled={isLoadingComplaints}
+            className="flex items-center gap-1.5 px-3 py-1 bg-amber-200 hover:bg-amber-300 dark:bg-amber-800 dark:hover:bg-amber-700 text-amber-900 dark:text-white rounded-lg font-semibold text-xs shrink-0 transition-all cursor-pointer"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isLoadingComplaints ? 'animate-spin' : ''}`} />
+            <span>{isLoadingComplaints ? 'Reconnecting...' : 'Retry Connection'}</span>
+          </button>
+        </div>
+      )}
+
+      {backendOnline === true && (
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/70 dark:bg-emerald-950/20 px-3.5 py-2 flex items-center justify-between gap-2 text-emerald-800 dark:text-emerald-300 text-xs shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <Database className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="font-semibold">Live Database Connected</span>
+            <span className="text-[11px] opacity-75 hidden sm:inline">— Supabase PostgreSQL &amp; Persistent Evidence Storage Synced</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchComplaints()}
+            disabled={isLoadingComplaints}
+            title="Refresh database records"
+            className="flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100 transition-colors"
+          >
+            <RefreshCw className={`h-3 w-3 ${isLoadingComplaints ? 'animate-spin' : ''}`} />
+            <span>{isLoadingComplaints ? 'Syncing...' : 'Sync'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Metrics Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -967,11 +1025,12 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                         className="max-h-[380px] w-auto object-contain rounded border border-slate-800 shadow-lg"
                       />
                     ) : (
-                      <img
-                        src={selectedComplaint.evidenceUrls?.[0] || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600'}
-                        alt="Default Evidence"
-                        className="max-h-[380px] w-auto object-contain rounded border border-slate-800"
-                      />
+                      <div className="flex flex-col items-center justify-center gap-3 text-slate-500 py-10">
+                        <svg className="h-12 w-12 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-xs font-mono text-slate-600">No evidence images uploaded</p>
+                      </div>
                     )}
                   </div>
 

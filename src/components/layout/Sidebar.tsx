@@ -74,15 +74,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       to: '/dashboard/products',
       label: 'Products',
       icon: Package,
-      badge: 'Live',
       roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/crawler',
       label: 'E-Commerce Crawler',
       icon: Bot,
-      badge: 'Auto',
-      badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
     {
@@ -130,16 +127,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       to: '/dashboard/regulatory-rag',
       label: 'Regulatory RAG',
       icon: BookOpen,
-      badge: 'RAG',
-      badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
     {
       to: '/dashboard/legal-review',
       label: 'AI Legal Review',
       icon: Scale,
-      badge: 'AI',
-      badgeVariant: 'warning' as const,
       roles: ['admin', 'inspector'],
     },
 
@@ -229,19 +222,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="p-3.5 m-3 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user.name}</div>
-                <Badge
-                  variant={
-                    user.role === 'admin'
-                      ? 'primary'
-                      : user.role === 'inspector'
-                      ? 'warning'
-                      : 'success'
-                  }
-                  size="sm"
-                  className="uppercase text-[9px] font-bold px-1.5 py-0.2"
-                >
-                  {user.role}
-                </Badge>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.designation}</p>
             </div>
