@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
-  Shield,
   Lock,
   Mail,
   Eye,
   EyeOff,
-  Building2,
-  Scale,
-  UserCheck,
   ArrowRight,
   AlertCircle,
+  Languages,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Badge } from '../components/ui/Badge';
 import { useAuthStore, DEMO_PORTAL_CONFIGS } from '../store/authStore';
+import { useLanguageStore } from '../store/languageStore';
+import { SupportedLanguage } from '../types/compliance';
 import { UserRole } from '../types/auth';
 import { GridPattern } from '../components/ui/GridPattern';
 import { AnimatedThemeToggler } from '../components/ui/AnimatedThemeToggler';
@@ -27,6 +25,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { login, isAuthenticated, user } = useAuthStore();
+  const { language, setLanguage, t } = useLanguageStore();
 
   const [activePortal, setActivePortal] = useState<PortalTab>('consumer');
   const [email, setEmail] = useState(DEMO_PORTAL_CONFIGS.consumer.demoEmail);
@@ -157,34 +156,43 @@ export const LoginPage: React.FC = () => {
             to="/"
             className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs transition-colors"
           >
-            ← Public Home
+            {t('publicHome')}
           </Link>
           <Link
             to="/directory"
             className="hidden sm:inline-flex text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 inline-flex items-center gap-1.5 bg-blue-50/90 dark:bg-blue-950/40 backdrop-blur-xs px-3.5 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 shadow-xs transition-colors"
           >
-            <span>Public Catalog (No Login)</span>
+            <span>{t('publicCatalog')}</span>
           </Link>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Language Switcher */}
+          <div className="flex items-center gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
+            <Languages className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+            <select
+              aria-label="Select Language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer pl-0.5"
+            >
+              <option value="en" className="dark:bg-slate-900 text-slate-900 dark:text-white">English</option>
+              <option value="hi" className="dark:bg-slate-900 text-slate-900 dark:text-white">हिन्दी (Hindi)</option>
+              <option value="kn" className="dark:bg-slate-900 text-slate-900 dark:text-white">ಕನ್ನಡ (Kannada)</option>
+              <option value="ta" className="dark:bg-slate-900 text-slate-900 dark:text-white">தமிழ் (Tamil)</option>
+            </select>
+          </div>
+
           <AnimatedThemeToggler />
         </div>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-xl relative z-10 pt-8 sm:pt-4">
-        {/* National Emblem & Branding */}
-        <div className="flex justify-center">
-          <div className="h-14 w-14 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-center text-blue-500 shadow-card">
-            <Shield className="h-8 w-8 text-blue-500" />
-          </div>
-        </div>
-
-        <h2 className="mt-3 text-center text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span> Access Gateways
+        <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span>
         </h2>
         <p className="mt-1 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          Central Consumer Protection Authority & Legal Metrology National Verification Grid
+          {t('loginSubtitle')}
         </p>
       </div>
 
@@ -203,15 +211,12 @@ export const LoginPage: React.FC = () => {
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
               )}
             >
-              <div className="flex items-center gap-1.5">
-                <UserCheck className="h-4 w-4" />
-                <span>Consumer</span>
-              </div>
+              <span>{t('consumerTab')}</span>
               <span className={cn(
                 'text-[10px] font-normal leading-none',
                 activePortal === 'consumer' ? 'text-emerald-100 font-medium' : 'text-slate-400'
               )}>
-                Grievance Only
+                {t('consumerTabSub')}
               </span>
             </button>
 
@@ -226,15 +231,12 @@ export const LoginPage: React.FC = () => {
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
               )}
             >
-              <div className="flex items-center gap-1.5">
-                <Scale className="h-4 w-4" />
-                <span>Inspector</span>
-              </div>
+              <span>{t('inspectorTab')}</span>
               <span className={cn(
                 'text-[10px] font-normal leading-none',
                 activePortal === 'inspector' ? 'text-amber-100 font-medium' : 'text-slate-400'
               )}>
-                Bengaluru City
+                {t('inspectorTabSub')}
               </span>
             </button>
 
@@ -249,15 +251,12 @@ export const LoginPage: React.FC = () => {
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
               )}
             >
-              <div className="flex items-center gap-1.5">
-                <Building2 className="h-4 w-4" />
-                <span>CCPA Admin</span>
-              </div>
+              <span>{t('adminTab')}</span>
               <span className={cn(
                 'text-[10px] font-normal leading-none',
                 activePortal === 'admin' ? 'text-blue-100 font-medium' : 'text-slate-400'
               )}>
-                Directorate
+                {t('adminTabSub')}
               </span>
             </button>
           </div>
@@ -269,20 +268,24 @@ export const LoginPage: React.FC = () => {
           <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                Active Authentication Gateway
+                {t('authGatewayTitle')}
               </span>
-              <Badge variant={currentConfig.badgeVariant} size="sm" className="font-bold text-[10px] uppercase">
-                {currentConfig.badgeLabel}
-              </Badge>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              {activePortal === 'consumer' && <UserCheck className="h-5 w-5 text-emerald-600" />}
-              {activePortal === 'inspector' && <Scale className="h-5 w-5 text-amber-600" />}
-              {activePortal === 'admin' && <Building2 className="h-5 w-5 text-blue-600" />}
-              <span>{currentConfig.name}</span>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <span>
+                {activePortal === 'consumer'
+                  ? t('consumerPortalName')
+                  : activePortal === 'inspector'
+                  ? t('inspectorPortalName')
+                  : t('adminPortalName')}
+              </span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {currentConfig.tagline}
+              {activePortal === 'consumer'
+                ? t('consumerPortalTagline')
+                : activePortal === 'inspector'
+                ? t('inspectorPortalTagline')
+                : t('adminPortalTagline')}
             </p>
           </div>
 
@@ -297,7 +300,7 @@ export const LoginPage: React.FC = () => {
           <form className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
             <div>
               <Input
-                label="Government / Portal Email"
+                label={t('emailLabelSimple')}
                 id="email"
                 type="email"
                 value={email}
@@ -312,7 +315,7 @@ export const LoginPage: React.FC = () => {
                 htmlFor="password"
                 className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5"
               >
-                Access Key / Password
+                {t('passwordLabelSimple')}
               </label>
               <div className="relative rounded-lg">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -336,7 +339,6 @@ export const LoginPage: React.FC = () => {
               </div>
             </div>
 
-
             <Button
               type="submit"
               variant="primary"
@@ -353,21 +355,14 @@ export const LoginPage: React.FC = () => {
             >
               <span>
                 {activePortal === 'consumer'
-                  ? 'Enter Consumer Grievance Portal'
+                  ? t('enterConsumerBtn')
                   : activePortal === 'inspector'
-                  ? 'Enter Inspector Enforcement Gateway'
-                  : 'Enter Central CCPA Directorate'}
+                  ? t('enterInspectorBtn')
+                  : t('enterAdminBtn')}
               </span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
-
-          {/* Footnote */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-center text-[11px] text-slate-400 flex items-center justify-center gap-2">
-            <span>NIC / CERT-In Certified Regulatory Environment</span>
-            <span>•</span>
-            <span>Smart India Hackathon</span>
-          </div>
         </div>
       </div>
     </div>

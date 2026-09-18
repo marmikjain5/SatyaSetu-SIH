@@ -86,9 +86,31 @@ export interface Translations {
   tabCorrelation: string;
   tabEvidence: string;
   tabRag: string;
-  tabActions: string;
   tabAudit: string;
   officerNotice: string;
+
+  // Login Page Translations
+  loginSubtitle: string;
+  publicHome: string;
+  publicCatalog: string;
+  consumerTab: string;
+  consumerTabSub: string;
+  inspectorTab: string;
+  inspectorTabSub: string;
+  adminTab: string;
+  adminTabSub: string;
+  authGatewayTitle: string;
+  consumerPortalName: string;
+  consumerPortalTagline: string;
+  inspectorPortalName: string;
+  inspectorPortalTagline: string;
+  adminPortalName: string;
+  adminPortalTagline: string;
+  emailLabelSimple: string;
+  passwordLabelSimple: string;
+  enterConsumerBtn: string;
+  enterInspectorBtn: string;
+  enterAdminBtn: string;
 }
 
 export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
@@ -171,9 +193,31 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     tabCorrelation: '4-Way Case Correlation',
     tabEvidence: 'Multi-Evidence OCR Audit',
     tabRag: 'Statutory RAG Mapping',
-    tabActions: 'Officer Triage & Actions',
     tabAudit: 'System Audit Log',
     officerNotice: 'Official Officer Dossier View: Displays exact original consumer text, language code, and statutory cross-checks.',
+
+    // Login Page Translations
+    loginSubtitle: 'Central Consumer Protection Authority & Legal Metrology National Verification Grid',
+    publicHome: '← Public Home',
+    publicCatalog: 'Public Catalog (No Login)',
+    consumerTab: 'Consumer',
+    consumerTabSub: 'Grievance Only',
+    inspectorTab: 'Inspector',
+    inspectorTabSub: 'Bengaluru City',
+    adminTab: 'CCPA Admin',
+    adminTabSub: 'Directorate',
+    authGatewayTitle: 'Active Authentication Gateway',
+    consumerPortalName: 'Consumer Grievance Portal',
+    consumerPortalTagline: 'Lodge complaints against deceptive packaging, dual MRP & deceptive units under CPA 2019',
+    inspectorPortalName: 'Zonal Inspector Command',
+    inspectorPortalTagline: 'Optical verification of field evidence, barcode audit & surprise inspection execution',
+    adminPortalName: 'Central Directorate & Enforcement Desk',
+    adminPortalTagline: 'Statutory Show Cause Notice issuance under Section 36 & national compliance ledger',
+    emailLabelSimple: 'Email',
+    passwordLabelSimple: 'Password',
+    enterConsumerBtn: 'Enter Consumer Grievance Portal',
+    enterInspectorBtn: 'Enter Inspector Enforcement Gateway',
+    enterAdminBtn: 'Enter Central CCPA Directorate',
   },
 
   hi: {
@@ -255,9 +299,31 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     tabCorrelation: 'मामला सहसंबंध',
     tabEvidence: 'ओसीआर साक्ष्य ऑडिट',
     tabRag: 'वैधानिक नियम मैपिंग',
-    tabActions: 'अधिकारी कार्रवाई',
     tabAudit: 'सिस्टम ऑडिट लॉग',
     officerNotice: 'अधिकारी केस अवलोकन: उपभोक्ता द्वारा लिखा गया मूल विवरण और भाषा कोड प्रदर्शित करता है।',
+
+    // Login Page Translations
+    loginSubtitle: 'केंद्रीय उपभोक्ता संरक्षण प्राधिकरण एवं विधिक मापविज्ञान राष्ट्रीय सत्यापन ग्रिड',
+    publicHome: '← मुख्य पृष्ठ',
+    publicCatalog: 'सार्वजनिक कैटलॉग (बिना लॉगिन)',
+    consumerTab: 'उपभोक्ता',
+    consumerTabSub: 'केवल शिकायत',
+    inspectorTab: 'निरीक्षक',
+    inspectorTabSub: 'बेंगलुरु सिटी',
+    adminTab: 'CCPA एडमिन',
+    adminTabSub: 'निदेशालय',
+    authGatewayTitle: 'सक्रिय प्रमाणीकरण गेटवे',
+    consumerPortalName: 'उपभोक्ता शिकायत निवारण पोर्टल',
+    consumerPortalTagline: 'भ्रामक पैकेजिंग, दोहरे एमआरपी और भ्रामक इकाइयों के खिलाफ शिकायत दर्ज करें',
+    inspectorPortalName: 'क्षेत्रीय निरीक्षक कमान',
+    inspectorPortalTagline: 'क्षेत्रीय साक्ष्य का सत्यापन, बारकोड ऑडिट एवं औचक निरीक्षण',
+    adminPortalName: 'केंद्रीय निदेशालय एवं प्रवर्तन डेस्क',
+    adminPortalTagline: 'धारा 36 के तहत कारण बताओ नोटिस जारी करना और राष्ट्रीय अनुपालन रिकॉर्ड',
+    emailLabelSimple: 'ईमेल',
+    passwordLabelSimple: 'पासवर्ड',
+    enterConsumerBtn: 'उपभोक्ता शिकायत पोर्टल में प्रवेश करें',
+    enterInspectorBtn: 'निरीक्षक प्रवर्तन गेटवे में प्रवेश करें',
+    enterAdminBtn: 'केंद्रीय CCPA निदेशालय में प्रवेश करें',
   },
 
   kn: {
@@ -339,9 +405,31 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     tabCorrelation: 'ಪ್ರಕರಣದ ಸಂಯೋಜನೆ',
     tabEvidence: 'ಒಸಿಆರ್ ಸಾಕ್ಷ್ಯ ಪರಿಶೀಲನೆ',
     tabRag: 'ಶಾಸನಬದ್ಧ ನಿಯಮ ಮ್ಯಾಪಿಂಗ್',
-    tabActions: 'ಅಧಿಕಾರಿ ಕ್ರಮಗಳು',
     tabAudit: 'ಸಿಸ್ಟಮ್ ಆಡಿಟ್ ಲಾಗ್',
     officerNotice: 'ಅಧಿಕೃತ ಅಧಿಕಾರಿ ಡಾಸಿಯರ್ ನೋಟ: ಗ್ರಾಹಕರು ಬರೆದ ಮೂಲ ವಿವರಣೆ ಮತ್ತು ಭಾಷಾ ಕೋಡ್ ಅನ್ನು ತೋರಿಸುತ್ತದೆ.',
+
+    // Login Page Translations
+    loginSubtitle: 'ಕೇಂದ್ರ ಗ್ರಾಹಕ ಸಂರಕ್ಷಣಾ ಪ್ರಾಧಿಕಾರ ಮತ್ತು ಕಾನೂನು ಮಾಪನಶಾಸ್ತ್ರ ರಾಷ್ಟ್ರೀಯ ಪರಿಶೀಲನಾ ಜಾಲ',
+    publicHome: '← ಮುಖಪುಟ',
+    publicCatalog: 'ಸಾರ್ವಜನಿಕ ಕ್ಯಾಟಲಾಗ್ (ಲಾಗಿನ್ ಇಲ್ಲದೆ)',
+    consumerTab: 'ಗ್ರಾಹಕ',
+    consumerTabSub: 'ದೂರು ಮಾತ್ರ',
+    inspectorTab: 'ಇನ್ಸ್‌ಪೆಕ್ಟರ್',
+    inspectorTabSub: 'ಬೆಂಗಳೂರು ನಗರ',
+    adminTab: 'CCPA ನಿರ್ವಾಹಕ',
+    adminTabSub: 'ನಿರ್ದೇಶನಾಲಯ',
+    authGatewayTitle: 'ಸಕ್ರಿಯ ದೃಢೀಕರಣ ಗೇಟ್‌ವೇ',
+    consumerPortalName: 'ಗ್ರಾಹಕರ ಕುಂದುಕೊರತೆ ಪೋರ್ಟಲ್',
+    consumerPortalTagline: 'ತಪ್ಪುದಾರಿಯೆಳೆಯುವ ಪ್ಯಾಕೇಜಿಂಗ್ ಮತ್ತು MRP ವ್ಯತ್ಯಾಸದ ವಿರುದ್ಧ ದೂರು ಸಲ್ಲಿಸಿ',
+    inspectorPortalName: 'ವಲಯ ಇನ್ಸ್‌ಪೆಕ್ಟರ್ ಕಮಾಂಡ್',
+    inspectorPortalTagline: 'ಸಾಕ್ಷ್ಯಗಳ ದೃಢೀಕರಣ, ಬಾರ್‌ಕೋಡ್ ಆಡಿಟ್ ಮತ್ತು ಅನಿರೀಕ್ಷಿತ ತಪಾಸಣೆ',
+    adminPortalName: 'ಕೇಂದ್ರ ನಿರ್ದೇಶನಾಲಯ ಮತ್ತು ಜಾರಿ ವಿಭಾಗ',
+    adminPortalTagline: 'ಸೆಕ್ಷನ್ 36 ರ ಅಡಿಯಲ್ಲಿ ಕಾರಣ ಕೇಳುವ ನೋಟಿಸ್ ಜಾರಿ ಮತ್ತು ರಾಷ್ಟ್ರೀಯ ದಾಖಲೆಗಳು',
+    emailLabelSimple: 'ಇಮೇಲ್',
+    passwordLabelSimple: 'ಪಾಸ್‌ವರ್ಡ್',
+    enterConsumerBtn: 'ಗ್ರಾಹಕ ದೂರು ಪೋರ್ಟಲ್‌ಗೆ ಪ್ರವೇಶಿಸಿ',
+    enterInspectorBtn: 'ಇನ್ಸ್‌ಪೆಕ್ಟರ್ ಗೇಟ್‌ವೇಗೆ ಪ್ರವೇಶಿಸಿ',
+    enterAdminBtn: 'ಕೇಂದ್ರ CCPA ನಿರ್ದೇಶನಾಲಯಕ್ಕೆ ಪ್ರವೇಶಿಸಿ',
   },
 
   ta: {
@@ -423,8 +511,30 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     tabCorrelation: 'வழக்கு இணைப்பு',
     tabEvidence: 'OCR ஆதார தணிக்கை',
     tabRag: 'சட்ட விதி மேப்பிங்',
-    tabActions: 'அதிகாரி நடவடிக்கைகள்',
     tabAudit: 'சிஸ்டம் தணிக்கைப் பதிவு',
     officerNotice: 'அதிகாரப்பூர்வ கோப்பு பார்வை: நுகர்வோர் எழுதிய அசல் உரை மற்றும் மொழி குறியீட்டைக் காட்டுகிறது.',
+
+    // Login Page Translations
+    loginSubtitle: 'மத்திய நுகர்வோர் பாதுகாப்பு ஆணையம் & சட்ட அளவியல் தேசிய சரிபார்ப்பு தளம்',
+    publicHome: '← முகப்பு',
+    publicCatalog: 'பொது பட்டியல் (உள்நுழைவு தேவையில்லை)',
+    consumerTab: 'நுகர்வோர்',
+    consumerTabSub: 'புகார் மட்டும்',
+    inspectorTab: 'ஆய்வாளர்',
+    inspectorTabSub: 'பெங்களூரு நகரம்',
+    adminTab: 'CCPA நிர்வாகி',
+    adminTabSub: 'இயக்குநரகம்',
+    authGatewayTitle: 'செயலில் உள்ள அங்கீகார நுழைவாயில்',
+    consumerPortalName: 'நுகர்வோர் குறைதீர்ப்பு தளம்',
+    consumerPortalTagline: 'தவறான பேக்கேஜிங் மற்றும் இரட்டை MRP-க்கு எதிராக புகார் பதிவு செய்யவும்',
+    inspectorPortalName: 'மண்டல ஆய்வாளர் கட்டளை',
+    inspectorPortalTagline: 'ஆதார சரிபார்ப்பு, பார்கோடு தணிக்கை மற்றும் திடீர் ஆய்வு',
+    adminPortalName: 'மத்திய இயக்குநரகம் & அமலாக்கப் பிரிவு',
+    adminPortalTagline: 'பிரிவு 36-ன் கீழ் நோட்டீஸ் வழங்குதல் மற்றும் தேசிய இணக்கப் பதிவு',
+    emailLabelSimple: 'மின்னஞ்சல்',
+    passwordLabelSimple: 'கடவுச்சொல்',
+    enterConsumerBtn: 'நுகர்வோர் குறைதீர்ப்பு தளத்தில் நுழையவும்',
+    enterInspectorBtn: 'ஆய்வாளர் நுழைவாயிலில் நுழையவும்',
+    enterAdminBtn: 'மத்திய CCPA இயக்குநரகத்தில் நுழையவும்',
   },
 };
