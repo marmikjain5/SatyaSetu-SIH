@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       to: '/dashboard/crawler',
       label: 'E-Commerce Crawler',
       icon: Bot,
-      roles: ['admin', 'inspector'],
+      roles: ['admin'],
     },
     {
       to: '/dashboard/scanner',
@@ -101,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Manufacturers',
       icon: Building2,
       badge: manufacturers?.length > 0 ? `${manufacturers.length}` : '1.2K',
-      roles: ['admin', 'inspector'],
+      roles: ['admin'],
     },
     {
       to: '/dashboard/complaints',

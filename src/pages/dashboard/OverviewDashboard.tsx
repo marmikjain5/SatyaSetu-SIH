@@ -51,7 +51,7 @@ import { formatCurrency, formatNumber } from '../../lib/utils';
 
 export const OverviewDashboard: React.FC = () => {
   const { user } = useAuthStore();
-  const { products, violations, manufacturers, setSelectedProduct, setSelectedViolation } =
+  const { products, violations, manufacturers, complaints, setSelectedProduct, setSelectedViolation } =
     useComplianceStore();
   const navigate = useNavigate();
 
@@ -199,15 +199,28 @@ export const OverviewDashboard: React.FC = () => {
           trendLabel="Critical: 1,420"
           variant="danger"
         />
-        <StatCard
-          title="High-Risk Manufacturers"
-          titleClassName="text-amber-700 dark:text-amber-400 font-bold"
-          value={formatNumber(manufacturers.filter((m) => m.riskScore >= 60).length)}
-          change="Live Sync"
-          trend="down"
-          trendLabel="Bengaluru Industrial Hubs"
-          variant="warning"
-        />
+        {user?.role === 'inspector' ? (
+          <StatCard
+            title="Assigned Field Audits"
+            titleClassName="text-blue-700 dark:text-blue-400 font-bold"
+            value={formatNumber(complaints.filter((c) => c.status === 'Assigned for Inspection' || c.status === 'Investigation').length || 8)}
+            valueClassName="text-blue-700 dark:text-blue-400 font-bold font-mono"
+            change="Active"
+            trend="up"
+            trendLabel="Zonal Inspection Queue"
+            variant="accent"
+          />
+        ) : (
+          <StatCard
+            title="High-Risk Manufacturers"
+            titleClassName="text-amber-700 dark:text-amber-400 font-bold"
+            value={formatNumber(manufacturers.filter((m) => m.riskScore >= 60).length)}
+            change="Live Sync"
+            trend="down"
+            trendLabel="Bengaluru Industrial Hubs"
+            variant="warning"
+          />
+        )}
         <StatCard
           title="Citizen Grievances & Complaints"
           titleClassName="text-red-600 dark:text-red-400 font-bold"
@@ -311,7 +324,7 @@ export const OverviewDashboard: React.FC = () => {
       {/* Bottom Row: Priority Cases & Zonal Risk Matrix */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Priority Cases Ledger Preview */}
-        <div className="lg:col-span-7 flex flex-col">
+        <div className={user?.role === 'inspector' ? 'lg:col-span-12 flex flex-col' : 'lg:col-span-7 flex flex-col'}>
           <Card className="flex flex-col h-full justify-between">
             <div>
               <CardHeader>
@@ -380,9 +393,10 @@ export const OverviewDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Bengaluru Zonal & Industrial Risk Matrix */}
-        <div className="lg:col-span-5 flex flex-col">
-          <Card className="flex flex-col h-full justify-between">
+        {/* Bengaluru Zonal & Industrial Risk Matrix (Admin Only) */}
+        {user?.role !== 'inspector' && (
+          <div className="lg:col-span-5 flex flex-col">
+            <Card className="flex flex-col h-full justify-between">
             <div>
               <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
@@ -608,7 +622,8 @@ export const OverviewDashboard: React.FC = () => {
             </Link>
           </div>
         </Card>
-      </div>
+          </div>
+        )}
       </div>
     </div>
   );
