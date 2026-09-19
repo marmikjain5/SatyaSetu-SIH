@@ -216,11 +216,11 @@ export async function buildEvidenceBackedComplaintCase(
     ocrEvidenceExtracted += ` Scanner detected ${scannerDetectedDiscrepancies.length} additional label discrepancy(s).`;
   }
 
-  let assignedInspector = 'Inspector Vivek Sharma (Zonal Metrology Cell)';
+  let assignedInspector = 'Inspector Arjun Nair (Bengaluru City Zone 1)';
   if (input.shopLocation?.name) {
-    assignedInspector = `Inspector Vivek Sharma (${input.shopLocation.name} Zonal Metrology)`;
+    assignedInspector = `Inspector Arjun Nair (${input.shopLocation.name} Zonal Metrology)`;
   } else if (input.platform && ['Blinkit', 'Zepto', 'Instamart', 'Swiggy', 'Amazon', 'Flipkart'].includes(input.platform)) {
-    assignedInspector = `Central Compliance Inspector (${input.platform} Enforcement Cell)`;
+    assignedInspector = `Inspector Arjun Nair (${input.platform} Enforcement Cell)`;
   }
 
   const initialOfficerRecord: OfficerDecisionRecord = {

@@ -74,8 +74,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   // Officer Action Form State
   const [officerActionType, setOfficerActionType] = useState<OfficerActionType>('ACCEPT_INVESTIGATION');
   const [officerNotes, setOfficerNotes] = useState('');
-  const [assignedInspector, setAssignedInspector] = useState('Inspector Rajesh Varma (Zonal Metrology)');
-  const [inspectorEmail, setInspectorEmail] = useState('vivek.sharma.inspect@satyadrishti.gov.in');
+  const [assignedInspector, setAssignedInspector] = useState('Inspector Arjun Nair (Bengaluru City Zone 1)');
+  const [inspectorEmail, setInspectorEmail] = useState('arjun.nair.inspect@satyadrishti.gov.in');
   const [sendEmailToInspector, setSendEmailToInspector] = useState(true);
   const [isDispatchingOfficerEmail, setIsDispatchingOfficerEmail] = useState(false);
   const [officerEmailResult, setOfficerEmailResult] = useState<SendEmailResult | null>(null);
@@ -138,10 +138,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         return (
           assignedLower.includes(inspectorName) ||
           assignedLower.includes(firstName) ||
-          assignedLower.includes('arjun') ||
-          assignedLower.includes('vivek') ||
-          assignedLower.includes('zonal') ||
-          assignedLower.includes('inspector')
+          assignedLower.includes('arjun')
         );
       }
       return true;
@@ -278,7 +275,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     setIsDispatchingOfficerEmail(true);
     setOfficerEmailResult(null);
 
-    const targetAssignedInspector = selectedComplaint.assignedOfficer || 'Inspector Vivek Sharma (Zonal Metrology Cell)';
+    const targetAssignedInspector = selectedComplaint.assignedOfficer || 'Inspector Arjun Nair (Bengaluru City Zone 1)';
 
     updateOfficerDecision(
       selectedComplaint.id,
@@ -373,7 +370,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {isConsumer
               ? t('portalTitle')
               : isInspector
-              ? 'Assigned Grievance & Field Investigation Docket'
+              ? 'Your Assigned Grievances & Field Docket'
               : 'National Grievance Adjudication & Dossier Stream'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -601,14 +598,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             {isConsumer
               ? `My Grievance Submissions (${filteredComplaints.length})`
               : isInspector
-              ? `Assigned Zonal Inquiries (${filteredComplaints.length})`
+              ? `Your Assigned Grievances (${filteredComplaints.length})`
               : `Grievance Dossier Stream (${filteredComplaints.length})`}
           </h2>
           <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
             {isConsumer
               ? 'Citizen Grievance Status & Resolution Ledger'
               : isInspector
-              ? 'Zonal Field Inspection & Evidence Queue'
+              ? 'Your Assigned Field Inspection & Evidence Queue'
               : 'Government Officer Adjudication Queue'}
           </span>
         </div>
