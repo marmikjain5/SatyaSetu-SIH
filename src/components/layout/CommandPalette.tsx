@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useComplianceStore } from '../../store/complianceStore';
+import { useAuthStore } from '../../store/authStore';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ interface CommandPaletteProps {
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isInspector = user?.role === 'inspector';
   const { products, violations, manufacturers, complaints, setSelectedProduct, setSelectedViolation } =
     useComplianceStore();
 
@@ -58,11 +61,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       v.ruleCode.toLowerCase().includes(query.toLowerCase())
   );
 
-  const filteredManufacturers = manufacturers.filter(
-    (m) =>
-      m.name.toLowerCase().includes(query.toLowerCase()) ||
-      m.gstin.toLowerCase().includes(query.toLowerCase())
-  );
+  const filteredManufacturers = isInspector
+    ? []
+    : manufacturers.filter(
+        (m) =>
+          m.name.toLowerCase().includes(query.toLowerCase()) ||
+          m.gstin.toLowerCase().includes(query.toLowerCase())
+      );
 
   const handleSelectProduct = (product: typeof products[0]) => {
     setSelectedProduct(product);
@@ -219,8 +224,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               </div>
             )}
 
-            {/* Manufacturers matches */}
-            {filteredManufacturers.length > 0 && (
+            {/* Manufacturers matches (Admin Only) */}
+            {!isInspector && filteredManufacturers.length > 0 && (
               <div className="space-y-1">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2">
                   Manufacturers ({filteredManufacturers.length})
