@@ -114,6 +114,23 @@ export const generatePlatformSku = (platform: string, seedNum?: number): string 
   return `${prefix}-${num}`;
 };
 
+export const inferCategory = (title: string, defaultCat: string = 'Packaged Commodities'): string => {
+  const t = title.toLowerCase();
+  if (/\b(muesli|granola|cereal|oats|corn flakes)\b/i.test(t)) return 'Muesli & Breakfast Cereals';
+  if (/\b(biscuit|cookie|cookies|rusk|wafer|bakery|cake)\b/i.test(t)) return 'Biscuits & Bakery';
+  if (/\b(oil|ghee|sunflower|mustard oil|olive oil|edible oil)\b/i.test(t)) return 'Edible Oils & Fats';
+  if (/\b(tea|coffee|green tea|beverage|drink|juice)\b/i.test(t)) return 'Packaged Beverages & Tea';
+  if (/\b(soap|cream|serum|face wash|shampoo|lotion|sunscreen|toothpaste)\b/i.test(t)) return 'Cosmetics & Personal Care';
+  if (/\b(cashew|almond|walnut|raisin|pista|dry fruit|dates|nuts)\b/i.test(t)) return 'Dry Fruits & Nuts';
+  if (/\b(protein|whey|isolate|creatine|supplement|vitamin)\b/i.test(t)) return 'Health & Nutritional Supplements';
+  if (/\b(milk|butter|cheese|paneer|curd|yogurt|dairy)\b/i.test(t)) return 'Dairy & Fresh Foods';
+  if (/\b(turmeric|haldi|chilli|mirch|coriander|masala|spice|salt)\b/i.test(t)) return 'Spices & Seasonings';
+  if (/\b(noodle|noodles|maggi|pasta|instant food|snack|chips)\b/i.test(t)) return 'Instant Foods & Snacks';
+  if (/\b(phone|mobile|oneplus|samsung|smartphone|headphone|earbud|laptop|ram|display)\b/i.test(t)) return 'Consumer Electronics';
+  if (/\b(atta|flour|rice|dal|pulses|grain)\b/i.test(t)) return 'Staples & Grains';
+  return defaultCat;
+};
+
 // Built-in catalog benchmarks for client-side fallback if backend server is unreachable
 const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
   {
@@ -123,17 +140,17 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     scrape_method: 'jina_reader',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
-    title: 'Fortune Sunlite Refined Sunflower Oil, 1L Pouch',
-    brand: 'Fortune',
-    category: 'Edible Oils & Fats',
-    manufacturer: 'Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009',
+    title: "Kellogg's Crunchy Fruit & Nut Muesli 750g Pouch",
+    brand: "Kellogg's",
+    category: 'Muesli & Breakfast Cereals',
+    manufacturer: 'Kellogg India Pvt Ltd, Plot L2 & L3, Taloja MIDC, Navi Mumbai, Maharashtra - 410208',
     country_of_origin: 'India',
-    net_weight: '1 L (910 g)',
-    mrp: 155.0,
-    listed_price: 139.0,
-    unit_sale_price: '₹139.00 / 1 L',
+    net_weight: '750 g',
+    mrp: 450.0,
+    listed_price: 399.0,
+    unit_sale_price: '₹53.20 / 100 g',
     mfg_date: '04/2026',
-    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    customer_care: 'consumerfeedback@kellogg.com / 1800-223-500',
     image_url: '',
     known_compliance_issues: [],
   },
@@ -146,7 +163,7 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     extracted_at: new Date().toISOString(),
     title: 'ProUltra Whey Isolate Protein Powder, Chocolate Flavour 1kg',
     brand: 'ProUltra Nutrition',
-    category: 'Nutritional Supplements & Health Foods',
+    category: 'Health & Nutritional Supplements',
     manufacturer: 'Apex Health Nutraceuticals Ltd, Sector 62, Noida, Uttar Pradesh',
     country_of_origin: '', // Violation: Missing Origin on e-commerce listing
     net_weight: '1 kg',
@@ -165,17 +182,17 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
-    title: 'Fortune Sunlite Refined Sunflower Oil 1 L Pouch',
-    brand: 'Fortune',
-    category: 'Edible Oils & Fats',
-    manufacturer: 'Adani Wilmar Limited, Fortune House, Navrangpura, Ahmedabad, Gujarat - 380009',
+    title: 'Britannia Good Day Butter Rich Cookies 600g Value Pack',
+    brand: 'Britannia',
+    category: 'Biscuits & Bakery',
+    manufacturer: 'Britannia Industries Ltd, 5/1A Hungerford Street, Kolkata, West Bengal - 700017',
     country_of_origin: 'India',
-    net_weight: '1 L',
-    mrp: 155.0,
-    listed_price: 139.0,
-    unit_sale_price: '₹139.00 / 1 L',
+    net_weight: '600 g',
+    mrp: 150.0,
+    listed_price: 130.0,
+    unit_sale_price: '₹21.67 / 100 g',
     mfg_date: '03/2026',
-    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    customer_care: 'feedback@britindia.com / 1800-425-4449',
     image_url: '',
     known_compliance_issues: [],
   },
@@ -188,7 +205,7 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     extracted_at: new Date().toISOString(),
     title: 'Tata Tea Gold Leaf Black Tea 500g Pet Jar',
     brand: 'Tata Tea',
-    category: 'Packaged Food & Beverages',
+    category: 'Packaged Beverages & Tea',
     manufacturer: 'Tata Consumer Products Limited, 1 Bishop Lefroy Road, Kolkata, West Bengal - 700020',
     country_of_origin: 'India',
     net_weight: '500 g',
@@ -207,17 +224,17 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
-    title: 'Fortune Sunlite Refined Sunflower Oil (Pouch)',
-    brand: 'Fortune',
-    category: 'Edible Oils & Fats',
-    manufacturer: 'Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009',
+    title: "Bagrry's Crunchy 0% Added Sugar Muesli 400g Box",
+    brand: "Bagrry's",
+    category: 'Muesli & Breakfast Cereals',
+    manufacturer: "Bagrry's India Limited, 9 Community Centre, Lawrence Road Industrial Area, Delhi - 110035",
     country_of_origin: 'India',
-    net_weight: '1 L',
-    mrp: 155.0,
-    listed_price: 139.0,
-    unit_sale_price: '₹139.00 / 1 L',
-    mfg_date: '04/2026',
-    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    net_weight: '400 g',
+    mrp: 299.0,
+    listed_price: 269.0,
+    unit_sale_price: '₹67.25 / 100 g',
+    mfg_date: '03/2026',
+    customer_care: 'care@bagrrys.com / 1800-111-105',
     image_url: '',
     known_compliance_issues: [],
   },
@@ -249,17 +266,17 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
-    title: 'Fortune Sunlite Refined Sunflower Oil 1 Litre',
-    brand: 'Fortune',
-    category: 'Edible Oils & Fats',
-    manufacturer: 'Adani Wilmar Limited, Fortune House, Navrangpura, Ahmedabad, Gujarat - 380009',
+    title: 'Sunfeast Dark Fantasy Choco Fills Premium Cookies 300g',
+    brand: 'Sunfeast',
+    category: 'Biscuits & Bakery',
+    manufacturer: 'ITC Limited, 37 J.L. Nehru Road, Kolkata, West Bengal - 700071',
     country_of_origin: 'India',
-    net_weight: '1 L',
-    mrp: 155.0,
-    listed_price: 139.0,
-    unit_sale_price: '₹139.00 / 1 L',
-    mfg_date: '03/2026',
-    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    net_weight: '300 g',
+    mrp: 180.0,
+    listed_price: 150.0,
+    unit_sale_price: '₹50.00 / 100 g',
+    mfg_date: '04/2026',
+    customer_care: 'itccares@itc.in / 1800-425-44444',
     image_url: '',
     known_compliance_issues: [],
   },
@@ -817,17 +834,6 @@ class CrawlerService {
   }
 
   public getHistory(): CrawlerInspectionRecord[] {
-    if (this.clientHistory.length === 0) {
-      // Pre-seed with the 5 default sample audited products
-      this.clientHistory = CLIENT_SEED_PRODUCTS.map((p, idx) => ({
-        id: `CRAWL-SEED-00${idx + 1}`,
-        inspected_at: new Date(Date.now() - 3600000 * (idx + 1)).toLocaleString('en-IN'),
-        product: p,
-        audit: this.auditProduct(p),
-        scrape_method: p.scrape_method,
-        is_live: p.is_live_scraped,
-      }));
-    }
     return this.clientHistory;
   }
 

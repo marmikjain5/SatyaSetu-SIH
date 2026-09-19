@@ -48,6 +48,7 @@ export const EcommerceCrawler: React.FC = () => {
   const [customUrl, setCustomUrl] = useState<string>('');
   const [isInspectingUrl, setIsInspectingUrl] = useState<boolean>(false);
   const [activeNoticeModal, setActiveNoticeModal] = useState<DraftStatutoryNotice | null>(null);
+  const [activeAuditRecord, setActiveAuditRecord] = useState<CrawlerInspectionRecord | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [showApiGuideModal, setShowApiGuideModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('All');
