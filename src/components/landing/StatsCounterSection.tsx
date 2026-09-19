@@ -57,7 +57,7 @@ export const StatsCounterSection: React.FC = () => {
               AI-powered packaging analysis, Legal Metrology compliance validation, factory hygiene monitoring, and evidence-driven regulatory review.
             </p>
             <div className="pt-2">
-              <a href="#preview">
+              <a href="#features">
                 <Button variant="outline" size="sm" className="font-semibold gap-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-blue-600 hover:text-blue-600 shadow-xs">
                   <span>Explore Features</span>
                   <ArrowUpRight className="h-4 w-4 text-blue-600" />
