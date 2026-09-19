@@ -251,15 +251,17 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     setIsDispatchingOfficerEmail(true);
     setOfficerEmailResult(null);
 
+    const targetAssignedInspector = selectedComplaint.assignedOfficer || 'Inspector Vivek Sharma (Zonal Metrology Cell)';
+
     updateOfficerDecision(
       selectedComplaint.id,
       officerActionType,
       officerNotes || 'Action recorded by Government Reviewing Officer.',
-      'Inspector Rajesh Varma',
-      assignedInspector
+      user?.name || 'Inspector Officer',
+      targetAssignedInspector
     );
 
-    if (sendEmailToInspector && (officerActionType === 'ASSIGN_INSPECTION' || officerActionType === 'ACCEPT_INVESTIGATION')) {
+    if (sendEmailToInspector && (officerActionType === 'ACCEPT_INVESTIGATION' || officerActionType === 'RESOLVE')) {
       try {
         const res = await sendSurpriseInspectionNoticeEmail({
           factoryId: selectedComplaint.id,
@@ -273,9 +275,9 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           complianceStatus: 'critical',
           activeAlerts: 1,
           openViolationsCount: 1,
-          assignedOfficer: assignedInspector,
+          assignedOfficer: targetAssignedInspector,
           officerEmail: inspectorEmail,
-          priority: officerActionType === 'ASSIGN_INSPECTION' ? 'Urgent Zonal Retail Verification' : 'Formal Metrology Investigation',
+          priority: 'Formal Metrology Investigation',
           directiveNotes: officerNotes || 'Verify retail declaration compliance and packaging against Legal Metrology Act 2009',
         });
         setOfficerEmailResult(res);
@@ -1343,7 +1345,26 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-3">
+                  {/* Read-Only Auto-Assigned Zonal Inspector Status */}
+                  <div className="p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800/60 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        Auto-Assigned Zonal Inspector
+                      </span>
+                      <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800/80 uppercase">
+                        AUTOMATICALLY ASSIGNED
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white pt-0.5">
+                      {selectedComplaint.assignedOfficer || 'Inspector Vivek Sharma (Zonal Metrology Cell)'}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Assigned automatically upon grievance submission by SatyaSetu Automated Enforcement Engine. Manual inspector assignment step is bypassed.
+                    </p>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Statutory Action
@@ -1353,25 +1374,12 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                       onChange={(e) => setOfficerActionType(e.target.value as OfficerActionType)}
                       className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:border-blue-500 focus:outline-none font-semibold"
                     >
-                      <option value="ACCEPT_INVESTIGATION">Accept for Formal Investigation</option>
-                      <option value="ASSIGN_INSPECTION">Assign Zonal Officer for On-Site Inspection</option>
+                      <option value="ACCEPT_INVESTIGATION">Accept for Formal Legal Investigation</option>
                       <option value="REQUEST_INFO">Request More Information from Complainant</option>
                       <option value="INSUFFICIENT_EVIDENCE">Mark as Insufficient Evidence</option>
                       <option value="REJECT">Reject / Dismiss Complaint</option>
                       <option value="RESOLVE">Resolve Complaint &amp; Recover Penalty</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      Assigned Inspector / Officer Name
-                    </label>
-                    <Input
-                      value={assignedInspector}
-                      onChange={(e) => setAssignedInspector(e.target.value)}
-                      className="text-xs bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:border-blue-500"
-                      required
-                    />
                   </div>
                 </div>
 

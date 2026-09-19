@@ -299,10 +299,11 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
         if (c.id !== complaintId) return c;
 
         const existingHistory = c.officerDecisionHistory || [];
+        const finalAssignedOfficer = assignedInspector || c.assignedOfficer || officerName;
         const updated = {
           ...c,
           status: newStatus,
-          assignedOfficer: officerName,
+          assignedOfficer: finalAssignedOfficer,
           officerDecisionHistory: [newRecord, ...existingHistory],
           caseCorrelationSummary: c.caseCorrelationSummary
             ? {
@@ -321,7 +322,7 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
       try {
         await complaintService.updateComplaint(complaintId, {
           status: newStatus,
-          assigned_officer: officerName,
+          assigned_officer: updatedComplaintTarget.assignedOfficer,
           officer_decision_history: updatedComplaintTarget.officerDecisionHistory,
         });
       } catch (err) {

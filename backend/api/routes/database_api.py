@@ -447,7 +447,7 @@ def create_complaint(c_in: ComplaintCreateSchema, db: Session = Depends(get_db))
         extracted_evidence_summary=c_in.extracted_evidence_summary,
         evidence_urls=c_in.evidence_urls,
         evidence_images=c_in.evidence_images,
-        assigned_officer=c_in.assigned_officer or "Auto-Assigned Officer",
+        assigned_officer=c_in.assigned_officer or "Auto-Assigned Zonal Inspector",
         officer_decision_history=c_in.officer_decision_history,
         submitted_at=c_in.submitted_at or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     )
