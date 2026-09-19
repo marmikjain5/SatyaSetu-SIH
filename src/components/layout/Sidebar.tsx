@@ -15,7 +15,6 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
-  Scale,
   X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -129,13 +128,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: BookOpen,
       roles: ['admin', 'inspector'],
     },
-    {
-      to: '/dashboard/legal-review',
-      label: 'AI Legal Review',
-      icon: Scale,
-      roles: ['admin', 'inspector'],
-    },
-
   ];
 
   const navItems = allNavItems.filter((item) => item.roles.includes(userRole));

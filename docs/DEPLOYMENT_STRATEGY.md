@@ -217,8 +217,6 @@ app.add_middleware(
    - `inspector`: Zonal field officer; authorized for on-site visual inspections and physical complaint validation.
    - `manufacturer`: Packaging verification, mandatory live factory video proofs, self-certification.
    - `consumer`: Public grievance lodging, retailer overcharge complaints, directory lookups.
-2. **Human-in-the-Loop AI Legal Review**:
-   - The workflow `Violation → AI Legal Review → Human Verification → Publication` enforces that AI generated assessments **never** autonomously issue statutory penalties or public sanctions without explicit officer verification.
 
 ---
 
