@@ -469,11 +469,6 @@ export const EcommerceCrawler: React.FC = () => {
                             {isCompliant ? '100% Compliant' : `${a.compliance_score}% - Violations Detected`}
                           </span>
                         </div>
-                        {a.estimated_penalty_inr > 0 && (
-                          <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 mt-1">
-                            Penalty: {formatCurrency(a.estimated_penalty_inr)}
-                          </p>
-                        )}
                       </div>
                     </div>
 
@@ -527,9 +522,6 @@ export const EcommerceCrawler: React.FC = () => {
                                 • {v.section}:
                               </span>
                               <span>{v.title}</span>
-                              <span className="text-[11px] font-mono text-rose-600 dark:text-rose-400 ml-auto">
-                                Fine: {formatCurrency(v.fine_inr)}
-                              </span>
                             </li>
                           ))}
                         </ul>
