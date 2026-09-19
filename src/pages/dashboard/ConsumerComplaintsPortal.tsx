@@ -483,7 +483,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-xs">
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-4 shadow-xs space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-8">
             <Input
@@ -507,6 +507,63 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Quick Status Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-1 border-t border-slate-100 dark:border-slate-800/80">
+          {(isConsumer ? [
+            { id: 'All', label: 'All My Complaints' },
+            { id: 'Assigned for Inspection', label: 'Assigned for Inspection', icon: ShieldCheck, highlight: true },
+            { id: 'Investigation', label: 'Under Investigation' },
+            { id: 'Notice Dispatched', label: 'Notice Dispatched' },
+            { id: 'Resolved', label: 'Resolved' },
+          ] : [
+            { id: 'All', label: 'All Grievances' },
+            { id: 'Assigned for Inspection', label: 'Assigned for Inspection', icon: UserCheck, highlight: true },
+            { id: 'Needs Review', label: 'Needs Review' },
+            { id: 'Investigation', label: 'Investigation' },
+            { id: 'Notice Dispatched', label: 'Notice Dispatched' },
+            { id: 'Resolved', label: 'Resolved' },
+          ]).map((tab) => {
+            const count = tab.id === 'All'
+              ? displayedComplaints.length
+              : tab.id === 'Needs Review'
+              ? displayedComplaints.filter((c) => c.needsReview).length
+              : displayedComplaints.filter((c) => c.status === tab.id).length;
+
+            const isActive = selectedStatus === tab.id;
+            const IconComponent = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedStatus(tab.id)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 border',
+                  isActive
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs dark:bg-blue-600 dark:border-blue-500 font-semibold'
+                    : tab.highlight && count > 0
+                    ? 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/80 hover:bg-blue-100'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-950/40 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800/60'
+                )}
+              >
+                {IconComponent && <IconComponent className={cn("h-3.5 w-3.5", isActive ? "text-white" : "text-blue-500")} />}
+                <span>{tab.label}</span>
+                <span
+                  className={cn(
+                    'px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold',
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : tab.highlight && count > 0
+                      ? 'bg-blue-100 text-blue-900 dark:bg-blue-900/80 dark:text-blue-100'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -533,15 +590,25 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead className="bg-slate-50 text-slate-500 dark:bg-slate-950/60 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="px-4 py-3">Ticket &amp; Complainant</th>
-                <th className="px-3 py-3">Product &amp; Platform</th>
-                <th className="px-3 py-3">Classification &amp; Confidence</th>
-                <th className="px-3 py-3">Discrepancy / Overcharge</th>
-                <th className="px-3 py-3">Regulatory RAG Provenance</th>
-                <th className="px-3 py-3">Officer Status</th>
-                <th className="px-4 py-3 text-right">Inspect Dossier</th>
-              </tr>
+              {isConsumer ? (
+                <tr>
+                  <th className="px-4 py-3">Ticket ID &amp; Date</th>
+                  <th className="px-3 py-3">Product / Store</th>
+                  <th className="px-3 py-3">Grievance Category</th>
+                  <th className="px-3 py-3">Complaint Status</th>
+                  <th className="px-4 py-3 text-right">Track Progress</th>
+                </tr>
+              ) : (
+                <tr>
+                  <th className="px-4 py-3">Ticket &amp; Complainant</th>
+                  <th className="px-3 py-3">Product &amp; Store / Platform</th>
+                  <th className="px-3 py-3">Classification &amp; Rule</th>
+                  <th className="px-3 py-3">Discrepancy / Overcharge</th>
+                  <th className="px-3 py-3">Assigned Officer / Inspector</th>
+                  <th className="px-3 py-3">Officer Status</th>
+                  <th className="px-4 py-3 text-right">Inspect Dossier</th>
+                </tr>
+              )}
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {filteredComplaints.map((cmp) => {
@@ -557,94 +624,173 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     }}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
                   >
-                    <td className="px-4 py-3.5">
-                      <div className="font-mono text-blue-600 dark:text-blue-400 font-bold">{cmp.ticketId}</div>
-                      <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{cmp.consumerName}</div>
-                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{cmp.submittedAt}</div>
-                    </td>
+                    {isConsumer ? (
+                      <>
+                        <td className="px-4 py-3.5">
+                          <div className="font-mono text-blue-600 dark:text-blue-400 font-bold">{cmp.ticketId}</div>
+                          <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{cmp.submittedAt}</div>
+                        </td>
 
-                    <td className="px-3 py-3.5 max-w-xs">
-                      {cmp.shopLocation ? (
-                        <>
-                          <div className="font-medium text-slate-700 dark:text-slate-200 line-clamp-1 flex items-center gap-1">
-                            <Store className="h-3 w-3 text-blue-400 shrink-0" />
-                            {cmp.shopLocation.name}
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono line-clamp-1">
-                            {cmp.shopLocation.address.split(',').slice(0, 2).join(',')}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="font-medium text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.productName}</div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                            {cmp.brand} • {cmp.platform}
-                          </div>
-                        </>
-                      )}
-                    </td>
+                        <td className="px-3 py-3.5 max-w-xs">
+                          {cmp.shopLocation ? (
+                            <>
+                              <div className="font-medium text-slate-900 dark:text-slate-200 line-clamp-1 flex items-center gap-1">
+                                <Store className="h-3 w-3 text-blue-500 shrink-0" />
+                                {cmp.shopLocation.name}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono line-clamp-1">
+                                {cmp.shopLocation.address.split(',').slice(0, 2).join(',')}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="font-medium text-slate-900 dark:text-slate-200 line-clamp-1">{cmp.productName}</div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                                {cmp.brand} • {cmp.platform}
+                              </div>
+                            </>
+                          )}
+                        </td>
 
-                    <td className="px-3 py-3.5 max-w-xs">
-                      <div className="font-semibold text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.category}</div>
-                      <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px]">
-                        <span className="text-slate-400 dark:text-slate-500">Confidence:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{confScore}%</span>
-                        {cmp.needsReview && (
-                          <span className="text-amber-400 font-medium ml-1">
-                            Needs Review
+                        <td className="px-3 py-3.5 max-w-xs">
+                          <div className="font-semibold text-slate-900 dark:text-slate-200 line-clamp-1">{cmp.category}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate mt-0.5">
+                            Rule: {cmp.aiMatchedRule}
+                          </div>
+                        </td>
+
+                        <td className="px-3 py-3.5">
+                          <span
+                            className={cn(
+                              'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
+                              cmp.status === 'Assigned for Inspection'
+                                ? 'text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-950/60 dark:border-blue-800'
+                                : cmp.status === 'Notice Dispatched' || cmp.status === 'Investigation'
+                                ? 'text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-950/60 dark:border-purple-800'
+                                : cmp.status === 'Resolved'
+                                ? 'text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800'
+                                : cmp.status === 'Rejected'
+                                ? 'text-rose-700 bg-rose-50 border-rose-300 dark:text-rose-300 dark:bg-rose-950/60 dark:border-rose-800'
+                                : 'text-amber-700 bg-amber-50 border-amber-300 dark:text-amber-300 dark:bg-amber-950/60 dark:border-amber-800'
+                            )}
+                          >
+                            {cmp.status === 'New' ? 'Grievance Submitted' : cmp.status}
                           </span>
-                        )}
-                      </div>
-                    </td>
+                        </td>
 
-                    <td className="px-3 py-3.5">
-                      {hasPriceAlteration ? (
-                        <div className="font-mono">
-                          <div className="text-rose-400 font-semibold text-xs">
-                            +₹{hasPriceAlteration} Alteration Variance
+                        <td className="px-4 py-3.5 text-right">
+                          <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300">
+                            <span>Track Status</span>
+                            <span className="text-sm leading-none">›</span>
+                          </span>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-4 py-3.5">
+                          <div className="font-mono text-blue-600 dark:text-blue-400 font-bold">{cmp.ticketId}</div>
+                          <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{cmp.consumerName}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{cmp.submittedAt}</div>
+                        </td>
+
+                        <td className="px-3 py-3.5 max-w-xs">
+                          {cmp.shopLocation ? (
+                            <>
+                              <div className="font-medium text-slate-700 dark:text-slate-200 line-clamp-1 flex items-center gap-1">
+                                <Store className="h-3 w-3 text-blue-400 shrink-0" />
+                                {cmp.shopLocation.name}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono line-clamp-1">
+                                {cmp.shopLocation.address.split(',').slice(0, 2).join(',')}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="font-medium text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.productName}</div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                                {cmp.brand} • {cmp.platform}
+                              </div>
+                            </>
+                          )}
+                        </td>
+
+                        <td className="px-3 py-3.5 max-w-xs">
+                          <div className="font-semibold text-slate-700 dark:text-slate-200 line-clamp-1">{cmp.category}</div>
+                          <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px]">
+                            <span className="text-slate-400 dark:text-slate-500">Confidence:</span>
+                            <span className="font-bold text-slate-700 dark:text-slate-200">{confScore}%</span>
+                            {cmp.needsReview && (
+                              <span className="text-amber-400 font-medium ml-1">
+                                Needs Review
+                              </span>
+                            )}
                           </div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
-                            Base: {cmp.extractedEvidenceSummary?.declaredMrp} | Altered: {cmp.extractedEvidenceSummary?.receiptPrice}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="font-mono text-slate-500 dark:text-slate-400">
-                          <div className="text-slate-500 text-xs mb-0.5">–</div>
-                          <div className="text-[11px]">
-                            {cmp.evidenceImages?.length || 1} Evidence Image(s)
-                          </div>
-                        </div>
-                      )}
-                    </td>
+                        </td>
 
-                    <td className="px-3 py-3.5 max-w-xs">
-                      <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium line-clamp-1">
-                        {cmp.aiMatchedRule}
-                      </div>
-                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono block mt-0.5">
-                        Active Rule Version Mapped
-                      </span>
-                    </td>
+                        <td className="px-3 py-3.5">
+                          {hasPriceAlteration ? (
+                            <div className="font-mono">
+                              <div className="text-rose-500 dark:text-rose-400 font-semibold text-xs">
+                                +₹{hasPriceAlteration} Alteration Variance
+                              </div>
+                              <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                                Base: {cmp.extractedEvidenceSummary?.declaredMrp} | Altered: {cmp.extractedEvidenceSummary?.receiptPrice}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="font-mono text-slate-500 dark:text-slate-400">
+                              <div className="text-slate-500 text-xs mb-0.5">–</div>
+                              <div className="text-[11px]">
+                                {cmp.evidenceImages?.length || 1} Evidence Image(s)
+                              </div>
+                            </div>
+                          )}
+                        </td>
 
-                    <td className="px-3 py-3.5">
-                      <span
-                        className={cn(
-                          'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-transparent',
-                          cmp.status === 'New' || cmp.needsReview
-                            ? 'text-amber-600 border border-amber-300 dark:text-amber-400 dark:border-amber-800/60'
-                            : 'text-slate-600 border border-slate-300 dark:text-slate-300 dark:border-slate-700/80'
-                        )}
-                      >
-                        {cmp.status}
-                      </span>
-                    </td>
+                        {/* Assigned Inspector Column */}
+                        <td className="px-3 py-3.5 max-w-xs">
+                          {cmp.assignedOfficer ? (
+                            <div>
+                              <div className="flex items-center gap-1 text-blue-700 dark:text-blue-300 font-semibold text-xs">
+                                <UserCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                <span className="line-clamp-1" title={cmp.assignedOfficer}>
+                                  {cmp.assignedOfficer}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block mt-0.5">
+                                {cmp.status === 'Assigned for Inspection' ? '🔍 Zonal Inspection Active' : 'Adjudication Officer'}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-xs italic font-mono">Pending Assignment</span>
+                          )}
+                        </td>
 
-                    <td className="px-4 py-3.5 text-right">
-                      <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300">
-                        <span>Inspect Case</span>
-                        <span className="text-sm leading-none">›</span>
-                      </span>
-                    </td>
+                        <td className="px-3 py-3.5">
+                          <span
+                            className={cn(
+                              'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider',
+                              cmp.status === 'Assigned for Inspection'
+                                ? 'text-blue-700 bg-blue-50 border border-blue-300 dark:text-blue-300 dark:bg-blue-950/60 dark:border-blue-800'
+                                : cmp.status === 'New' || cmp.needsReview
+                                ? 'text-amber-600 bg-amber-50 border border-amber-300 dark:text-amber-400 dark:bg-amber-950/60 dark:border-amber-800/60'
+                                : cmp.status === 'Resolved'
+                                ? 'text-emerald-700 bg-emerald-50 border border-emerald-300 dark:text-emerald-400 dark:bg-emerald-950/60 dark:border-emerald-800/60'
+                                : 'text-slate-600 bg-slate-50 border border-slate-300 dark:text-slate-300 dark:bg-slate-800 dark:border-slate-700/80'
+                            )}
+                          >
+                            {cmp.status}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3.5 text-right">
+                          <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300">
+                            <span>Inspect Case</span>
+                            <span className="text-sm leading-none">›</span>
+                          </span>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 );
               })}
@@ -733,12 +879,23 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Assigned Inspector row (Admin / Inspector Only) */}
+                  {!isConsumer && (
+                    <div className="flex items-center justify-between gap-2 text-xs pt-1 border-t border-slate-100 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px] uppercase">Assigned Officer:</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 text-[11px] truncate">
+                        <UserCheck className="h-3 w-3 shrink-0" />
+                        {cmp.assignedOfficer || 'Pending Assignment'}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Action Button */}
                   <Button
                     variant="outline"
                     className="w-full min-h-[44px] text-xs font-semibold text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60 hover:bg-blue-50 dark:hover:bg-blue-950/40 justify-center gap-1.5"
                   >
-                    <span>Inspect Officer Dossier</span>
+                    <span>{isConsumer ? 'Track Complaint Progress' : 'Inspect Officer Dossier'}</span>
                     <span className="text-sm leading-none">›</span>
                   </Button>
                 </div>
@@ -753,8 +910,8 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         <Modal
           isOpen={!!selectedComplaint}
           onClose={() => setSelectedComplaint(null)}
-          title={`Government Officer Review Dossier: ${selectedComplaint.ticketId}`}
-          subtitle={`Case Dossier lodged by ${selectedComplaint.consumerName} (${selectedComplaint.consumerEmail})`}
+          title={isConsumer ? `Track Grievance Status: ${selectedComplaint.ticketId}` : `Government Officer Review Dossier: ${selectedComplaint.ticketId}`}
+          subtitle={isConsumer ? `Grievance lodged on ${selectedComplaint.submittedAt}` : `Case Dossier lodged by ${selectedComplaint.consumerName} (${selectedComplaint.consumerEmail})`}
           maxWidth="4xl"
         >
           <div className="space-y-4 text-xs">
@@ -810,13 +967,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               </div>
               <div className="sm:pl-3">
                 <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase tracking-wider block">
-                  Assigned Officer
+                  {isConsumer ? 'Enforcement Cell' : 'Assigned Officer'}
                 </span>
                 <span
                   className="font-bold text-blue-600 dark:text-blue-400 mt-0.5 text-xs block truncate"
-                  title={selectedComplaint.assignedOfficer || 'Pending Assignment'}
+                  title={isConsumer ? 'Legal Metrology Directorate' : (selectedComplaint.assignedOfficer || 'Pending Assignment')}
                 >
-                  {selectedComplaint.assignedOfficer || 'Pending Assignment'}
+                  {isConsumer ? 'Legal Metrology Directorate' : (selectedComplaint.assignedOfficer || 'Pending Assignment')}
                 </span>
               </div>
             </div>

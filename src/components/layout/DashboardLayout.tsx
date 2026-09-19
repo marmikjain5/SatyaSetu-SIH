@@ -26,6 +26,11 @@ export const DashboardLayout: React.FC = () => {
     return <Navigate to="/dashboard/complaints" replace />;
   }
 
+  // Inspector Portal Restriction: Restrict crawler and manufacturer features
+  if (user?.role === 'inspector' && (location.pathname === '/dashboard/crawler' || location.pathname === '/dashboard/manufacturers')) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-x-hidden">
       {/* Global Background Grid Texture */}
