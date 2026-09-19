@@ -4,21 +4,6 @@ import loopVideo from '../ui/loop.mp4';
 
 
 export const HeroSection: React.FC = () => {
-  const highlights = [
-    {
-      title: 'Precision OCR & Vision',
-      desc: 'Instantly reads micro-print, multilingual text, and statutory declarations from any packaging angle.',
-    },
-    {
-      title: 'Automated Rule Validation',
-      desc: 'Cross-checks declarations in real-time against the Legal Metrology (Packaged Commodities) Rules, 2011.',
-    },
-    {
-      title: 'Inspection-Ready Intelligence',
-      desc: 'Generates evidentiary audit trails, penalty estimations, and exportable regulatory dossiers.',
-    },
-  ];
-
   return (
     <section
       id="about"
@@ -57,88 +42,73 @@ export const HeroSection: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* ====== RIGHT COLUMN: Attractive Typographic Product Story ====== */}
-          <div className="lg:col-span-7 space-y-6 text-left relative">
-            {/* --- Spotlight Beam Positioned Directly Over SATYADRISHTI --- */}
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-0">
-              <div className="h-1.5 w-44 sm:w-64 bg-slate-900/80 dark:bg-white rounded-full shadow-[0_0_35px_10px_rgba(37,99,235,0.4)] dark:shadow-[0_0_45px_14px_rgba(255,255,255,0.9),0_0_90px_28px_rgba(37,99,235,0.45)] z-10" />
-              <div
-                className="w-[320px] sm:w-[500px] h-[300px] sm:h-[400px] opacity-35 dark:opacity-45 mix-blend-multiply dark:mix-blend-screen"
-                style={{
-                  background:
-                    'radial-gradient(ellipse 70% 80% at 50% 0%, rgba(37,99,235,0.4) 0%, rgba(59,130,246,0.18) 40%, rgba(0,0,0,0) 80%)',
-                }}
-              />
+          {/* ====== RIGHT COLUMN: Clean Brand Title & Two-Line Vision Centered in Limelight ====== */}
+          <div className="lg:col-span-7 space-y-6 text-center flex flex-col items-center justify-center relative">
+            {/* --- Theatrical Conical Limelight Beam (Soft & Subtle Intensity) --- */}
+            <div className="absolute -top-8 sm:-top-12 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-0 w-[420px] xs:w-[520px] sm:w-[680px] md:w-[800px] lg:w-[860px] h-[190px] sm:h-[230px]">
+              {/* Spotlight Lamp Fixture & Soft Emitter Bulb */}
+              <div className="relative flex flex-col items-center z-20">
+                <div className="w-12 sm:w-16 h-1.5 rounded-t-sm bg-slate-700/60 dark:bg-slate-400/60" />
+                <div className="w-10 sm:w-14 h-2 rounded-full bg-blue-100 dark:bg-white shadow-[0_0_12px_3px_rgba(59,130,246,0.35)] dark:shadow-[0_0_16px_5px_rgba(147,197,253,0.45)]" />
+              </div>
+
+              {/* Conical Light Beams */}
+              <div className="relative w-full h-full -mt-1 flex items-center justify-center">
+                {/* 1. Wide Ambient Stage Haze */}
+                <div
+                  className="absolute inset-0 opacity-20 dark:opacity-30 blur-2xl"
+                  style={{
+                    clipPath: 'polygon(41% 0%, 59% 0%, 100% 100%, 0% 100%)',
+                    background:
+                      'linear-gradient(180deg, rgba(147,197,253,0.6) 0%, rgba(59,130,246,0.3) 45%, rgba(37,99,235,0.08) 85%, transparent 100%)',
+                  }}
+                />
+
+                {/* 2. Main Conical Limelight Beam (Soft Glow) */}
+                <div
+                  className="absolute inset-x-2 sm:inset-x-4 top-0 bottom-0 opacity-25 dark:opacity-35 blur-md"
+                  style={{
+                    clipPath: 'polygon(43% 0%, 57% 0%, 98% 100%, 2% 100%)',
+                    background:
+                      'linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(147,197,253,0.45) 30%, rgba(59,130,246,0.2) 70%, transparent 100%)',
+                  }}
+                />
+
+                {/* 3. Gentle Core Ray */}
+                <div
+                  className="absolute inset-x-6 sm:inset-x-12 top-0 bottom-3 opacity-25 dark:opacity-35 blur-sm"
+                  style={{
+                    clipPath: 'polygon(45% 0%, 55% 0%, 88% 100%, 12% 100%)',
+                    background:
+                      'linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(224,242,254,0.5) 25%, rgba(96,165,250,0.15) 70%, transparent 100%)',
+                  }}
+                />
+
+                {/* 4. Elliptical Pool of Light on SATYADRISHTI */}
+                <div className="absolute top-[60px] sm:top-[70px] w-[92%] h-[75px] rounded-[50%] bg-blue-400/12 dark:bg-blue-400/20 blur-xl pointer-events-none" />
+                <div className="absolute top-[68px] sm:top-[78px] w-[70%] h-[45px] rounded-[50%] bg-sky-200/15 dark:bg-white/20 blur-lg pointer-events-none" />
+              </div>
             </div>
 
-            {/* Main Brand Title */}
+            {/* Main Brand Title & Two-Line Vision Centered */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="relative z-10"
+              className="relative z-10 space-y-4 w-full flex flex-col items-center"
             >
-              <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-[0.14em] sm:tracking-[0.25em] uppercase drop-shadow-[0_0_25px_rgba(37,99,235,0.15)] dark:drop-shadow-[0_0_35px_rgba(59,130,246,0.3)] leading-tight break-words">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[2.6rem] xl:text-[3.25rem] 2xl:text-6xl font-black text-slate-900 dark:text-white tracking-[0.08em] sm:tracking-[0.12em] xl:tracking-[0.16em] uppercase drop-shadow-[0_0_12px_rgba(59,130,246,0.2)] dark:drop-shadow-[0_0_20px_rgba(147,197,253,0.35)] leading-tight whitespace-nowrap text-center">
                 SATYADRISHTI
               </h1>
 
-              <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-200 tracking-wide mt-1.5">
-                AI-Powered Legal Metrology Compliance Platform
-              </p>
-            </motion.div>
-
-            {/* Hero Hook / Narrative (Attractive & Clean Typography) */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-3 relative z-10"
-            >
-              <p className="text-lg sm:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-blue-400 dark:via-sky-300 dark:to-indigo-300 leading-snug">
-                Autonomous Intelligence for Statutory Packaging Verification.
-              </p>
-
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal max-w-xl">
-                SatyaDrishti bridges cutting-edge optical recognition with statutory Indian consumer laws.
-                By converting physical label images into structured, verifiable intelligence, it empowers
-                inspectors, brands, and citizens to uncover violations with unparalleled accuracy and speed.
-              </p>
-            </motion.div>
-
-            {/* Typographic Highlights (No Cards, Pure Elegant Flow) */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="space-y-3 pt-2 relative z-10"
-            >
-              {highlights.map((item, idx) => (
-                <div key={idx} className="text-left space-y-0.5">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-wide">
-                    {item.title}
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                    {item.desc}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-
-            {/* Mission Quote & Bottom Motto */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="pt-3 space-y-3 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80"
-            >
-              <div className="flex items-center gap-3 text-[11px] font-bold tracking-[0.2em] text-blue-600 dark:text-blue-400 uppercase font-mono">
-                <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-r from-transparent to-blue-500/80" />
-                <span>Transparency. Compliance. Trust.</span>
-                <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-l from-transparent to-blue-500/80" />
+              <div className="space-y-2 max-w-xl mx-auto text-center">
+                <p className="text-lg sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-blue-400 dark:via-sky-300 dark:to-indigo-300 leading-snug">
+                  Autonomous Intelligence for Statutory Packaging Verification.
+                </p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                  Bridging cutting-edge optical recognition with statutory consumer laws to ensure transparency and compliance.
+                </p>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
-                Building a fairer, compliant marketplace for 1.4 billion consumers.
-              </p>
             </motion.div>
           </div>
         </div>
