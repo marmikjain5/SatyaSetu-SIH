@@ -151,11 +151,7 @@ export const EcommerceCrawler: React.FC = () => {
             </h1>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-            Continuously crawls major Indian e-commerce marketplaces (<span className="text-amber-300 font-medium">Amazon</span>,{' '}
-            <span className="text-blue-300 font-medium">Flipkart</span>,{' '}
-            <span className="text-yellow-300 font-medium">Blinkit</span>,{' '}
-            <span className="text-purple-300 font-medium">Zepto</span>,{' '}
-            <span className="text-pink-300 font-medium">Meesho</span>). Checks 5 products daily for Legal Metrology (Packaged Commodities) Rules, 2011 compliance without human intervention.
+            Amazon, Flipkart, Blinkit, Zepto, Meesho
           </p>
         </div>
 
