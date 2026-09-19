@@ -442,22 +442,22 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
           </div>
 
           {/* Footer Submit Buttons */}
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400 font-mono">
+          <div className="sticky bottom-0 -mx-3 sm:-mx-6 -mb-3 sm:-mb-6 p-3 sm:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+            <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
               Deterministic Classifier + Regulatory RAG Engine
             </span>
 
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" type="button" onClick={handleClose}>
+            <div className="flex flex-col-reverse sm:flex-row items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+              <Button variant="outline" size="sm" type="button" onClick={handleClose} className="w-full sm:w-auto justify-center min-h-[40px]">
                 {t('cancelBtn')}
               </Button>
               <Button
                 variant="primary"
                 size="sm"
                 type="submit"
-                className="gap-1.5 bg-red-600 hover:bg-red-700 text-white border-red-700"
+                className="w-full sm:w-auto justify-center min-h-[40px] gap-1.5 bg-red-600 hover:bg-red-700 text-white border-red-700"
               >
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-3.5 w-3.5 shrink-0" />
                 <span>{t('submitComplaintBtn')}</span>
               </Button>
             </div>

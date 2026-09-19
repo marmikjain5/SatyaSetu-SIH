@@ -339,15 +339,6 @@ export const OverviewDashboard: React.FC = () => {
                     className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-2"
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                      <div
-                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-mono font-bold text-[9px] sm:text-[10px] shrink-0 ${
-                          violation.severity === 'critical'
-                            ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-900'
-                            : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
-                        }`}
-                      >
-                        {violation.platform.slice(0, 3).toUpperCase()}
-                      </div>
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                           <span className="truncate max-w-[130px] sm:max-w-xs">{violation.productName}</span>
@@ -489,29 +480,14 @@ export const OverviewDashboard: React.FC = () => {
                         title="Click to view industries in this zone"
                       >
                         <td className="px-3.5 py-2.5 text-slate-900">
-                          <div className="flex items-start gap-2">
-                            <span
-                              className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold shrink-0 mt-0.5 ${
-                                zone.riskTier === 'Critical'
-                                  ? 'bg-red-100 text-red-800 border border-red-200'
-                                  : zone.riskTier === 'High'
-                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  : zone.riskTier === 'Moderate'
-                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                              }`}
-                            >
-                              {zone.code}
-                            </span>
-                            <div>
-                              <div className="font-semibold text-slate-900 text-[11px] leading-tight">
-                                {zone.zone}
-                              </div>
-                              <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
-                                {zone.keyFacilities.length > 0
-                                  ? zone.keyFacilities.join(', ')
-                                  : zone.keyIndustries}
-                              </div>
+                          <div>
+                            <div className="font-semibold text-slate-900 text-[11px] leading-tight">
+                              {zone.zone}
+                            </div>
+                            <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                              {zone.keyFacilities.length > 0
+                                ? zone.keyFacilities.join(', ')
+                                : zone.keyIndustries}
                             </div>
                           </div>
                         </td>
@@ -573,10 +549,7 @@ export const OverviewDashboard: React.FC = () => {
                   <tbody className="divide-y divide-slate-100">
                     {filteredStates.map((state) => (
                       <tr key={state.code} className="hover:bg-slate-50/80">
-                        <td className="px-4 py-3 font-medium text-slate-900 flex items-center gap-2">
-                          <span className="w-6 h-4 bg-slate-200 text-slate-700 rounded text-[10px] font-mono flex items-center justify-center font-bold">
-                            {state.code}
-                          </span>
+                        <td className="px-4 py-3 font-medium text-slate-900">
                           <span>{state.state}</span>
                         </td>
                         <td className="px-3 py-3 font-mono text-slate-700">

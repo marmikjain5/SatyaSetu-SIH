@@ -89,16 +89,7 @@ Key mobile adaptations include:
 
 ---
 
-### 3.7 AI Legal Review Agent (`/dashboard/legal-review`)
-- **Route Connection**: Restored `/dashboard/legal-review` route in `App.tsx` directly rendering `AILegalReviewAgent.tsx`.
-- **Workflow Stepper**: Displays `Violation Detected → AI Legal Review → Human Verification → Publication`. Contained in an internal horizontal scroll container (`overflow-x-auto`) to eliminate page blowout.
-- **Navigation Handoff**: Open hygiene violations in `ViolationsTable.tsx` feature a dedicated "Send to AI Legal Review" button that navigates directly to `/dashboard/legal-review` with violation context passed through `location.state`.
-- **Human Verification Panel**: "Verify Finding" and "Reject Finding" buttons are full-width on mobile with min 44px touch targets.
-- **Publication Guard**: Publication approval is locked behind verified human-in-the-loop sign-off.
-
----
-
-### 3.8 Products Intelligence (`/dashboard/products`)
+### 3.7 Products Intelligence (`/dashboard/products`)
 - **Desktop (≥ 768px)**: Complete enterprise SKU repository table.
 - **Mobile (< 768px)**: Stacked product cards featuring product thumbnail, platform badge, SKU, dual pricing (List / MRP), OCR match confidence, compliance bar, and full-width "Inspect Packaging" action.
 

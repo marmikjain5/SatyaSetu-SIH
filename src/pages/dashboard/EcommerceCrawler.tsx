@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Bot,
   Play,
   RefreshCw,
   Search,
@@ -147,37 +146,16 @@ export const EcommerceCrawler: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-100 via-indigo-100 to-slate-100 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 text-slate-900 dark:text-white p-6 rounded-2xl shadow-xl border border-indigo-200 dark:border-indigo-900/50">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <span className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-              <Bot className="h-6 w-6 animate-pulse" />
-            </span>
             <h1 className="text-2xl font-black tracking-tight">
               Autonomous E-Commerce Compliance Inspector
             </h1>
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-              Autonomous Daemon Active
-            </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-            Continuously crawls major Indian e-commerce marketplaces (<span className="text-amber-300 font-medium">Amazon</span>,{' '}
-            <span className="text-blue-300 font-medium">Flipkart</span>,{' '}
-            <span className="text-yellow-300 font-medium">Blinkit</span>,{' '}
-            <span className="text-purple-300 font-medium">Zepto</span>,{' '}
-            <span className="text-pink-300 font-medium">Meesho</span>). Checks 5 products daily for Legal Metrology (Packaged Commodities) Rules, 2011 compliance without human intervention.
+            Amazon, Flipkart, Blinkit, Zepto, Meesho
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowApiGuideModal(true)}
-            className="text-xs bg-slate-200/80 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 gap-1.5 shadow-sm"
-          >
-            <Key className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Scraper API Config</span>
-          </Button>
-
           <Button
             variant="primary"
             size="sm"
@@ -491,11 +469,6 @@ export const EcommerceCrawler: React.FC = () => {
                             {isCompliant ? '100% Compliant' : `${a.compliance_score}% - Violations Detected`}
                           </span>
                         </div>
-                        {a.estimated_penalty_inr > 0 && (
-                          <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 mt-1">
-                            Penalty: {formatCurrency(a.estimated_penalty_inr)}
-                          </p>
-                        )}
                       </div>
                     </div>
 
@@ -549,9 +522,6 @@ export const EcommerceCrawler: React.FC = () => {
                                 • {v.section}:
                               </span>
                               <span>{v.title}</span>
-                              <span className="text-[11px] font-mono text-rose-600 dark:text-rose-400 ml-auto">
-                                Fine: {formatCurrency(v.fine_inr)}
-                              </span>
                             </li>
                           ))}
                         </ul>
