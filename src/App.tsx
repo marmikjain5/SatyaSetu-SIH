@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useComplianceStore } from './store/complianceStore';
 import { LandingPage } from './pages/LandingPage';
 import { AboutPage } from './pages/AboutPage';
 import { LoginPage } from './pages/LoginPage';
@@ -15,15 +14,9 @@ import { ConsumerComplaintsPortal } from './pages/dashboard/ConsumerComplaintsPo
 import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
-
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
 export function App() {
-  const fetchComplaints = useComplianceStore((s) => s.fetchComplaints);
-
-  useEffect(() => {
-    fetchComplaints();
-  }, [fetchComplaints]);
   return (
     <BrowserRouter>
       <ScrollToAnchor />
@@ -50,12 +43,9 @@ export function App() {
           <Route path="settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
 
-
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-
-
     </BrowserRouter>
   );
 }

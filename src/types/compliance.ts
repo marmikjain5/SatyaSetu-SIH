@@ -63,12 +63,6 @@ export interface Product {
   ocrConfidence: number;
   lastScanned: string;
   missingMandatoryFields: string[];
-  claims: {
-    text: string;
-    isMisleading: boolean;
-    reason?: string;
-    confidence: number;
-  }[];
   regulatoryActs: string[];
 }
 

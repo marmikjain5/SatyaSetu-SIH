@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Grid3X3,
@@ -23,12 +23,16 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  SlidersHorizontal,
+  Eye,
+  ZoomIn,
 } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
 import { queryRegulatoryRAG } from '../../lib/ragKnowledgeService';
+import { preprocessImage, type PreprocessedVariant } from '../../lib/imagePreprocessor';
 import type {
   ExtractedProductData,
   DeclarationField,
@@ -125,6 +129,283 @@ const EvidenceInspector: React.FC<EvidenceInspectorProps> = ({
   );
 };
 
+// ─── Optical Preprocessing Stages & Forensics Visualizer ────────
+
+interface OpticalStagesInspectorProps {
+  originalImageUrl: string;
+  variants?: Array<{
+    name: string;
+    dataUrl: string;
+    description: string;
+    scale: number;
+  }>;
+}
+
+const STAGE_METADATA: Record<
+  string,
+  {
+    stageNum: string;
+    title: string;
+    math: string;
+    kernel: string;
+    purpose: string;
+    benefit: string;
+  }
+> = {
+  original: {
+    stageNum: 'Input',
+    title: 'Raw Sensor Input (RGB)',
+    math: 'RGB (8-bit per channel, uncompressed canvas stream)',
+    kernel: 'Identity Pass [1.0]',
+    purpose: 'Initial product image capture from consumer smartphone camera or flatbed scanner.',
+    benefit: 'Baseline benchmark containing original colors, packaging gloss, and lighting variance.',
+  },
+  high_contrast: {
+    stageNum: 'Stage 1',
+    title: 'Luminance Grayscale & Histogram Dynamic Range Stretch',
+    math: 'L = 0.299R + 0.587G + 0.114B | Normalized range: [min, max] → [0, 255] * 1.6',
+    kernel: 'Contrast multiplier: ((val - 128) * 1.6) + 128',
+    purpose: 'Stretches compressed dynamic range to normalize faded print, dark backgrounds, and low ink density.',
+    benefit: 'Boosts character edge distinction against dark/colored packaging.',
+  },
+  sharpened: {
+    stageNum: 'Stage 2',
+    title: '3×3 Unsharp Mask Spatial Convolution',
+    math: '∇²I edge gradient convolution with center enhancement weight (+5)',
+    kernel: '[ [0, -1, 0], [-1, 5, -1], [0, -1, 0] ]',
+    purpose: 'Highlights high-frequency spatial gradients to recover blurred or micro-text.',
+    benefit: 'Sharpens statutory numerals (MRP, Dates, USP) distorted by optical motion or low depth of field.',
+  },
+  denoised: {
+    stageNum: 'Stage 3',
+    title: '3×3 Non-Linear Median Filter',
+    math: 'y[m, n] = median(x[i, j], (i,j) ∈ W_3x3)',
+    kernel: '3×3 sliding window rank filter (k=5th rank element)',
+    purpose: 'Removes salt-and-pepper sensor noise and high-frequency speckle without blurring hard edges.',
+    benefit: 'Cleans up reflective plastic glare artifacts before OCR character segmentation.',
+  },
+  adaptive_threshold: {
+    stageNum: 'Stage 4',
+    title: 'O(1) Integral-Image Adaptive Local Binarization',
+    math: 'T(x,y) = mean_block(x,y) - C | Block: 15×15, C: 8 via 2D Integral Table',
+    kernel: 'blockSum = I(x2,y2) - I(x1,y2) - I(x2,y1) + I(x1,y1)',
+    purpose: 'Calculates dynamic local thresholds in O(1) time complexity to cleanly binarize text.',
+    benefit: 'Flawlessly isolates text on curved bottles, cylindrical cans, and non-uniform shadow gradients.',
+  },
+  upscaled_2x: {
+    stageNum: 'Stage 5',
+    title: '2× Super-Resolution Bicubic Interpolation',
+    math: '200% canvas scale with sub-pixel interpolation + sharpening',
+    kernel: 'Lanczos / High-Quality Bicubic Resampling Filter',
+    purpose: 'Enlarges micro-text below 6pt font size (such as FSSAI 14-digit license numbers and USP clauses).',
+    benefit: 'Provides sufficient pixel height for OCR character neural networks to recognize tiny numerals.',
+  },
+};
+
+const OpticalStagesInspector: React.FC<OpticalStagesInspectorProps> = ({
+  originalImageUrl,
+  variants: initialVariants,
+}) => {
+  const [variants, setVariants] = useState<PreprocessedVariant[]>(initialVariants || []);
+  const [selectedVariantName, setSelectedVariantName] = useState<string>('adaptive_threshold');
+  const [isComparing, setIsComparing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    if ((!variants || variants.length === 0) && originalImageUrl) {
+      setIsGenerating(true);
+      preprocessImage(originalImageUrl)
+        .then((res) => {
+          setVariants(res.variants);
+          if (res.variants.length > 0) {
+            setSelectedVariantName(res.variants.some((v) => v.name === 'adaptive_threshold') ? 'adaptive_threshold' : res.variants[0].name);
+          }
+        })
+        .finally(() => setIsGenerating(false));
+    }
+  }, [originalImageUrl, variants]);
+
+  const activeVariant =
+    variants.find((v) => v.name === selectedVariantName) ||
+    variants[0] || {
+      name: 'original',
+      dataUrl: originalImageUrl,
+      description: 'Original Image',
+      scale: 1,
+    };
+
+  const meta = STAGE_METADATA[activeVariant.name] || {
+    stageNum: 'Pass',
+    title: activeVariant.description || activeVariant.name,
+    math: 'Optical filter pass',
+    kernel: 'Standard',
+    purpose: 'Image enhancement before OCR text extraction.',
+    benefit: 'Improves text recognition accuracy.',
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Top Banner with Instructions for Demo Presentation */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 bg-blue-600 text-white rounded-lg shrink-0">
+            <SlidersHorizontal className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="font-bold flex items-center gap-2">
+              <span>Computer Vision Optical Pipeline (Pre-OCR Stages)</span>
+              <span className="px-1.5 py-0.5 bg-blue-200 text-blue-800 rounded text-[10px] font-mono">
+                {variants.length} Optical Transforms
+              </span>
+            </div>
+            <p className="text-[11px] text-blue-700/90 mt-0.5">
+              Click each stage to inspect how raw phone photography is optically enhanced before character extraction.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsComparing((prev) => !prev)}
+          className={cn(
+            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0',
+            isComparing
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'bg-white border border-blue-300 text-blue-700 hover:bg-blue-100'
+          )}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          <span>{isComparing ? 'Exit Split View' : 'Compare with Original'}</span>
+        </button>
+      </div>
+
+      {/* Stage Selector Pills */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {variants.map((v) => {
+          const isSelected = selectedVariantName === v.name;
+          const stageInfo = STAGE_METADATA[v.name];
+          return (
+            <button
+              key={v.name}
+              onClick={() => setSelectedVariantName(v.name)}
+              className={cn(
+                'flex flex-col text-left p-2.5 rounded-xl border transition-all relative overflow-hidden',
+                isSelected
+                  ? 'border-blue-500 bg-blue-50/80 shadow-xs ring-2 ring-blue-500/20'
+                  : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+              )}
+            >
+              <div className="flex items-center justify-between w-full mb-1">
+                <span
+                  className={cn(
+                    'text-[10px] font-mono font-bold px-1.5 py-0.2 rounded',
+                    isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                  )}
+                >
+                  {stageInfo?.stageNum || 'Pass'}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  {v.scale}×
+                </span>
+              </div>
+              <span className="text-xs font-bold text-slate-900 capitalize truncate w-full">
+                {v.name.replace(/_/g, ' ')}
+              </span>
+              <span className="text-[10px] text-slate-500 truncate w-full mt-0.5">
+                {v.description}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Image Preview Canvas Area */}
+      <div className="rounded-2xl border border-slate-200 bg-slate-950/5 p-4 flex flex-col items-center justify-center min-h-[320px]">
+        {isGenerating ? (
+          <div className="text-center py-8 text-xs text-slate-500 animate-pulse">
+            Processing image optical convolution passes...
+          </div>
+        ) : isComparing ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <span className="text-xs font-bold text-slate-700 mb-2 font-mono">
+                📸 Original RGB Camera Capture
+              </span>
+              <img
+                src={originalImageUrl}
+                alt="Original capture"
+                className="max-h-[340px] w-auto object-contain rounded-lg border border-slate-200"
+              />
+            </div>
+            <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-blue-300 shadow-xs">
+              <span className="text-xs font-bold text-blue-700 mb-2 font-mono">
+                ⚡ {meta.stageNum}: {meta.title}
+              </span>
+              <img
+                src={activeVariant.dataUrl}
+                alt={activeVariant.name}
+                className="max-h-[340px] w-auto object-contain rounded-lg border border-blue-200"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center w-full">
+            <div className="relative inline-block max-w-full bg-white p-3 rounded-xl border border-slate-200 shadow-md">
+              <img
+                src={activeVariant.dataUrl}
+                alt={activeVariant.name}
+                className="max-h-[380px] w-auto object-contain rounded-lg"
+              />
+              <div className="absolute bottom-5 left-5 bg-slate-900/90 text-white text-[11px] font-mono px-2.5 py-1 rounded-md shadow-md backdrop-blur-xs flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Rendered Variant: {activeVariant.name} ({activeVariant.scale}× scale)</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Algorithmic & Mathematical Deep Dive Box for Hackathon Judges */}
+      <div className="bg-slate-900 text-slate-100 rounded-xl p-4 space-y-3 font-mono text-xs border border-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold text-[11px] border border-blue-500/40">
+              {meta.stageNum}
+            </span>
+            <span className="font-bold text-white text-sm">{meta.title}</span>
+          </div>
+          <span className="text-[10px] text-slate-400">Target: Legal Metrology Declarations</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+          <div className="space-y-1">
+            <span className="text-slate-400 uppercase text-[10px] font-bold block">Mathematical Model:</span>
+            <p className="text-emerald-400 bg-slate-950/80 p-2 rounded border border-slate-800 break-all">
+              {meta.math}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <span className="text-slate-400 uppercase text-[10px] font-bold block">Kernel / Filter Structure:</span>
+            <p className="text-amber-300 bg-slate-950/80 p-2 rounded border border-slate-800 font-mono">
+              {meta.kernel}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-[11px]">
+          <div className="space-y-0.5">
+            <span className="text-slate-400 font-sans font-bold">Why This Stage is Required:</span>
+            <p className="text-slate-300 font-sans leading-relaxed">{meta.purpose}</p>
+          </div>
+          <div className="space-y-0.5">
+            <span className="text-slate-400 font-sans font-bold">Impact on Downstream Extraction:</span>
+            <p className="text-slate-300 font-sans leading-relaxed">{meta.benefit}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const OCRResultsPanel: React.FC = () => {
   const { currentScan, activeAngleIndex, setActiveAngleIndex } = useScanStore();
   const [activeTab, setActiveTab] = useState('declarations');
@@ -150,7 +431,6 @@ export const OCRResultsPanel: React.FC = () => {
 
   const data: ExtractedProductData = currentScan.extractedData;
   const declarations = { ...data.declarations };
-
 
   // Apply local edits
   Object.entries(localOverrides).forEach(([k, v]) => {
@@ -204,7 +484,8 @@ export const OCRResultsPanel: React.FC = () => {
   const tabs = [
     { id: 'declarations', label: 'Statutory Declarations', icon: <Sparkles className="h-3.5 w-3.5" /> },
     { id: 'evidence', label: 'Visual Evidence & Boxes', icon: <Scan className="h-3.5 w-3.5" /> },
-    { id: 'rule_engine', label: 'Rule Engine (JSON)', icon: <Code className="h-3.5 w-3.5" /> },
+    { id: 'stages', label: 'Optical Preprocessing Stages', icon: <SlidersHorizontal className="h-3.5 w-3.5" /> },
+    { id: 'rule_engine', label: 'Structured JSON Payload', icon: <Code className="h-3.5 w-3.5" /> },
     { id: 'passes', label: 'OCR Telemetry', icon: <Layers className="h-3.5 w-3.5" /> },
     { id: 'raw', label: 'Raw OCR Text', icon: <FileText className="h-3.5 w-3.5" /> },
   ];
@@ -680,6 +961,14 @@ export const OCRResultsPanel: React.FC = () => {
             declarations={activeAngle?.extractedData?.declarations || declarations}
             highlightedKey={highlightedKey}
             onHighlight={setHighlightedKey}
+          />
+        )}
+
+        {/* Tab 3: Optical Preprocessing Stages Inspector */}
+        {activeTab === 'stages' && (
+          <OpticalStagesInspector
+            originalImageUrl={activeAngle ? activeAngle.imageDataUrl : currentScan.imageDataUrl}
+            variants={activeAngle?.extractedData?.preprocessedVariants || data.preprocessedVariants}
           />
         )}
 

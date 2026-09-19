@@ -233,6 +233,7 @@ const MRP_REGEXES: RegExp[] = [
   /(?:m\.?\s*r\.?\s*p\.?|maximum\s*retail\s*price)\s*[:;.]?\s*(?:(?:incl|inc|incl\.).*?)?[₹Rs.]*\s*[₹Rs.]*\s*([\d]+(?:[.,]\d{1,2})?)/gi,
   /[₹]\s*([\d]+(?:[.,]\d{1,2})?)/gi,
   /Rs\.?\s*([\d]+(?:[.,]\d{1,2})?)\s*(?:\/|-)?/gi,
+  /\bINR\s*([\d]+(?:[.,]\d{1,2})?)/gi,
 ];
 
 function extractMRPCandidates(pass: MultiPassOCRData): CandidateResult[] {
@@ -240,20 +241,34 @@ function extractMRPCandidates(pass: MultiPassOCRData): CandidateResult[] {
   const lowerFull = pass.text.toLowerCase();
   const hasMRPKeyword = /m\.?\s*r\.?\s*p|maximum\s*retail\s*price/i.test(lowerFull);
 
-  for (const line of pass.lines) {
+  for (let idx = 0; idx < pass.lines.length; idx++) {
+    const line = pass.lines[idx];
     const lineText = line.text;
     const hasLineMRP = /m\.?\s*r\.?\s*p|maximum\s*retail/i.test(lineText);
 
+    // Look for prices in line, skipping parts that are clearly unit prices (e.g., /ml, /g, per ml)
     for (const pattern of MRP_REGEXES) {
       pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(lineText)) !== null) {
+        // Check if this match is immediately followed by /ml, /g, /kg, /l, or per
+        const followingText = lineText.substring(match.index + match[0].length, match.index + match[0].length + 15);
+        if (/^\s*(?:\/|per)\s*(?:g|ml|kg|l)\b/i.test(followingText)) {
+          // This is a Unit Sale Price (USP), not the total MRP — skip for MRP
+          continue;
+        }
+
         const rawNum = match[1].replace(/,/g, '');
         const val = parseFloat(rawNum);
         if (isNaN(val) || val < 1 || val > 100000) continue;
 
-        let score = hasLineMRP ? 0.95 : hasMRPKeyword ? 0.65 : 0.45;
+        let score = hasLineMRP ? 0.95 : hasMRPKeyword ? 0.85 : 0.65;
         if (/incl|all\s*taxes/i.test(lineText)) score = Math.min(1, score + 0.05);
+
+        // If the preceding line had MRP header, high confidence
+        if (idx > 0 && /m\.?\s*r\.?\s*p|maximum\s*retail/i.test(pass.lines[idx - 1].text)) {
+          score = 0.96;
+        }
 
         const formatted = val % 1 === 0 ? `₹${val}.00` : `₹${val.toFixed(2)}`;
 
@@ -308,6 +323,7 @@ function validateMRP(value: string, rawText: string): { status: ValidationStatus
 const USP_REGEXES: RegExp[] = [
   /(?:usp|unit\s*sale\s*price|unit\s*price)\s*[:;.]?\s*[₹Rs.]*\s*([\d]+(?:[.,]\d{1,2})?)\s*(?:per|\/)\s*(g|ml|kg|l)\b/gi,
   /[₹Rs.]*\s*([\d]+(?:[.,]\d{1,2})?)\s*(?:per|\/)\s*(g|ml|kg|l)\b/gi,
+  /\b([\d]+(?:[.,]\d{1,2})?)\s*\/\s*(g|ml|kg|l)\b/gi,
 ];
 
 function extractUSPCandidates(pass: MultiPassOCRData): CandidateResult[] {
@@ -326,7 +342,7 @@ function extractUSPCandidates(pass: MultiPassOCRData): CandidateResult[] {
         const val = parseFloat(rawNum);
         if (isNaN(val) || val <= 0) continue;
 
-        const score = hasUSPKeyword ? 0.95 : 0.70;
+        const score = hasUSPKeyword ? 0.95 : 0.85;
         const formatted = `₹${val.toFixed(2)} per ${unit}`;
 
         results.push({
@@ -424,9 +440,10 @@ function validateNetQuantity(value: string): { status: ValidationStatus; message
 // ─── 3. Dates Extractors (Mfg, Pkg, Expiry) ──────────────────────
 
 const DATE_REGEXES: RegExp[] = [
-  /(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/g,
-  /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[,.\/\-]?\s*(\d{2,4})/gi,
-  /(\d{2,4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/g,
+  /\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/g,
+  /\b(?:0?[1-9]|1[0-2])[\/\-.](\d{2,4})\b/g,
+  /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[,.\/\-]?\s*(\d{2,4})\b/gi,
+  /\b(\d{2,4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})\b/g,
 ];
 
 const MONTH_NAMES: Record<string, string> = {
@@ -435,20 +452,41 @@ const MONTH_NAMES: Record<string, string> = {
 };
 
 function formatParsedDate(raw: string): string | null {
-  // DD/MM/YYYY
-  let m = raw.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+  if (!raw) return null;
+  // Clean off single-letter prefixes like "M ", "U ", "UB ", "EXP "
+  const cleaned = raw.trim().replace(/^(?:MFD|MFG|EXP|UB|BB|USE\s*BEFORE|USE\s*BY|M|U|E)\s*[:.\-]?\s*/i, '').trim();
+
+  // 1. DD/MM/YYYY or DD-MM-YYYY
+  let m = cleaned.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
   if (m) {
-    const day = m[1].padStart(2, '0');
-    const month = m[2].padStart(2, '0');
+    const p1 = parseInt(m[1]);
+    const p2 = parseInt(m[2]);
     let year = m[3];
     if (year.length === 2) year = `20${year}`;
-    if (parseInt(month) < 1 || parseInt(month) > 12) return null;
-    if (parseInt(day) < 1 || parseInt(day) > 31) return null;
-    return `${day}/${month}/${year}`;
+    if (p2 >= 1 && p2 <= 12 && p1 >= 1 && p1 <= 31) {
+      return `${m[1].padStart(2, '0')}/${m[2].padStart(2, '0')}/${year}`;
+    }
+    if (p1 >= 1 && p1 <= 12 && p2 >= 1 && p2 <= 31) {
+      return `${m[2].padStart(2, '0')}/${m[1].padStart(2, '0')}/${year}`;
+    }
+    return null;
   }
 
-  // MMM YYYY
-  m = raw.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[,.\/\-]?\s*(\d{2,4})$/i);
+  // 2. MM/YY or MM/YYYY (Standard Legal Metrology Rule 6(1)(d) month/year format)
+  m = cleaned.match(/^(\d{1,2})[\/\-.](\d{2,4})$/);
+  if (m) {
+    const monthNum = parseInt(m[1]);
+    let year = m[2];
+    if (monthNum >= 1 && monthNum <= 12) {
+      if (year.length === 2) year = `20${year}`;
+      if (year.length === 4 && parseInt(year) >= 2000 && parseInt(year) <= 2040) {
+        return `${m[1].padStart(2, '0')}/${year}`;
+      }
+    }
+  }
+
+  // 3. MMM YYYY or MMM YY (e.g. NOV 2023, NOV 23, OCT/26)
+  m = cleaned.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[,.\/\-]?\s*(\d{2,4})$/i);
   if (m) {
     const month = MONTH_NAMES[m[1].toLowerCase()];
     let year = m[2];
@@ -476,7 +514,7 @@ function extractDateByKeyword(
         const norm = formatParsedDate(match[0]);
         if (!norm) continue;
 
-        const score = hasKeyword ? 0.92 : 0.4;
+        const score = hasKeyword ? 0.94 : 0.45;
         results.push({
           value: norm,
           rawValue: match[0],
@@ -492,10 +530,36 @@ function extractDateByKeyword(
 }
 
 function extractMfgDateCandidates(pass: MultiPassOCRData): CandidateResult[] {
-  return extractDateByKeyword(pass, [
+  const results: CandidateResult[] = [];
+
+  for (const line of pass.lines) {
+    const lineText = line.text;
+
+    // Direct MFD abbreviations like "M 11/23 22:15", "M 11/23", "M: 11/2023", "MFD (M) 11/23", "MFG 11/23"
+    const mfdAbbrMatch = lineText.match(/(?:^|\b)(?:MFD\.?\s*\(M\)|MFG\.?\s*\(M\)|MFD|MFG|M)\s*[:.\-]?\s*([0-1]?\d[\/\-.]\d{2,4})(?:\s+\d{1,2}:\d{2})?/i);
+    if (mfdAbbrMatch) {
+      const norm = formatParsedDate(mfdAbbrMatch[1]);
+      if (norm) {
+        results.push({
+          value: norm,
+          rawValue: mfdAbbrMatch[0],
+          rawMatch: lineText.trim(),
+          score: 0.97,
+          bbox: line.bbox,
+        });
+      }
+    }
+  }
+
+  const keywordResults = extractDateByKeyword(pass, [
     /(?:mfg|mfd|manufacturing|manufactured)\s*(?:date|dt|d)?/i,
     /date\s*of\s*(?:mfg|manufacture)/i,
+    /\bmfd\.?\s*\(m\)/i,
+    /\bmfg\.?\s*\(m\)/i,
+    /(?:^|\s)M\s*[:\-\/.]?\s*\d/i,
   ]);
+
+  return [...results, ...keywordResults];
 }
 
 function extractPackingDateCandidates(pass: MultiPassOCRData): CandidateResult[] {
@@ -506,19 +570,47 @@ function extractPackingDateCandidates(pass: MultiPassOCRData): CandidateResult[]
 }
 
 function extractExpiryDateCandidates(pass: MultiPassOCRData): CandidateResult[] {
-  return extractDateByKeyword(pass, [
+  const results: CandidateResult[] = [];
+
+  for (const line of pass.lines) {
+    const lineText = line.text;
+
+    // Direct Use Before / Expiry abbreviations like "U 10/26", "U: 10/26", "UB 10/26", "EXP 10/26", "BB 10/26", "Use Before (U) 10/26"
+    const expAbbrMatch = lineText.match(/(?:^|\b)(?:Use\s*Before\s*\(U\)|Use\s*By\s*\(U\)|EXP\.?\s*\(E\)|UB|BB|EXP|EXPIRY|U|E)\s*[:.\-]?\s*([0-1]?\d[\/\-.]\d{2,4})/i);
+    if (expAbbrMatch) {
+      const norm = formatParsedDate(expAbbrMatch[1]);
+      if (norm) {
+        results.push({
+          value: norm,
+          rawValue: expAbbrMatch[0],
+          rawMatch: lineText.trim(),
+          score: 0.97,
+          bbox: line.bbox,
+        });
+      }
+    }
+  }
+
+  const keywordResults = extractDateByKeyword(pass, [
     /(?:exp|expiry|exp\.|expires)\s*(?:date|dt|d)?/i,
     /best\s*before/i,
     /use\s*by/i,
+    /use\s*before/i,
     /valid\s*(?:upto|up\s*to)/i,
+    /\buse\s*before\s*\(u\)/i,
+    /\buse\s*by\s*\(u\)/i,
+    /(?:^|\s)U\s*[:\-\/.]?\s*\d/i,
   ]);
+
+  return [...results, ...keywordResults];
 }
 
 // ─── 5. Batch / Lot Number Extractor & Validator ────────────────
 
 const BATCH_REGEXES: RegExp[] = [
   /(?:batch\s*(?:no|number|#)?|lot\s*(?:no|number|#)?|b\.?\s*no\.?|l\.?\s*no\.?|b\/no)\s*[:;.\-]?\s*([A-Z0-9\/\-_]{3,20})/gi,
-  /\b(?:BN|LOT|BATCH)\s*[:.\-]?\s*([A-Z0-9\/\-_]{3,15})\b/gi,
+  /\b(?:BN|LOT|BATCH|LOTNO|BNO)\s*[:.\-]?\s*([A-Z0-9\/\-_]{3,15})\b/gi,
+  /(?:^|\b)B\s*[:.\-]?\s*([A-Z0-9]{4,16}(?:\s+\d{1,4})?)\b/gi,
 ];
 
 function extractBatchCandidates(pass: MultiPassOCRData): CandidateResult[] {
@@ -527,12 +619,33 @@ function extractBatchCandidates(pass: MultiPassOCRData): CandidateResult[] {
   for (const line of pass.lines) {
     const lineText = line.text;
 
+    // Check direct line starting with B + alphanumeric code e.g. "B34431350 11" or "B 34431350"
+    const directBMatch = lineText.match(/^(?:B|BN|LOT)\s*[:.\-]?\s*([A-Z0-9]{4,16}(?:\s+[A-Z0-9]{1,4})?)$/i);
+    if (directBMatch) {
+      const batchVal = directBMatch[1].trim();
+      if (
+        batchVal.length >= 3 &&
+        !/^(AND|THE|FOR|REG|DATE|BEFORE|AFTER|BODY|BOTTLE|BEIERSDORF|MADE|INDIA|GERMANY)$/i.test(batchVal)
+      ) {
+        results.push({
+          value: directBMatch[0].trim(),
+          rawValue: directBMatch[0],
+          rawMatch: lineText.trim(),
+          score: 0.96,
+          bbox: line.bbox,
+        });
+      }
+    }
+
     for (const pattern of BATCH_REGEXES) {
       pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(lineText)) !== null) {
         const batchVal = match[1].trim();
-        if (batchVal.length >= 3 && !/^(AND|THE|FOR|REG|DATE)$/i.test(batchVal)) {
+        if (
+          batchVal.length >= 3 &&
+          !/^(AND|THE|FOR|REG|DATE|BEFORE|AFTER|BODY|BOTTLE|BEIERSDORF|MADE|INDIA|GERMANY)$/i.test(batchVal)
+        ) {
           results.push({
             value: batchVal,
             rawValue: match[0],

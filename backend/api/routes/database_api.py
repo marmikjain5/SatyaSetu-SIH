@@ -74,7 +74,6 @@ class ProductCreateSchema(BaseModel):
     nutritional_info: Dict[str, Any] = Field(default_factory=dict)
     customer_care_contact: Optional[str] = None
     dietary_type: str = "Vegetarian"
-    claims: List[str] = Field(default_factory=list)
     missing_mandatory_fields: List[str] = Field(default_factory=list)
     regulatory_acts: List[str] = Field(default_factory=list)
     last_scanned: Optional[str] = None
@@ -148,7 +147,6 @@ def create_product(product_in: ProductCreateSchema, db: Session = Depends(get_db
         nutritional_info=product_in.nutritional_info,
         customer_care_contact=product_in.customer_care_contact,
         dietary_type=product_in.dietary_type,
-        claims=product_in.claims,
         missing_mandatory_fields=product_in.missing_mandatory_fields,
         regulatory_acts=product_in.regulatory_acts,
         last_scanned=product_in.last_scanned or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),

@@ -62,152 +62,282 @@ DEFAULT_HEADERS = {
 }
 
 
-# ─── Live Catalog Targets (Real Active Products Across 5 Marketplaces) ───────
-TARGET_PRODUCTS = [
-    {
-        "platform": "Amazon",
-        "url": "https://www.amazon.in/dp/B07HG8SBDV",
-        "sku": "AMZ-IN-OIL-8491",
-        "default_title": "Fortune Sunlite Refined Sunflower Oil, 1L Pouch",
-        "default_brand": "Fortune",
-        "default_category": "Edible Oils & Fats",
-        "default_manufacturer": "Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009",
-        "default_country_of_origin": "India",
-        "default_net_weight": "1 L (910 g)",
-        "default_mrp": 155.0,
-        "default_listed_price": 139.0,
-        "default_unit_sale_price": "₹139.00 / 1 L",
-        "default_mfg_date": "04/2026",
-        "default_customer_care": "care@adaniwilmar.in / 1800-233-9999",
-        "image_url": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],
-    },
-    {
-        "platform": "Amazon",
-        "url": "https://www.amazon.in/dp/B08XJ8P2W1",
-        "sku": "AMZ-IN-SUPP-3920",
-        "default_title": "ProUltra Whey Isolate Protein Powder, Chocolate Flavour 1kg",
-        "default_brand": "ProUltra Nutrition",
-        "default_category": "Nutritional Supplements & Health Foods",
-        "default_manufacturer": "Apex Health Nutraceuticals Ltd, Sector 62, Noida, Uttar Pradesh",
-        "default_country_of_origin": "",  # VIOLATION: Missing Country of Origin on e-commerce listing
-        "default_net_weight": "1 kg",
-        "default_mrp": 3499.0,
-        "default_listed_price": 2899.0,
-        "default_unit_sale_price": "",  # VIOLATION: Missing mandatory Unit Sale Price (USP) per 100g/1kg
-        "default_mfg_date": "02/2026",
-        "default_customer_care": "support@proultra.com",
-        "image_url": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": ["RULE-6-10-ORIGIN", "RULE-5-USP"],
-    },
-    {
-        "platform": "Flipkart",
-        "url": "https://www.flipkart.com/tata-tea-gold-leaf-tea/p/itmfc128392",
-        "sku": "FK-TEA-GOLD-4912",
-        "default_title": "Tata Tea Gold Leaf Tea 500g Pet Jar",
-        "default_brand": "Tata Tea",
-        "default_category": "Packaged Food & Beverages",
-        "default_manufacturer": "Tata Consumer Products Limited, 1 Bishop Lefroy Road, Kolkata, West Bengal - 700020",
-        "default_country_of_origin": "India",
-        "default_net_weight": "500 g",
-        "default_mrp": 310.0,
-        "default_listed_price": 275.0,
-        "default_unit_sale_price": "₹55.00 / 100 g",
-        "default_mfg_date": "03/2026",
-        "default_customer_care": "care@tataconsumer.com / 1800-345-1720",
-        "image_url": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],
-    },
-    {
-        "platform": "Blinkit",
-        "url": "https://blinkit.com/prn/organic-tattva-organic-turmeric-powder/prid/382910",
-        "sku": "BLK-SPICE-ORG-2810",
-        "default_title": "Organic Tattva 100% Pure Organic Turmeric Powder 200g",
-        "default_brand": "Organic Tattva",
-        "default_category": "Spices & Condiments",
-        "default_manufacturer": "Mehrotra Consumer Products Pvt Ltd, Plot No 26G, Sector 31, Ecotech 1, Greater Noida, Gautam Buddha Nagar, UP - 201308",
-        "default_country_of_origin": "India",
-        "default_net_weight": "200 g",
-        "default_mrp": 95.0,
-        "default_listed_price": 85.0,
-        "default_unit_sale_price": "₹42.50 / 100 g",
-        "default_mfg_date": "01/2026",
-        "default_customer_care": "customercare@organictattva.com / +91-120-4260545",
-        "image_url": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],
-    },
-    {
-        "platform": "Zepto",
-        "url": "https://www.zeptonow.com/pn/glamglow-radiance-face-serum-30ml/p/829102",
-        "sku": "ZPT-COSM-GLOW-7721",
-        "default_title": "GlamGlow Radiance Vitamin C Night Face Serum 30ml",
-        "default_brand": "GlamGlow Herbals",
-        "default_category": "Cosmetics & Personal Care",
-        "default_manufacturer": "Imported and Marketed by Glam Cosmetica LLP, Mumbai",  # VIOLATION: Missing premise/complete address & PIN code
-        "default_country_of_origin": "South Korea",
-        "default_net_weight": "30 ml",
-        "default_mrp": 899.0,
-        "default_listed_price": 749.0,
-        "default_unit_sale_price": "₹24.97 / 1 ml",
-        "default_mfg_date": "",  # VIOLATION: Missing Month/Year of Import or Packing (Rule 6(1)(e))
-        "default_customer_care": "info@glamglow.in",  # Incomplete: Missing consumer care telephone/address
-        "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": ["RULE-6-1-A-ADDR", "RULE-6-1-E-DATE", "RULE-6-1-G-CARE"],
-    },
-    {
-        "platform": "Meesho",
-        "url": "https://www.meesho.com/s/p/premium-cashews-w240-500g/8k39f",
-        "sku": "MSH-DRYFRT-CASHEW-109",
-        "default_title": "Royal King Premium Jumbo Cashew Nuts W240, 500g Zipper Pouch",
-        "default_brand": "Royal King Dry Fruits",
-        "default_category": "Dry Fruits & Nuts",
-        "default_manufacturer": "Packer: Shree Balaji Dry Fruits Traders, APMC Market, Vashi, Navi Mumbai, Maharashtra - 400703",
-        "default_country_of_origin": "",  # VIOLATION: Country of origin missing on Meesho listing
-        "default_net_weight": "500 Grams",
-        "default_mrp": 650.0,
-        "default_listed_price": 520.0,
-        "default_unit_sale_price": "",  # VIOLATION: Missing USP per 100g
-        "default_mfg_date": "03/2026",
-        "default_customer_care": "",  # VIOLATION: Missing consumer care details
-        "image_url": "https://images.unsplash.com/photo-1509912760195-4f5a34079813?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": ["RULE-6-10-ORIGIN", "RULE-5-USP", "RULE-6-1-G-CARE"],
-    },
-    {
-        "platform": "Amazon",
-        "url": "https://www.amazon.in/dp/B07Y8M13KL",
-        "sku": "AMZ-IN-BABY-4401",
-        "default_title": "LittleAngels Organic Baby Grain Cereal, 6+ Months, 300g",
-        "default_brand": "LittleAngels",
-        "default_category": "Infant Food & Nutrition",
-        "default_manufacturer": "NutriBaby Foods India Pvt Ltd, Plot 14, Phase 2, Industrial Estate, Bengaluru, Karnataka - 560058",
-        "default_country_of_origin": "India",
-        "default_net_weight": "300 g",
-        "default_mrp": 380.0,
-        "default_listed_price": 360.0,
-        "default_unit_sale_price": "₹120.00 / 100 g",
-        "default_mfg_date": "05/2026",
-        "default_customer_care": "care@littleangels.in / 1800-425-9090",
-        "image_url": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],
-    },
-    {
-        "platform": "Flipkart",
-        "url": "https://www.flipkart.com/pure-cold-pressed-mustard-oil-1l/p/itmd839201",
-        "sku": "FK-OIL-MUSTARD-552",
-        "default_title": "Kachi Ghani Cold Pressed Mustard Oil, 1 Litre Bottle",
-        "default_brand": "PureRoots",
-        "default_category": "Edible Oils & Fats",
-        "default_manufacturer": "PureRoots Agro Products Ltd, G.T. Road, Aligarh, Uttar Pradesh - 202001",
-        "default_country_of_origin": "India",
-        "default_net_weight": "1 Litre",
-        "default_mrp": 210.0,
-        "default_listed_price": 185.0,
-        "default_unit_sale_price": "₹18.50 / 100 ml",
-        "default_mfg_date": "04/2026",
-        "default_customer_care": "support@pureroots.in / 0571-2401920",
-        "image_url": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
-        "known_compliance_issues": [],
-    },
+def generate_platform_sku(platform: str, seed_num: Optional[int] = None) -> str:
+    """Generates standard platform short-form and number identifier (e.g. AMZ-345645)."""
+    p = platform.lower()
+    if "amazon" in p:
+        prefix = "AMZ"
+    elif "flipkart" in p:
+        prefix = "FLP"
+    elif "blinkit" in p:
+        prefix = "BLK"
+    elif "zepto" in p:
+        prefix = "ZPT"
+    elif "meesho" in p:
+        prefix = "MSH"
+    elif "bigbasket" in p:
+        prefix = "BB"
+    else:
+        prefix = "ECO"
+    num = seed_num if seed_num is not None else random.randint(100000, 999999)
+    return f"{prefix}-{num}"
+
+
+VALID_COUNTRIES = {
+    "india", "south korea", "united states", "usa", "china", "germany",
+    "united kingdom", "uk", "japan", "vietnam", "thailand", "italy",
+    "france", "switzerland", "sri lanka", "indonesia", "malaysia",
+    "uae", "australia", "new zealand", "netherlands", "singapore",
+}
+
+GENERIC_TITLES = {
+    "buy products online at best price in india",
+    "online shopping site for mobiles, electronics, furniture, grocery",
+    "amazon.in",
+    "online shopping site in india",
+    "blinkit",
+    "zepto",
+    "meesho",
+    "robot check",
+    "page not found",
+    "access denied",
+    "just a moment...",
+}
+
+
+def infer_category(title: str, default_cat: str = "Packaged Commodities") -> str:
+    """Dynamically categorizes a product based on keywords in its title."""
+    t = title.lower()
+    if any(k in t for k in ["muesli", "granola", "cereal", "oats", "corn flakes"]):
+        return "Muesli & Breakfast Cereals"
+    if any(k in t for k in ["biscuit", "cookie", "cookies", "rusk", "wafer", "bakery", "cake"]):
+        return "Biscuits & Bakery"
+    if any(k in t for k in ["oil", "ghee", "sunflower", "mustard oil", "olive oil", "edible oil"]):
+        return "Edible Oils & Fats"
+    if any(k in t for k in ["tea", "coffee", "green tea", "beverage", "drink", "juice"]):
+        return "Packaged Beverages & Tea"
+    if any(k in t for k in ["soap", "cream", "serum", "face wash", "shampoo", "lotion", "sunscreen", "toothpaste"]):
+        return "Cosmetics & Personal Care"
+    if any(k in t for k in ["cashew", "almond", "walnut", "raisin", "pista", "dry fruit", "dates", "nuts"]):
+        return "Dry Fruits & Nuts"
+    if any(k in t for k in ["protein", "whey", "isolate", "creatine", "supplement", "vitamin"]):
+        return "Health & Nutritional Supplements"
+    if any(k in t for k in ["milk", "butter", "cheese", "paneer", "curd", "yogurt", "dairy"]):
+        return "Dairy & Fresh Foods"
+    if any(k in t for k in ["turmeric", "haldi", "chilli", "mirch", "coriander", "masala", "spice", "salt"]):
+        return "Spices & Seasonings"
+    if any(k in t for k in ["noodle", "noodles", "maggi", "pasta", "instant food", "snack", "chips"]):
+        return "Instant Foods & Snacks"
+    if any(k in t for k in ["phone", "mobile", "oneplus", "samsung", "smartphone", "headphone", "earbud", "laptop", "ram", "display"]):
+        return "Consumer Electronics"
+    if any(k in t for k in ["atta", "flour", "rice", "dal", "pulses", "grain"]):
+        return "Staples & Grains"
+    return default_cat
+
+
+# ─── Categorized Commodity Target Catalog ────────────────────────────────────
+COMMODITY_CATEGORIES: Dict[str, List[Dict[str, Any]]] = {
+    "Muesli & Breakfast Cereals": [
+        {
+            "platform": "Amazon",
+            "url": "https://www.amazon.in/dp/B07HG8SBDV",
+            "sku": "AMZ-345645",
+            "default_title": "Kellogg's Crunchy Fruit & Nut Muesli 750g Pouch",
+            "default_brand": "Kellogg's",
+            "default_category": "Muesli & Breakfast Cereals",
+            "default_manufacturer": "Kellogg India Pvt Ltd, Plot L2 & L3, Taloja MIDC, Navi Mumbai, Maharashtra - 410208",
+            "default_country_of_origin": "India",
+            "default_net_weight": "750 g",
+            "default_mrp": 450.0,
+            "default_listed_price": 399.0,
+            "default_unit_sale_price": "₹53.20 / 100 g",
+            "default_mfg_date": "04/2026",
+            "default_customer_care": "consumerfeedback@kellogg.com / 1800-223-500",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+        {
+            "platform": "Blinkit",
+            "url": "https://blinkit.com/prn/fortune-sunlite-refined-sunflower-oil/prid/37398",
+            "sku": "BLK-373981",
+            "default_title": "Bagrry's Crunchy 0% Added Sugar Muesli 400g Box",
+            "default_brand": "Bagrry's",
+            "default_category": "Muesli & Breakfast Cereals",
+            "default_manufacturer": "Bagrry's India Limited, 9 Community Centre, Lawrence Road Industrial Area, Delhi - 110035",
+            "default_country_of_origin": "India",
+            "default_net_weight": "400 g",
+            "default_mrp": 299.0,
+            "default_listed_price": 269.0,
+            "default_unit_sale_price": "₹67.25 / 100 g",
+            "default_mfg_date": "03/2026",
+            "default_customer_care": "care@bagrrys.com / 1800-111-105",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+    ],
+    "Biscuits & Cookies": [
+        {
+            "platform": "Flipkart",
+            "url": "https://www.flipkart.com/fortune-sunlite-refined-sunflower-oil-pouch/p/itmd88fef5c0c926",
+            "sku": "FLP-491203",
+            "default_title": "Britannia Good Day Butter Rich Cookies 600g Value Pack",
+            "default_brand": "Britannia",
+            "default_category": "Biscuits & Bakery",
+            "default_manufacturer": "Britannia Industries Ltd, 5/1A Hungerford Street, Kolkata, West Bengal - 700017",
+            "default_country_of_origin": "India",
+            "default_net_weight": "600 g",
+            "default_mrp": 150.0,
+            "default_listed_price": 130.0,
+            "default_unit_sale_price": "₹21.67 / 100 g",
+            "default_mfg_date": "03/2026",
+            "default_customer_care": "feedback@britindia.com / 1800-425-4449",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+        {
+            "platform": "Zepto",
+            "url": "https://www.zeptonow.com/pn/fortune-sunlite-refined-sunflower-oil-1l/p/f22ff6fe-0112-4217-a065-2bc38ef2fa1d",
+            "sku": "ZPT-482910",
+            "default_title": "Sunfeast Dark Fantasy Choco Fills Premium Cookies 300g",
+            "default_brand": "Sunfeast",
+            "default_category": "Biscuits & Bakery",
+            "default_manufacturer": "ITC Limited, 37 J.L. Nehru Road, Kolkata, West Bengal - 700071",
+            "default_country_of_origin": "India",
+            "default_net_weight": "300 g",
+            "default_mrp": 180.0,
+            "default_listed_price": 150.0,
+            "default_unit_sale_price": "₹50.00 / 100 g",
+            "default_mfg_date": "04/2026",
+            "default_customer_care": "itccares@itc.in / 1800-425-44444",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+    ],
+    "Edible Oils & Fats": [
+        {
+            "platform": "Amazon",
+            "url": "https://www.amazon.in/dp/B07HG8SBDV",
+            "sku": "AMZ-519204",
+            "default_title": "Fortune Sunlite Refined Sunflower Oil, 1L Pouch",
+            "default_brand": "Fortune",
+            "default_category": "Edible Oils & Fats",
+            "default_manufacturer": "Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009",
+            "default_country_of_origin": "India",
+            "default_net_weight": "1 L (910 g)",
+            "default_mrp": 155.0,
+            "default_listed_price": 139.0,
+            "default_unit_sale_price": "₹139.00 / 1 L",
+            "default_mfg_date": "04/2026",
+            "default_customer_care": "care@adaniwilmar.in / 1800-233-9999",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+    ],
+    "Tea & Beverages": [
+        {
+            "platform": "Flipkart",
+            "url": "https://www.flipkart.com/tata-tea-gold-leaf-black/p/itmfc128392fb689",
+            "sku": "FLP-821940",
+            "default_title": "Tata Tea Gold Leaf Black Tea 500g Pet Jar",
+            "default_brand": "Tata Tea",
+            "default_category": "Packaged Beverages & Tea",
+            "default_manufacturer": "Tata Consumer Products Limited, 1 Bishop Lefroy Road, Kolkata, West Bengal - 700020",
+            "default_country_of_origin": "India",
+            "default_net_weight": "500 g",
+            "default_mrp": 310.0,
+            "default_listed_price": 275.0,
+            "default_unit_sale_price": "₹55.00 / 100 g",
+            "default_mfg_date": "03/2026",
+            "default_customer_care": "care@tataconsumer.com / 1800-345-1720",
+            "image_url": "",
+            "known_compliance_issues": [],
+        },
+    ],
+    "Dairy & Fresh Foods": [
+        {
+            "platform": "Blinkit",
+            "url": "https://blinkit.com/prn/amul-taaza-toned-fresh-milk/prid/178",
+            "sku": "BLK-178920",
+            "default_title": "Amul Taaza Toned Fresh Milk 500ml Pouch",
+            "default_brand": "Amul",
+            "default_category": "Dairy & Fresh Foods",
+            "default_manufacturer": "Gujarat Co-operative Milk Marketing Federation Ltd, Anand - 388001, Gujarat, India",
+            "default_country_of_origin": "India",
+            "default_net_weight": "500 ml",
+            "default_mrp": 27.0,
+            "default_listed_price": 27.0,
+            "default_unit_sale_price": "₹5.40 / 100 ml",
+            "default_mfg_date": "04/2026",
+            "default_customer_care": "customercare@amul.coop / 1800-258-3333",
+            "image_url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=540/app/images/products/sliding_image/178a.jpg",
+            "known_compliance_issues": [],
+        },
+    ],
+    "Dry Fruits & Nuts": [
+        {
+            "platform": "Meesho",
+            "url": "https://www.meesho.com/s/p/234479",
+            "sku": "MSH-234479",
+            "default_title": "Royal King Premium Jumbo Cashew Nuts W240, 500g Zipper Pouch",
+            "default_brand": "Royal King Dry Fruits",
+            "default_category": "Dry Fruits & Nuts",
+            "default_manufacturer": "Packer: Shree Balaji Dry Fruits Traders, APMC Market, Vashi, Navi Mumbai, Maharashtra - 400703",
+            "default_country_of_origin": "",  # VIOLATION: Country of origin missing on Meesho listing
+            "default_net_weight": "500 Grams",
+            "default_mrp": 650.0,
+            "default_listed_price": 520.0,
+            "default_unit_sale_price": "",  # VIOLATION: Missing USP per 100g
+            "default_mfg_date": "03/2026",
+            "default_customer_care": "",  # VIOLATION: Missing consumer care details
+            "image_url": "",
+            "known_compliance_issues": ["RULE-6-10-ORIGIN", "RULE-5-USP", "RULE-6-1-G-CARE"],
+        },
+    ],
+    "Health & Nutritional Supplements": [
+        {
+            "platform": "Amazon",
+            "url": "https://www.amazon.in/dp/B07575775M",
+            "sku": "AMZ-892104",
+            "default_title": "ProUltra Whey Isolate Protein Powder, Chocolate Flavour 1kg",
+            "default_brand": "ProUltra Nutrition",
+            "default_category": "Health & Nutritional Supplements",
+            "default_manufacturer": "Apex Health Nutraceuticals Ltd, Sector 62, Noida, Uttar Pradesh",
+            "default_country_of_origin": "",  # VIOLATION: Missing Country of Origin
+            "default_net_weight": "1 kg",
+            "default_mrp": 3499.0,
+            "default_listed_price": 2899.0,
+            "default_unit_sale_price": "",  # VIOLATION: Missing Unit Sale Price
+            "default_mfg_date": "02/2026",
+            "default_customer_care": "support@proultra.com",
+            "image_url": "",
+            "known_compliance_issues": ["RULE-6-10-ORIGIN", "RULE-5-USP"],
+        },
+    ],
+    "Cosmetics & Personal Care": [
+        {
+            "platform": "Zepto",
+            "url": "https://www.zeptonow.com/pn/amul-pasteurised-butter-100g/p/62d8ea0e-749d-4be9-b003-9c8784d14210",
+            "sku": "ZPT-628104",
+            "default_title": "GlamGlow Radiance Vitamin C Night Face Serum 30ml",
+            "default_brand": "GlamGlow Herbals",
+            "default_category": "Cosmetics & Personal Care",
+            "default_manufacturer": "Imported and Marketed by Glam Cosmetica LLP, Mumbai",  # VIOLATION: Incomplete address
+            "default_country_of_origin": "South Korea",
+            "default_net_weight": "30 ml",
+            "default_mrp": 899.0,
+            "default_listed_price": 749.0,
+            "default_unit_sale_price": "₹24.97 / 1 ml",
+            "default_mfg_date": "",  # VIOLATION: Missing Mfg Date
+            "default_customer_care": "info@glamglow.in",
+            "image_url": "",
+            "known_compliance_issues": ["RULE-6-1-A-ADDR", "RULE-6-1-E-DATE", "RULE-6-1-G-CARE"],
+        },
+    ],
+}
+
+# Flatten for general catalog indexing
+TARGET_PRODUCTS: List[Dict[str, Any]] = [
+    item for cat_list in COMMODITY_CATEGORIES.values() for item in cat_list
 ]
 
 
@@ -263,7 +393,7 @@ class EcommerceCrawlerService:
         try:
             prod_data = inspected_record.get("product", {})
             audit_data = inspected_record.get("audit", {})
-            sku = prod_data.get("sku", f"SKU-{random.randint(1000, 9999)}")
+            sku = prod_data.get("sku") or generate_platform_sku(prod_data.get("platform", "E-Commerce"))
             prod_id = f"PROD-CRAWL-{sku.replace('/', '-')}"
 
             # Check if product exists in DB
@@ -283,7 +413,7 @@ class EcommerceCrawlerService:
                     category=prod_data.get("category", "Packaged Commodities"),
                     platform=prod_data.get("platform", "Direct"),
                     product_url=prod_data.get("url", ""),
-                    image_url=prod_data.get("image_url", "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600"),
+                    image_url=prod_data.get("image_url", ""),
                     mrp=float(prod_data.get("mrp", 0.0)),
                     listed_price=float(prod_data.get("listed_price", 0.0)),
                     net_weight=prod_data.get("net_weight", ""),
@@ -348,16 +478,22 @@ class EcommerceCrawlerService:
         if not apiKey:
             return None
 
-        self.log_event("INFO", f"[ScraperAPI] Attempting live proxy request for {url}")
+        # Check if platform needs JS rendering (Amazon, Blinkit, Zepto, Meesho)
+        needs_render = any(domain in url.lower() for domain in ["amazon", "blinkit", "zepto", "meesho"])
+        self.log_event("INFO", f"[ScraperAPI] Attempting live proxy request for {url} (JS Render: {needs_render})")
         api_endpoint = "https://api.scraperapi.com"
-        params = {
+        params: Dict[str, Any] = {
             "api_key": apiKey,
             "url": url,
             "country_code": "in",
             "keep_headers": "true",
         }
+        if needs_render:
+            params["render"] = "true"
+
+        timeout = 35.0 if needs_render else 25.0
         try:
-            async with httpx.AsyncClient(timeout=25.0) as client:
+            async with httpx.AsyncClient(timeout=timeout) as client:
                 response = await client.get(api_endpoint, params=params)
                 if response.status_code == 200 and len(response.text) > 800:
                     self.log_event("SUCCESS", f"[ScraperAPI] Live scrape succeeded for {url} ({len(response.text)} bytes)")
@@ -378,8 +514,9 @@ class EcommerceCrawlerService:
             "X-With-Generated-Alt": "true",
             "X-No-Cache": "true",
         }
-        if JINA_API_KEY:
-            headers["Authorization"] = f"Bearer {JINA_API_KEY}"
+        jina_key = JINA_API_KEY or os.getenv("JINA_API_KEY", "").strip()
+        if jina_key:
+            headers["Authorization"] = f"Bearer {jina_key}"
 
         try:
             async with httpx.AsyncClient(timeout=22.0, follow_redirects=True) as client:
@@ -446,13 +583,17 @@ class EcommerceCrawlerService:
         scrape_method: str,
     ) -> Dict[str, Any]:
         """
-        Extracts statutory fields from live page text / DOM or defaults to catalog attributes
-        when live scraping is not possible.
+        Extracts statutory fields and real product images from live page text / DOM or defaults
+        to catalog attributes when live scraping is not possible.
         """
+        initial_img = product_meta.get("image_url", "")
+        if "unsplash.com" in initial_img:
+            initial_img = ""
+
         extracted = {
             "platform": product_meta.get("platform", "E-Commerce"),
             "url": product_meta.get("url", ""),
-            "sku": product_meta.get("sku", f"SKU-{random.randint(1000, 9999)}"),
+            "sku": product_meta.get("sku") or generate_platform_sku(product_meta.get("platform", "E-Commerce")),
             "scrape_method": scrape_method,
             "is_live_scraped": scrape_method != "fallback_catalog",
             "extracted_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
@@ -467,68 +608,144 @@ class EcommerceCrawlerService:
             "unit_sale_price": product_meta.get("default_unit_sale_price", ""),
             "mfg_date": product_meta.get("default_mfg_date", ""),
             "customer_care": product_meta.get("default_customer_care", ""),
-            "image_url": product_meta.get("image_url", "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600"),
+            "image_url": initial_img,
             "ingredients": ["Standard Statutory Ingredients as per FSSAI / Bureau of Indian Standards"],
             "dietary_type": "Vegetarian",
         }
 
-        # If live scraped content is available, parse dynamic values
+        # If live scraped content is available, parse dynamic values and extract real images
         if raw_content:
             text = raw_content
+            soup = None
+            try:
+                soup = BeautifulSoup(text, "html.parser")
+                # Remove scripts, styles, headers, footers, navs to avoid matching JS/CSS snippets
+                for tag in soup(["script", "style", "noscript", "iframe", "header", "footer", "nav", "aside"]):
+                    tag.decompose()
+                clean_text = soup.get_text(separator="\n")
+            except Exception:
+                clean_text = text
 
-            # Title extraction
-            title_m = re.search(r"Title:\s*([^\n\r]+)", text, re.I) or re.search(r"<title>([^<]+)</title>", text, re.I)
-            if title_m:
-                clean_title = title_m.group(1).split("|")[0].split("-")[0].strip()
-                if len(clean_title) > 5 and not clean_title.lower().startswith("robot"):
+            # 1. Direct image extraction from live HTML or markdown
+            og_img = (
+                re.search(r'<meta\s+[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']', text, re.I)
+                or re.search(r'<meta\s+[^>]*content=["\']([^"\']+)["\'][^>]*property=["\']og:image["\']', text, re.I)
+                or re.search(r'<meta\s+[^>]*name=["\']twitter:image["\'][^>]*content=["\']([^"\']+)["\']', text, re.I)
+                or re.search(r'<img\s+[^>]*id=["\']landingImage["\'][^>]*src=["\']([^"\']+)["\']', text, re.I)
+            )
+            md_imgs = re.findall(r'!\[.*?\]\((https?://[^\s\)]+)\)', text)
+
+            found_img = None
+            if og_img:
+                candidate = og_img.group(1).strip()
+                if candidate.startswith("http") and not any(bad in candidate.lower() for bad in ["pixel", "icon", "logo", "1x1", "favicon", "unsplash"]):
+                    found_img = candidate
+
+            if not found_img and md_imgs:
+                for cand in md_imgs:
+                    cand_lower = cand.lower()
+                    if any(cand_lower.endswith(ext) or ext in cand_lower for ext in [".jpg", ".jpeg", ".png", ".webp", "images"]) and not any(bad in cand_lower for bad in ["pixel", "icon", "logo", "1x1", "favicon", "unsplash"]):
+                        found_img = cand
+                        break
+
+            if found_img:
+                extracted["image_url"] = found_img
+
+            # 2. Precise Title extraction
+            raw_title = ""
+            if soup:
+                # Specific DOM targets
+                h1_tag = soup.find("h1")
+                amz_title = soup.find(id="productTitle")
+                if amz_title:
+                    raw_title = amz_title.get_text().strip()
+                elif h1_tag:
+                    raw_title = h1_tag.get_text().strip()
+
+            if not raw_title:
+                og_title = re.search(r'<meta\s+[^>]*property=["\']og:title["\'][^>]*content=["\']([^"\']+)["\']', text, re.I) or \
+                           re.search(r'<meta\s+[^>]*content=["\']([^"\']+)["\'][^>]*property=["\']og:title["\']', text, re.I)
+                tag_title = re.search(r"<title>([^<]+)</title>", text, re.I)
+                md_title = re.search(r"^#\s+([^\n\r]+)", text, re.M)
+
+                if og_title:
+                    raw_title = og_title.group(1).strip()
+                elif tag_title:
+                    raw_title = tag_title.group(1).strip()
+                elif md_title:
+                    raw_title = md_title.group(1).strip()
+
+            if raw_title:
+                clean_title = raw_title.split("|")[0].split(" : Amazon.in")[0].split(" - Flipkart")[0].strip()
+                clean_lower = clean_title.lower()
+                # Verify that title is not a generic placeholder or robot check
+                if (
+                    len(clean_title) > 4
+                    and not any(gen in clean_lower for gen in GENERIC_TITLES)
+                    and not any(bad in clean_title for bad in ["{", "}", "function", "Object.keys", "window.", "alEvent"])
+                ):
                     extracted["title"] = clean_title
 
-            # Country of Origin extraction
+            # 3. Country of Origin extraction (Strict validation against country list)
             origin_m = re.search(
                 r"(?:Country of Origin|Country\/Region of Origin|Origin)\s*[:\-\|]?\s*([A-Za-z\s]+)",
-                text,
+                clean_text,
                 re.I,
             )
             if origin_m:
-                extracted["country_of_origin"] = origin_m.group(1).strip().split("\n")[0].strip()
+                cand_origin = origin_m.group(1).strip().split("\n")[0].strip()
+                cand_clean = cand_origin.lower()
+                for c in VALID_COUNTRIES:
+                    if c == cand_clean or cand_clean.startswith(c):
+                        extracted["country_of_origin"] = c.title()
+                        break
 
-            # Net Quantity extraction
+            # 4. Net Quantity extraction
             net_m = re.search(
-                r"(?:Net Quantity|Net Weight|Net Volume|Item Weight)\s*[:\-\|]?\s*([\d\.]+\s*(?:g|kg|ml|l|grams|kilograms|litres|millilitres|count|pieces))",
-                text,
+                r"(?:Net Quantity|Net Weight|Net Volume|Item Weight|Net Content)\s*[:\-\|]?\s*([\d\.]+\s*(?:g|kg|ml|l|grams|kilograms|litres|millilitres|count|pieces))",
+                clean_text,
                 re.I,
             )
             if net_m:
                 extracted["net_weight"] = net_m.group(1).strip()
 
-            # MRP extraction
-            mrp_m = re.search(r"(?:M\.?R\.?P\.?|Maximum Retail Price)\s*[:\-\|]?\s*₹?\s*([\d,]+(?:\.\d{2})?)", text, re.I)
+            # 5. MRP extraction
+            mrp_m = re.search(r"(?:M\.?R\.?P\.?|Maximum Retail Price)\s*[:\-\|]?\s*₹?\s*([\d,]+(?:\.\d{2})?)", clean_text, re.I)
             if mrp_m:
                 try:
-                    extracted["mrp"] = float(mrp_m.group(1).replace(",", ""))
+                    val = float(mrp_m.group(1).replace(",", ""))
+                    if val > 0:
+                        extracted["mrp"] = val
                 except ValueError:
                     pass
 
-            # Unit Sale Price extraction (Rule 5 compliance)
+            # 6. Unit Sale Price extraction (Rule 5 compliance)
             usp_m = re.search(
                 r"(?:Unit Sale Price|USP|Price per (?:100g|kg|ml|litre|count))\s*[:\-\|]?\s*(₹?[\d\.]+\s*\/\s*(?:100\s*g|kg|ml|l|count|unit))",
-                text,
+                clean_text,
                 re.I,
             )
             if usp_m:
                 extracted["unit_sale_price"] = usp_m.group(1).strip()
 
-            # Manufacturer / Packer extraction
+            # 7. Manufacturer / Packer extraction
             mfg_m = re.search(
                 r"(?:Manufacturer|Manufactured by|Packer|Packed by|Marketed by)\s*[:\-\|]?\s*([^\n\r]{10,200})",
-                text,
+                clean_text,
                 re.I,
             )
             if mfg_m:
                 clean_mfg = mfg_m.group(1).strip()
                 clean_mfg = re.sub(r"<[^>]+>", "", clean_mfg).strip()
-                if len(clean_mfg) > 8:
+                # Ignore return policies or website footer strings
+                if (
+                    len(clean_mfg) > 10
+                    and not any(bad in clean_mfg.lower() for bad in ["pickup cancellation", "terms of use", "privacy policy", "return policy", "cookie"])
+                ):
                     extracted["manufacturer"] = clean_mfg
+
+        # Always dynamically infer category from the final product title to prevent mismatch
+        extracted["category"] = infer_category(extracted["title"], product_meta.get("default_category", "Packaged Commodities"))
 
         return extracted
 
@@ -826,9 +1043,18 @@ class EcommerceCrawlerService:
         random.shuffle(candidates)
         selected_batch = candidates[:batch_size]
 
+        # Throttled inspection using Semaphore(2) and a 1.0s stagger delay to stay strictly within ScraperAPI free tier concurrency limits
+        semaphore = asyncio.Semaphore(2)
+
+        async def throttled_inspect(item: Dict[str, Any], index: int) -> Dict[str, Any]:
+            async with semaphore:
+                if index > 0:
+                    await asyncio.sleep(1.0)
+                return await self.inspect_single_product(item)
+
         results: List[Dict[str, Any]] = []
         try:
-            results = await asyncio.gather(*[self.inspect_single_product(item) for item in selected_batch])
+            results = await asyncio.gather(*[throttled_inspect(item, i) for i, item in enumerate(selected_batch)])
 
             self.last_run_timestamp = datetime.utcnow()
             self.next_run_timestamp = self.last_run_timestamp + timedelta(hours=CRAWLER_AUTO_INTERVAL_HOURS)
@@ -864,7 +1090,7 @@ class EcommerceCrawlerService:
         meta = {
             "platform": platform,
             "url": url,
-            "sku": f"LIVE-{random.randint(1000, 9999)}",
+            "sku": generate_platform_sku(platform),
             "default_title": f"Packaged Product from {platform}",
             "default_brand": "Brand",
             "default_category": "Packaged Commodities",
@@ -876,7 +1102,7 @@ class EcommerceCrawlerService:
             "default_unit_sale_price": "",
             "default_mfg_date": "",
             "default_customer_care": "",
-            "image_url": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600",
+            "image_url": "",
         }
 
         return await self.inspect_single_product(meta)
@@ -899,7 +1125,7 @@ class EcommerceCrawlerService:
             "non_compliant_count": non_compliant,
             "total_penalties_exposed_inr": total_penalties,
             "scraper_api_configured": bool(SCRAPER_API_KEY or os.getenv("SCRAPER_API_KEY")),
-            "jina_api_configured": bool(JINA_API_KEY),
+            "jina_api_configured": bool(JINA_API_KEY or os.getenv("JINA_API_KEY")),
             "free_engines_active": ["Jina AI Reader (Markdown)", "Direct Stealth HTTP"],
         }
 

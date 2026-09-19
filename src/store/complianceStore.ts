@@ -149,7 +149,6 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
       ocrConfidence: Math.round(confidence || 96),
       lastScanned: 'Just now',
       missingMandatoryFields: validationResult?.missingDeclarations || [],
-      claims: scanData?.claims?.map((c: string) => ({ text: c, isMisleading: false, confidence: 90 })) || [],
       regulatoryActs: ['Legal Metrology Act, 2009', 'Legal Metrology (Packaged Commodities) Rules, 2011'],
     };
 

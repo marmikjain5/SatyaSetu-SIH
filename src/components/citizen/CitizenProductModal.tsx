@@ -6,7 +6,6 @@ import { Product } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
 import {
   ShieldCheck,
-  ShieldAlert,
   AlertTriangle,
   FileText,
   PhoneCall,
@@ -111,9 +110,6 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
               >
                 {product.status.replace('-', ' ')}
               </Badge>
-              <span className="font-mono text-slate-500 text-xs">
-                Score: <strong className="text-slate-900">{product.complianceScore}/100</strong>
-              </span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
               Legal Metrology (Packaged Commodities) Rules 2011 Verified
@@ -295,37 +291,7 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
               </div>
             )}
 
-            {/* Claims & Label Audit Notes */}
-            {product.claims && product.claims.length > 0 && (
-              <div>
-                <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                  <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
-                  <span>Marketing Claims & Regulatory Validation</span>
-                </span>
-                <div className="space-y-2">
-                  {product.claims.map((claim, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-3 rounded-xl border flex items-start justify-between gap-3 text-xs ${
-                        claim.isMisleading
-                          ? 'bg-red-50/70 border-red-200 text-red-950'
-                          : 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold">"{claim.text}"</div>
-                        {claim.reason && (
-                          <div className="text-[11px] text-red-700 mt-1">{claim.reason}</div>
-                        )}
-                      </div>
-                      <Badge variant={claim.isMisleading ? 'danger' : 'success'} size="sm">
-                        {claim.isMisleading ? 'Flagged Misleading' : 'Substantiated'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
 

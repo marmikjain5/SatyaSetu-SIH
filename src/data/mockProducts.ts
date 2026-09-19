@@ -12,10 +12,10 @@ export const MOCK_PRODUCTS: Product[] = [
     platform: 'Amazon',
     productUrl: 'https://amazon.in/dp/B00I6G2K22',
     imageUrl: '/products/bournvita.jpg',
-    mrp: 240,
-    listedPrice: 215,
+    mrp: 285,
+    listedPrice: 285,
     netWeight: '500 g',
-    unitSalePrice: '₹0.48 per 1g',
+    unitSalePrice: '₹0.57 per 1g',
     mfgDate: '10/2024',
     expiryDate: '10/2025',
     countryOfOrigin: 'India',
@@ -59,21 +59,13 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Legal Metrology Rule 6(1)(e): Consumer grievance redressal phone contact not prominent',
     ],
-    claims: [
-      {
-        text: 'Scientifically designed for immune system growth & mental alertness',
-        isMisleading: true,
-        reason: 'NCPCR / CCPA 2024 Advisory: High sugar content (approx. 50%) conflicts with unregulated "Health Drink" classification',
-        confidence: 93.4,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
       'Consumer Protection (Prevention of Misleading Advertisements) Guidelines, 2022',
     ],
   },
 
-  // 2. Mysore Sandal Soap
+  // 2. Mysore Sandal Soap (Standard 125g) — KSDL MRP ₹63
   {
     id: 'PRD-IN-88902',
     sku: 'SKU-BLR-KSDL-125',
@@ -84,17 +76,17 @@ export const MOCK_PRODUCTS: Product[] = [
     platform: 'Blinkit',
     productUrl: 'https://mysoresandal.karnataka.gov.in',
     imageUrl: '/products/mysore_sandal_soap.jpg',
-    mrp: 95,
-    listedPrice: 90,
+    mrp: 63,
+    listedPrice: 63,
     netWeight: '125 g',
-    unitSalePrice: '₹0.76 per 1g',
+    unitSalePrice: '₹0.50 per 1g',
     mfgDate: '11/2024',
     expiryDate: '10/2027',
     countryOfOrigin: 'India',
     customerCareContact: 'ksdl@karnataka.gov.in | +91 80 2337 4211',
     customerCarePhone: '+91 80 2337 4211',
     customerCareEmail: 'ksdl@karnataka.gov.in',
-    manufacturerAddress: 'Bangalore-Pune Highway, P.B. No. 5531, Rajajinagar, Bengaluru – 560055, Karnataka',
+    manufacturerAddress: 'Karnataka Soaps & Detergents Limited, Rajajinagar, Bengaluru – 560055, Karnataka',
     dietaryType: 'Non-Food / General',
     allergenInfo: ['Contains Natural Sandalwood Oil (Santalum Album)'],
     ingredientsList: [
@@ -113,21 +105,13 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 99.4,
     lastScanned: '25 mins ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Enriched with 100% Pure Natural Mysore Sandalwood Oil',
-        isMisleading: false,
-        reason: 'Verified through GI Tag (GI-01) & Karnataka Soaps distillation quality certificate',
-        confidence: 99.1,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
       'Bureau of Indian Standards (IS 2888) & Legal Metrology Rules, 2011',
     ],
   },
 
-  // 3. Nescafé Classic
+  // 3. Nescafé Classic 100g Glass Jar — MRP ₹390
   {
     id: 'PRD-IN-88903',
     sku: 'SKU-AMZ-NESC-100',
@@ -138,17 +122,17 @@ export const MOCK_PRODUCTS: Product[] = [
     platform: 'Zepto',
     productUrl: 'https://amazon.in/dp/B00TYG9990',
     imageUrl: '/products/nescafe_classic.jpg',
-    mrp: 360,
-    listedPrice: 325,
+    mrp: 390,
+    listedPrice: 390,
     netWeight: '100 g',
-    unitSalePrice: '₹3.60 per 1g',
+    unitSalePrice: '₹3.90 per 1g',
     mfgDate: '12/2024',
     expiryDate: '12/2026',
     countryOfOrigin: 'India',
     customerCareContact: 'wecare@in.nestle.com | 1800-103-1947',
     customerCarePhone: '1800-103-1947',
     customerCareEmail: 'wecare@in.nestle.com',
-    manufacturerAddress: 'Industrial Area, Nanjangud, Mysuru, Karnataka - 571301',
+    manufacturerAddress: 'Nestlé India Limited, Nanjangud Factory, Industrial Area, Nanjangud, Mysuru, Karnataka - 571301',
     dietaryType: 'Vegetarian',
     allergenInfo: ['Caffeine'],
     ingredientsList: [
@@ -174,42 +158,34 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.7,
     lastScanned: '40 mins ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '100% Pure Natural Coffee with Rich Aroma',
-        isMisleading: false,
-        reason: 'Substantiated by Single Ingredient Standard for Pure Soluble Coffee under AGMARK and BIS',
-        confidence: 97.9,
-      },
-    ],
     regulatoryActs: [
       'Consumer Protection Act, 2019',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },
 
-  // 4. Nivea Body Lotion
+  // 4. Nivea Nourishing Body Milk 400ml — MRP ₹499, Manufacturer: Beiersdorf India Pvt Ltd
   {
     id: 'PRD-IN-88904',
     sku: 'SKU-FLP-NIV-400',
     title: 'Nivea Nourishing Body Milk Lotion (400ml Pump Bottle)',
     brand: 'Nivea',
-    manufacturer: 'Nivea India Private Limited',
+    manufacturer: 'Beiersdorf India Private Limited',
     category: 'Personal Care & Cosmetics',
     platform: 'Nykaa',
     productUrl: 'https://flipkart.com/p/nivea-body-milk-400',
     imageUrl: '/products/nivea_body_lotion.jpg',
     mrp: 499,
-    listedPrice: 349,
+    listedPrice: 499,
     netWeight: '400 ml',
     unitSalePrice: '₹1.25 per 1ml',
     mfgDate: '01/2025',
     expiryDate: '12/2027',
     countryOfOrigin: 'India',
-    customerCareContact: 'care@nivea.in | +91 22 6248 7999',
-    customerCarePhone: '+91 22 6248 7999',
-    customerCareEmail: 'care@nivea.in',
-    manufacturerAddress: 'Plot SM-9/1, Sanand-II Industrial Estate, GIDC, Bol Village, Sanand, Ahmedabad, Gujarat - 382170',
+    customerCareContact: 'in.consumer@beiersdorf.com | 1800-103-4444',
+    customerCarePhone: '1800-103-4444',
+    customerCareEmail: 'in.consumer@beiersdorf.com',
+    manufacturerAddress: 'Beiersdorf India Private Limited, 601-604, 6th Floor, Marathon Innova, Ganpatrao Kadam Marg, Lower Parel, Mumbai, Maharashtra - 400013',
     dietaryType: 'Non-Food / General',
     allergenInfo: ['Contains Almond Oil', 'Linalool', 'Limonene', 'Citronellol'],
     ingredientsList: [
@@ -229,42 +205,34 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 97.8,
     lastScanned: '1 hour ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '48h Deep Moisture Care with 2x Almond Oil',
-        isMisleading: false,
-        reason: 'Clinical hydration study on record supporting 48h moisturisation claim',
-        confidence: 95.5,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011',
       'Cosmetics Rules, 2020',
     ],
   },
 
-  // 5. Nivea Soft Moisturising Cream
+  // 5. Nivea Soft 100ml — MRP ₹167
   {
     id: 'PRD-IN-88905',
     sku: 'SKU-AMZ-NIVS-100',
     title: 'Nivea Soft Light Moisturising Cream with Vitamin E & Jojoba Oil (100ml)',
     brand: 'Nivea',
-    manufacturer: 'Nivea India Private Limited',
+    manufacturer: 'Beiersdorf India Private Limited',
     category: 'Personal Care & Cosmetics',
     platform: 'Amazon',
     productUrl: 'https://amazon.in/dp/B006LXB21Q',
     imageUrl: '/products/nivea_soft_cream.jpg',
-    mrp: 220,
-    listedPrice: 175,
+    mrp: 167,
+    listedPrice: 167,
     netWeight: '100 ml',
-    unitSalePrice: '₹2.20 per 1ml',
+    unitSalePrice: '₹1.67 per 1ml',
     mfgDate: '11/2024',
     expiryDate: '11/2027',
     countryOfOrigin: 'India',
-    customerCareContact: 'care@nivea.in | +91 22 6248 7999',
-    customerCarePhone: '+91 22 6248 7999',
-    customerCareEmail: 'care@nivea.in',
-    manufacturerAddress: 'Plot SM-9/1, Sanand-II Industrial Estate, GIDC, Bol Village, Sanand, Ahmedabad, Gujarat - 382170',
+    customerCareContact: 'in.consumer@beiersdorf.com | 1800-103-4444',
+    customerCarePhone: '1800-103-4444',
+    customerCareEmail: 'in.consumer@beiersdorf.com',
+    manufacturerAddress: 'Beiersdorf India Private Limited, 601-604, 6th Floor, Marathon Innova, Ganpatrao Kadam Marg, Lower Parel, Mumbai, Maharashtra - 400013',
     dietaryType: 'Non-Food / General',
     allergenInfo: ['Contains Jojoba Seed Oil', 'Tocopheryl Acetate (Vitamin E)'],
     ingredientsList: [
@@ -285,21 +253,13 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Customer grievance officer direct email format discrepancy',
     ],
-    claims: [
-      {
-        text: 'Non-greasy quick absorbing formula with refreshing Vitamin E',
-        isMisleading: false,
-        reason: 'Dermatologically approved sensory evaluation and viscosity specifications met',
-        confidence: 96.0,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
       'Cosmetics Rules, 2020',
     ],
   },
 
-  // 6. Parachute Coconut Oil
+  // 6. Parachute Coconut Oil 500ml — MRP ₹128
   {
     id: 'PRD-IN-88906',
     sku: 'SKU-AMZ-PAR-500',
@@ -310,17 +270,17 @@ export const MOCK_PRODUCTS: Product[] = [
     platform: 'Amazon',
     productUrl: 'https://amazon.in/dp/B0032C4A70',
     imageUrl: '/products/parachute_coconut_oil.jpg',
-    mrp: 195,
-    listedPrice: 180,
+    mrp: 128,
+    listedPrice: 128,
     netWeight: '500 ml',
-    unitSalePrice: '₹0.39 per 1ml',
+    unitSalePrice: '₹0.26 per 1ml',
     mfgDate: '01/2025',
     expiryDate: '06/2026',
     countryOfOrigin: 'India',
     customerCareContact: 'csc@marico.com | 1800-222-248',
     customerCarePhone: '1800-222-248',
     customerCareEmail: 'csc@marico.com',
-    manufacturerAddress: 'Industrial Development Area, Kanjikode, Palakkad, Kerala - 678621',
+    manufacturerAddress: 'Marico Limited, 7th Floor, Grande Palladium, 175, CST Road, Santacruz (East), Mumbai, Maharashtra - 400098',
     dietaryType: 'Vegetarian',
     allergenInfo: ['100% Pure Coconut Oil'],
     ingredientsList: [
@@ -347,42 +307,34 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 99.2,
     lastScanned: '3 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '100% Pure Coconut Oil — 5-stage purification process',
-        isMisleading: false,
-        reason: 'AGMARK Grade 1 certification & Edible Vegetable Oils (Packaging) Regulation verification compliant',
-        confidence: 98.8,
-      },
-    ],
     regulatoryActs: [
       'Essential Commodities Act / Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },
 
-  // 7. Fortune Sunlite Refined Sunflower Oil
+  // 7. Fortune Sunlite Refined Sunflower Oil 1L — MRP ₹160, Manufacturer: AWL Agri Business Ltd
   {
     id: 'PRD-IN-88907',
     sku: 'SKU-AMZ-FORT-1000',
     title: 'Fortune Sunlite Refined Sunflower Oil (1 Litre Pouch)',
     brand: 'Fortune',
-    manufacturer: 'Adani Wilmar Limited',
+    manufacturer: 'AWL Agri Business Limited (Adani Wilmar)',
     category: 'Edible Oils & Cooking Essentials',
     platform: 'Amazon',
     productUrl: 'https://amazon.in/dp/B00791DG5A',
     imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80',
-    mrp: 165,
-    listedPrice: 142,
+    mrp: 160,
+    listedPrice: 160,
     netWeight: '1 L (910 g)',
     unitSalePrice: '₹0.16 per 1ml',
     mfgDate: '10/2024',
     expiryDate: '07/2025',
     countryOfOrigin: 'India',
-    customerCareContact: 'care@adaniwilmar.in | 1800-233-9999',
-    customerCarePhone: '1800-233-9999',
-    customerCareEmail: 'care@adaniwilmar.in',
-    manufacturerAddress: 'Fortune House, Near Navrangpura Railway Crossing, Ahmedabad - 380009, Gujarat',
+    customerCareContact: 'consumer.care@adaniwilmar.in | 1800-103-7011',
+    customerCarePhone: '1800-103-7011',
+    customerCareEmail: 'consumer.care@adaniwilmar.in',
+    manufacturerAddress: 'AWL Agri Business Limited, Fortune House, Nr. Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009',
     dietaryType: 'Vegetarian',
     allergenInfo: ['Free from Argemone Oil', 'Processed in edible oil refinery'],
     ingredientsList: [
@@ -399,21 +351,13 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Net Quantity numeral font height (2.6mm) below mandatory 4.0mm requirement for packages between 500ml - 1L',
     ],
-    claims: [
-      {
-        text: 'Light and Healthy for Active Heart with 100% Purity Guarantee',
-        isMisleading: false,
-        reason: 'Standard nutritional enrichment claim supported by National Nutrition Fortification standards',
-        confidence: 94.2,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
       'Consumer Protection Act, 2019 - Misleading Ads Guidelines',
     ],
   },
 
-  // 8. Society Tea
+  // 8. Society Tea 500g Jar — MRP ₹255
   {
     id: 'PRD-IN-88908',
     sku: 'SKU-MUM-SOC-500',
@@ -424,17 +368,17 @@ export const MOCK_PRODUCTS: Product[] = [
     platform: 'Blinkit',
     productUrl: 'https://societytea.com',
     imageUrl: '/products/society_tea.jpg',
-    mrp: 280,
+    mrp: 255,
     listedPrice: 255,
     netWeight: '500 g',
-    unitSalePrice: '₹0.56 per 1g',
+    unitSalePrice: '₹0.51 per 1g',
     mfgDate: '12/2024',
     expiryDate: '11/2025',
     countryOfOrigin: 'India',
     customerCareContact: 'care@amartea.com | +91 22 2377 8899',
     customerCarePhone: '+91 22 2377 8899',
     customerCareEmail: 'care@amartea.com',
-    manufacturerAddress: 'Plot No. 11/12, GIDC Industrial Estate, Sanjan, Valsad, Gujarat - 396150',
+    manufacturerAddress: 'Amar Tea Private Limited, Plot No. 11/12, GIDC Industrial Estate, Sanjan, Valsad, Gujarat - 396150',
     dietaryType: 'Vegetarian',
     allergenInfo: ['Caffeine'],
     ingredientsList: [
@@ -458,42 +402,34 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.4,
     lastScanned: '5 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Original Assam Chai Blend with Strong Liquor & Rich Taste',
-        isMisleading: false,
-        reason: 'Assam Tea Board origin & Tea (Marketing) Control Order standard compliance verified',
-        confidence: 98.0,
-      },
-    ],
     regulatoryActs: [
       'Tea Act, 1953 & Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
     ],
   },
 
-  // 9. TRESemmé Conditioner
+  // 9. TRESemmé Conditioner 190ml — MRP ₹275, Manufactured by HUL
   {
     id: 'PRD-IN-88909',
     sku: 'SKU-FLP-TREC-190',
     title: 'TRESemmé Hair Fall Defence Conditioner with Keratin (190ml)',
     brand: 'TRESemmé',
-    manufacturer: 'Hindustan Unilever Limited (HUL)',
+    manufacturer: 'Hindustan Unilever Limited',
     category: 'Hair Care & Cosmetics',
     platform: 'Nykaa',
     productUrl: 'https://nykaa.com/p/tresemme-hair-fall-conditioner',
     imageUrl: '/products/tresemme_conditioner.jpg',
     mrp: 275,
-    listedPrice: 199,
+    listedPrice: 275,
     netWeight: '190 ml',
     unitSalePrice: '₹1.45 per 1ml',
     mfgDate: '01/2025',
     expiryDate: '12/2027',
     countryOfOrigin: 'India',
-    customerCareContact: 'lever.care@unilever.com | 1800-10-22-221',
-    customerCarePhone: '1800-10-22-221',
+    customerCareContact: 'lever.care@unilever.com | 1800-210-1000',
+    customerCarePhone: '1800-210-1000',
     customerCareEmail: 'lever.care@unilever.com',
-    manufacturerAddress: 'Hindustan Unilever Ltd., Unit-II, Industrial Estate, Haridwar, Uttarakhand - 249403',
+    manufacturerAddress: 'Hindustan Unilever Limited, Unilever House, B.D. Sawant Marg, Chakala, Andheri (East), Mumbai, Maharashtra - 400099',
     dietaryType: 'Non-Food / General',
     allergenInfo: ['Hydrolyzed Keratin', 'Cetearyl Alcohol', 'Dimethicone'],
     ingredientsList: [
@@ -514,42 +450,34 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Font size for volume declaration marginally below 4mm for >100ml pack size',
     ],
-    claims: [
-      {
-        text: 'Up to 97% Less Hair Fall after just 1 wash',
-        isMisleading: true,
-        reason: 'Qualifying asterisk "Hair fall due to breakage vs non-conditioning shampoo" in font size below ASCI legible guidelines',
-        confidence: 91.8,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 7 (Numeral Height)',
       'Cosmetics Rules, 2020',
     ],
   },
 
-  // 10. TRESemmé Shampoo
+  // 10. TRESemmé Shampoo 580ml — MRP ₹620
   {
     id: 'PRD-IN-88910',
     sku: 'SKU-FLP-TRES-580',
     title: 'TRESemmé Hair Fall Defence Shampoo with Keratin (580ml Pump Bottle)',
     brand: 'TRESemmé',
-    manufacturer: 'Hindustan Unilever Limited (HUL)',
+    manufacturer: 'Hindustan Unilever Limited',
     category: 'Hair Care & Cosmetics',
     platform: 'Amazon',
     productUrl: 'https://amazon.in/dp/B00O9S0FXY',
     imageUrl: '/products/tresemme_shampoo.jpg',
-    mrp: 650,
-    listedPrice: 449,
+    mrp: 620,
+    listedPrice: 620,
     netWeight: '580 ml',
-    unitSalePrice: '₹1.12 per 1ml',
+    unitSalePrice: '₹1.07 per 1ml',
     mfgDate: '01/2025',
     expiryDate: '12/2027',
     countryOfOrigin: 'India',
-    customerCareContact: 'lever.care@unilever.com | 1800-10-22-221',
-    customerCarePhone: '1800-10-22-221',
+    customerCareContact: 'lever.care@unilever.com | 1800-210-1000',
+    customerCarePhone: '1800-210-1000',
     customerCareEmail: 'lever.care@unilever.com',
-    manufacturerAddress: 'Hindustan Unilever Ltd., Unit-II, Industrial Estate, Haridwar, Uttarakhand - 249403',
+    manufacturerAddress: 'Hindustan Unilever Limited, Unilever House, B.D. Sawant Marg, Chakala, Andheri (East), Mumbai, Maharashtra - 400099',
     dietaryType: 'Non-Food / General',
     allergenInfo: ['Hydrolyzed Keratin', 'Sodium Laureth Sulfate', 'Cocamidopropyl Betaine'],
     ingredientsList: [
@@ -568,14 +496,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.6,
     lastScanned: '7 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Professional Quality Salon Smooth Hair with Keratin Actives',
-        isMisleading: false,
-        reason: 'Ingredients and active keratin formulation verified with HUL technical dossier',
-        confidence: 96.7,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011',
       'Cosmetics Rules, 2020',

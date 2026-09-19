@@ -37,23 +37,26 @@ Extract the following statutory declarations into exact JSON. Fill ALL fields yo
   "manufacturer": "Name of manufacturer, packer, or marketer company (Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', 'Mfg. by', 'Mfrd. by', or visible company name on label)",
   "manufacturerAddress": "Complete premises address with 6-digit PIN code (Look for address block after 'Packed & Marketed by', 'Manufactured by', or any address line with PIN)",
   "productName": "Generic or common name of commodity / brand title",
-  "mrp": "Maximum Retail Price number only (e.g. 10.00 or 350.00, or null if blank)",
-  "mrpRaw": "Exact raw text of MRP clause (e.g. MRP Rs. 10.00 incl. of all taxes, or null if blank)",
-  "netQuantity": "Net weight/volume/count in metric units (e.g. 500 g, 20 g, 350 ml)",
-  "unitSalePrice": "Unit Sale Price (e.g. Rs. 0.50 / g or Rs. 1.20 / ml, or null if not declared)",
-  "manufacturingDate": "Date of manufacture/packing (e.g. MM/YYYY, DD/MM/YYYY, or null if blank)",
-  "expiryDate": "Expiry / Best Before / Use By date (e.g. MM/YYYY, or null if blank)",
-  "batchNumber": "Batch or Lot number (e.g. BN: 1234, or null if blank)",
-  "countryOfOrigin": "Country of Origin / Manufacture (e.g. Product of India, Made in India)",
-  "customerCare": "Consumer grievance redressal toll-free number or email",
+  "mrp": "Maximum Retail Price number only (e.g. 550.00 or 152.00, or null if blank). If MRP and USP are printed side-by-side like '₹ 550 ₹ 1.83/ml', '550' is mrp and '1.83/ml' is unitSalePrice.",
+  "mrpRaw": "Exact raw text of MRP clause (e.g. MRP Rs. 550.00 incl. of all taxes, or null if blank)",
+  "netQuantity": "Net weight/volume/count in metric units (e.g. 300ml (293.7g), 500 g, 20 g, 350 ml)",
+  "unitSalePrice": "Unit Sale Price (e.g. Rs. 1.83 / ml or Rs. 0.50 / g, or null if not declared)",
+  "manufacturingDate": "Date of manufacture/packing (e.g. MM/YYYY, DD/MM/YYYY, or null if blank). Note: Often printed as 'M MM/YY' like 'M 11/23 22:15' -> '11/2023'",
+  "expiryDate": "Expiry / Best Before / Use By date (e.g. MM/YYYY, or null if blank). Note: Often printed as 'U MM/YY' like 'U 10/26' -> '10/2026'",
+  "batchNumber": "Batch or Lot number (e.g. B34431350 11, BN: 1234, or null if blank)",
+  "countryOfOrigin": "Country of Origin / Manufacture (e.g. Product of India, Made in India, Germany)",
+  "customerCare": "Consumer grievance redressal toll-free number, telephone, or email",
   "vegNonVeg": "VEG (Green dot in square) or NON-VEG (Brown triangle in square) or NONE",
   "rawDetectedText": "Key transcript of all visible text on package"
 }
 
-IMPORTANT:
-- manufacturer and manufacturerAddress are the MOST critical fields — always extract them even if other fields are unclear.
+IMPORTANT FOR INDIAN FMCG PACKAGING ABBREVIATIONS:
+When packaging has compound stamp headers like "MRP ₹ (Incl. of all taxes), USP, Batch No., MFD. (M) & Use Before (U): ↓":
+- 'M' means Manufacturing Date (e.g. 'M 11/23' -> 11/2023)
+- 'U' means Use Before / Expiry Date (e.g. 'U 10/26' -> 10/2026)
+- 'B' means Batch Number (e.g. 'B34431350 11')
+- manufacturer and manufacturerAddress are critical fields — always extract them even if other fields are unclear.
 - If a field is blank/unprinted, set its value to null.
-- For manufacturer: Look for 'Packed & Marketed by', 'Manufactured by', 'Marketed by', 'Mfg. by', 'Mfrd. by', or any identifiable company/brand name.
 - For manufacturerAddress: Extract full address with PIN code. Include street, city, state, PIN.
 Return ONLY the JSON object without markdown fences or extra text.
 """
