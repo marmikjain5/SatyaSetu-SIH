@@ -392,27 +392,27 @@ export const OverviewDashboard: React.FC = () => {
                   <div
                     key={violation.id}
                     onClick={() => handleInspectViolation(violation.id)}
-                    className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-2"
+                    className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-3"
                   >
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                      <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                          <span className="truncate max-w-[130px] sm:max-w-xs">{violation.productName}</span>
-                        </div>
-                        <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
-                          {violation.caseNumber} • {violation.ruleCode}
-                        </div>
+                    <div className="min-w-0 flex-1 pr-2">
+                      <div className="font-semibold text-slate-900 dark:text-white truncate">
+                        {violation.productName}
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
+                        {violation.caseNumber} • {violation.ruleCode}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                      <div className="text-right hidden sm:block">
-                        <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs">
+                    <div className="flex items-center gap-3 shrink-0 ml-auto">
+                      <div className="w-24 text-right hidden sm:block shrink-0">
+                        <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs whitespace-nowrap">
                           {formatCurrency(violation.penaltyEstimate)}
                         </div>
-                        <div className="text-[10px] text-slate-400">Est. Penalty</div>
+                        <div className="text-[10px] text-slate-400 whitespace-nowrap">Est. Penalty</div>
                       </div>
-                      <StatusBadge status={violation.status} />
+                      <div className="w-36 flex items-center justify-end shrink-0">
+                        <StatusBadge status={violation.status} />
+                      </div>
                       <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
                     </div>
                   </div>
