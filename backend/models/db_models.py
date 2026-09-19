@@ -75,7 +75,6 @@ class ProductModel(Base):
     nutritional_info = Column(JSON, default=dict)
     customer_care_contact = Column(Text, nullable=True)
     dietary_type = Column(String(64), default="Vegetarian")
-    claims = Column(JSON, default=list)
     missing_mandatory_fields = Column(JSON, default=list)
     regulatory_acts = Column(JSON, default=list)
     last_scanned = Column(String(64), nullable=True)

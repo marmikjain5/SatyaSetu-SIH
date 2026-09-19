@@ -479,7 +479,6 @@ class CrawlerService {
           ocrConfidence: record.is_live ? 98.4 : 94.0,
           lastScanned: 'Just now (Autonomous Crawler)',
           missingMandatoryFields: a.violations.map((v) => v.title),
-          claims: [],
           regulatoryActs: ['Legal Metrology Act, 2009', 'Legal Metrology (Packaged Commodities) Rules, 2011'],
         };
         complianceStore.addProduct(newProduct);

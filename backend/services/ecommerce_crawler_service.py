@@ -348,16 +348,22 @@ class EcommerceCrawlerService:
         if not apiKey:
             return None
 
-        self.log_event("INFO", f"[ScraperAPI] Attempting live proxy request for {url}")
+        # Check if platform needs JS rendering (Amazon, Blinkit, Zepto, Meesho)
+        needs_render = any(domain in url.lower() for domain in ["amazon", "blinkit", "zepto", "meesho"])
+        self.log_event("INFO", f"[ScraperAPI] Attempting live proxy request for {url} (JS Render: {needs_render})")
         api_endpoint = "https://api.scraperapi.com"
-        params = {
+        params: Dict[str, Any] = {
             "api_key": apiKey,
             "url": url,
             "country_code": "in",
             "keep_headers": "true",
         }
+        if needs_render:
+            params["render"] = "true"
+
+        timeout = 35.0 if needs_render else 25.0
         try:
-            async with httpx.AsyncClient(timeout=25.0) as client:
+            async with httpx.AsyncClient(timeout=timeout) as client:
                 response = await client.get(api_endpoint, params=params)
                 if response.status_code == 200 and len(response.text) > 800:
                     self.log_event("SUCCESS", f"[ScraperAPI] Live scrape succeeded for {url} ({len(response.text)} bytes)")
@@ -378,8 +384,9 @@ class EcommerceCrawlerService:
             "X-With-Generated-Alt": "true",
             "X-No-Cache": "true",
         }
-        if JINA_API_KEY:
-            headers["Authorization"] = f"Bearer {JINA_API_KEY}"
+        jina_key = JINA_API_KEY or os.getenv("JINA_API_KEY", "").strip()
+        if jina_key:
+            headers["Authorization"] = f"Bearer {jina_key}"
 
         try:
             async with httpx.AsyncClient(timeout=22.0, follow_redirects=True) as client:
@@ -826,9 +833,18 @@ class EcommerceCrawlerService:
         random.shuffle(candidates)
         selected_batch = candidates[:batch_size]
 
+        # Throttled inspection using Semaphore(2) and a 1.0s stagger delay to stay strictly within ScraperAPI free tier concurrency limits
+        semaphore = asyncio.Semaphore(2)
+
+        async def throttled_inspect(item: Dict[str, Any], index: int) -> Dict[str, Any]:
+            async with semaphore:
+                if index > 0:
+                    await asyncio.sleep(1.0)
+                return await self.inspect_single_product(item)
+
         results: List[Dict[str, Any]] = []
         try:
-            results = await asyncio.gather(*[self.inspect_single_product(item) for item in selected_batch])
+            results = await asyncio.gather(*[throttled_inspect(item, i) for i, item in enumerate(selected_batch)])
 
             self.last_run_timestamp = datetime.utcnow()
             self.next_run_timestamp = self.last_run_timestamp + timedelta(hours=CRAWLER_AUTO_INTERVAL_HOURS)
@@ -899,7 +915,7 @@ class EcommerceCrawlerService:
             "non_compliant_count": non_compliant,
             "total_penalties_exposed_inr": total_penalties,
             "scraper_api_configured": bool(SCRAPER_API_KEY or os.getenv("SCRAPER_API_KEY")),
-            "jina_api_configured": bool(JINA_API_KEY),
+            "jina_api_configured": bool(JINA_API_KEY or os.getenv("JINA_API_KEY")),
             "free_engines_active": ["Jina AI Reader (Markdown)", "Direct Stealth HTTP"],
         }
 

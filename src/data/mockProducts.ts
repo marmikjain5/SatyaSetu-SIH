@@ -59,14 +59,6 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Legal Metrology Rule 6(1)(e): Consumer grievance redressal phone contact not prominent',
     ],
-    claims: [
-      {
-        text: 'Scientifically designed for immune system growth & mental alertness',
-        isMisleading: true,
-        reason: 'NCPCR / CCPA 2024 Advisory: High sugar content (approx. 50%) conflicts with unregulated "Health Drink" classification',
-        confidence: 93.4,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
       'Consumer Protection (Prevention of Misleading Advertisements) Guidelines, 2022',
@@ -113,14 +105,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 99.4,
     lastScanned: '25 mins ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Enriched with 100% Pure Natural Mysore Sandalwood Oil',
-        isMisleading: false,
-        reason: 'Verified through GI Tag (GI-01) & Karnataka Soaps distillation quality certificate',
-        confidence: 99.1,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)',
       'Bureau of Indian Standards (IS 2888) & Legal Metrology Rules, 2011',
@@ -174,14 +158,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.7,
     lastScanned: '40 mins ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '100% Pure Natural Coffee with Rich Aroma',
-        isMisleading: false,
-        reason: 'Substantiated by Single Ingredient Standard for Pure Soluble Coffee under AGMARK and BIS',
-        confidence: 97.9,
-      },
-    ],
     regulatoryActs: [
       'Consumer Protection Act, 2019',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
@@ -229,14 +205,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 97.8,
     lastScanned: '1 hour ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '48h Deep Moisture Care with 2x Almond Oil',
-        isMisleading: false,
-        reason: 'Clinical hydration study on record supporting 48h moisturisation claim',
-        confidence: 95.5,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011',
       'Cosmetics Rules, 2020',
@@ -284,14 +252,6 @@ export const MOCK_PRODUCTS: Product[] = [
     lastScanned: '2 hours ago',
     missingMandatoryFields: [
       'Customer grievance officer direct email format discrepancy',
-    ],
-    claims: [
-      {
-        text: 'Non-greasy quick absorbing formula with refreshing Vitamin E',
-        isMisleading: false,
-        reason: 'Dermatologically approved sensory evaluation and viscosity specifications met',
-        confidence: 96.0,
-      },
     ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
@@ -347,14 +307,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 99.2,
     lastScanned: '3 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: '100% Pure Coconut Oil — 5-stage purification process',
-        isMisleading: false,
-        reason: 'AGMARK Grade 1 certification & Edible Vegetable Oils (Packaging) Regulation verification compliant',
-        confidence: 98.8,
-      },
-    ],
     regulatoryActs: [
       'Essential Commodities Act / Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
@@ -398,14 +350,6 @@ export const MOCK_PRODUCTS: Product[] = [
     lastScanned: '4 hours ago',
     missingMandatoryFields: [
       'Net Quantity numeral font height (2.6mm) below mandatory 4.0mm requirement for packages between 500ml - 1L',
-    ],
-    claims: [
-      {
-        text: 'Light and Healthy for Active Heart with 100% Purity Guarantee',
-        isMisleading: false,
-        reason: 'Standard nutritional enrichment claim supported by National Nutrition Fortification standards',
-        confidence: 94.2,
-      },
     ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(e)',
@@ -458,14 +402,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.4,
     lastScanned: '5 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Original Assam Chai Blend with Strong Liquor & Rich Taste',
-        isMisleading: false,
-        reason: 'Assam Tea Board origin & Tea (Marketing) Control Order standard compliance verified',
-        confidence: 98.0,
-      },
-    ],
     regulatoryActs: [
       'Tea Act, 1953 & Legal Metrology Rules, 2011',
       'Legal Metrology (Packaged Commodities) Rules, 2011',
@@ -514,14 +450,6 @@ export const MOCK_PRODUCTS: Product[] = [
     missingMandatoryFields: [
       'Font size for volume declaration marginally below 4mm for >100ml pack size',
     ],
-    claims: [
-      {
-        text: 'Up to 97% Less Hair Fall after just 1 wash',
-        isMisleading: true,
-        reason: 'Qualifying asterisk "Hair fall due to breakage vs non-conditioning shampoo" in font size below ASCI legible guidelines',
-        confidence: 91.8,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 7 (Numeral Height)',
       'Cosmetics Rules, 2020',
@@ -568,14 +496,6 @@ export const MOCK_PRODUCTS: Product[] = [
     ocrConfidence: 98.6,
     lastScanned: '7 hours ago',
     missingMandatoryFields: [],
-    claims: [
-      {
-        text: 'Professional Quality Salon Smooth Hair with Keratin Actives',
-        isMisleading: false,
-        reason: 'Ingredients and active keratin formulation verified with HUL technical dossier',
-        confidence: 96.7,
-      },
-    ],
     regulatoryActs: [
       'Legal Metrology (Packaged Commodities) Rules, 2011',
       'Cosmetics Rules, 2020',

@@ -228,36 +228,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Claim Analysis NLP Findings */}
-        {product.claims && product.claims.length > 0 && (
-          <div className="space-y-2">
-            <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
-              AI Claim Verification (CCPA & Statutory Analysis)
-            </span>
-            <div className="space-y-2">
-              {product.claims.map((claim, idx) => (
-                <div
-                  key={idx}
-                  className={`p-3 rounded-lg border flex items-start justify-between gap-4 ${
-                    claim.isMisleading
-                      ? 'bg-red-50/70 border-red-200 text-red-950'
-                      : 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-                  }`}
-                >
-                  <div>
-                    <div className="font-bold">Claim: "{claim.text}"</div>
-                    {claim.reason && (
-                      <div className="text-[11px] text-red-700 mt-1 font-medium">{claim.reason}</div>
-                    )}
-                  </div>
-                  <Badge variant={claim.isMisleading ? 'danger' : 'success'} size="sm">
-                    {claim.isMisleading ? 'Misleading' : 'Substantiated'}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Statutory Acts Violated */}
         {product.regulatoryActs.length > 0 && (
