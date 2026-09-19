@@ -110,9 +110,6 @@ export const CitizenProductModal: React.FC<CitizenProductModalProps> = ({
               >
                 {product.status.replace('-', ' ')}
               </Badge>
-              <span className="font-mono text-slate-500 text-xs">
-                Score: <strong className="text-slate-900">{product.complianceScore}/100</strong>
-              </span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
               Legal Metrology (Packaged Commodities) Rules 2011 Verified

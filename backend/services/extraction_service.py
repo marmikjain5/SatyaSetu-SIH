@@ -70,21 +70,23 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
     # PCR-2011-R6(1)(c) — MRP (Maximum Retail Price)
     "mrp": [
-        r"(?:MRP|Maximum\s*Retail\s*Price|Max\.?\s*Retail\s*Price)[:\-\s]*(?:Rs\.?|₹|INR)\s*([\d,]+(?:\.\d{1,2})?)",
+        r"(?:MRP|Maximum\s*Retail\s*Price|Max\.?\s*Retail\s*Price)[:\-\s]*(?:Rs\.?|₹|INR)?\s*([\d,]+(?:\.\d{1,2})?)(?!\s*(?:\/|per)\s*(?:g|ml|kg|l))",
         r"(?:₹|Rs\.?)\s*([\d,]+(?:\.\d{1,2})?)\s*(?:\(incl\.?\s*of\s*all\s*taxes\)|inclusive\s*of\s*all\s*taxes)",
         r"(?:MRP)[:\-\s]*[Rs₹INR.\s]*([\d,]+(?:\.\d{1,2})?)",
+        r"(?:^|\n)\s*(?:₹|Rs\.?)\s*([\d,]+(?:\.\d{1,2})?)\b(?!\s*(?:\/|per)\s*(?:g|ml|kg|l))",
     ],
 
     # PCR-2022-R6(1)(aa) — Unit Sale Price (G.S.R. 779(E), effective 1 Jan 2023)
     "unitSalePrice": [
         r"(?:USP|Unit\s*Sale\s*Price|Unit\s*Price)[:\-\s]*(?:Rs\.?|₹|INR)?\s*([\d.]+)\s*(?:per|/)\s*(g|ml|kg|l)\b",
         r"(?:₹|Rs\.?)\s*([\d.]+)\s*(?:per|/)\s*(g|ml|kg|l)\b",
+        r"\b([\d.]+)\s*\/\s*(g|ml|kg|l)\b",
     ],
 
     # PCR-2011-R6(1)(b) — Net Quantity (weight/volume/count in metric units)
     "netQuantity": [
-        r"(?:Net\s*(?:Qty|Quantity|Weight|Content|Vol|Volume))[:\-\s]*([\d.]+\s*(?:g|kg|ml|l|mg|pieces?|units?|nos?|pcs?))\b",
-        r"([\d.]+\s*(?:g|kg|ml|l|mg))\s*(?:net|nett)",
+        r"(?:Net\s*(?:Qty|Quantity|Weight|Content|Contents|Vol|Volume))[:\-\s]*([\d.]+\s*(?:g|kg|ml|l|mg|pieces?|units?|nos?|pcs?))\b",
+        r"([\d.]+\s*(?:g|kg|ml|l|mg))\s*(?:net|nett|\(when\s*packed\))",
         r"\b([\d.]+)\s*(g|kg|ml|l|mg|pieces?|units?|nos?|pcs?)\b",
     ],
 
@@ -98,18 +100,20 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
 
     # PCR-2011-R6(1)(e) — Date of Manufacture / Packing
     "manufacturingDate": [
-        r"(?:Mfg\.?\s*Date|Date\s*of\s*Mfg\.?|Mfd\.?|Date\s*of\s*Manufacture|Manufactured\s*On)[:\-\s]*((?:\d{2}[\/\-\.]\d{4}|\d{2}[\/\-\.]\d{2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
+        r"(?:Mfg\.?\s*Date|Date\s*of\s*Mfg\.?|Mfd\.?|Date\s*of\s*Manufacture|Manufactured\s*On|MFD\.?\s*\(M\)|MFG\.?\s*\(M\))[:\-\s]*((?:\d{1,2}[\/\-\.]\d{2,4}|\d{2}[\/\-\.]\d{2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{2,4}))",
+        r"(?:^|\b)(?:MFD|MFG|M)[:\s\-.]+((?:0?[1-9]|1[0-2])[\/\-.]\d{2,4})(?:\s+\d{1,2}:\d{2})?",
         r"(?:Mfg\.?|Mfd\.?)[:\s]*((?:[0-3]?\d[\/\-][0-1]?\d[\/\-]\d{2,4})|(?:[A-Z]{3}[\/\-]\d{4}))",
     ],
 
     # PCR-2011-R6(1)(e) — Packing Date (separate from manufacturing date)
     "packingDate": [
-        r"(?:Pkg\.?\s*Date|Date\s*of\s*Pkg\.?|Pack(?:ing)?\s*Date|Packed\s*On|Pkg\.?)[:\-\s]*((?:\d{2}[\/\-\.]\d{4}|\d{2}[\/\-\.]\d{2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
+        r"(?:Pkg\.?\s*Date|Date\s*of\s*Pkg\.?|Pack(?:ing)?\s*Date|Packed\s*On|Pkg\.?)[:\-\s]*((?:\d{1,2}[\/\-\.]\d{2,4}|\d{2}[\/\-\.]\d{2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
     ],
 
-    # Expiry / Best Before / Use By Date
+    # Expiry / Best Before / Use By / Use Before Date
     "expiryDate": [
-        r"(?:Expiry\s*Date|Best\s*Before|Use\s*By|BB\s*Date|Exp\.?|BB)[:\-\s]*((?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{2}[\/\-\.]\d{4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{4}))",
+        r"(?:Expiry\s*Date|Best\s*Before|Use\s*By|Use\s*Before|BB\s*Date|Exp\.?|BB|Use\s*Before\s*\(U\)|Use\s*By\s*\(U\))[:\-\s]*((?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{1,2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\/\-\.]\d{2,4}))",
+        r"(?:^|\b)(?:UB|BB|EXP|EXPIRY|U|E)[:\s\-.]+((?:0?[1-9]|1[0-2])[\/\-.]\d{2,4})",
         r"(?:BB|EXP)[:\-.\s]*((?:[0-3]?\d[\/\-][0-1]?\d[\/\-]\d{2,4})|(?:[A-Z]{3}[\/\-]\d{4}))",
     ],
 
@@ -122,14 +126,15 @@ FIELD_EXTRACTION_PATTERNS: Dict[str, List[str]] = {
     # PCR-2011-R6(1)(f) — Consumer Care / Grievance Redressal
     "customerCare": [
         r"(?:Customer\s*(?:Care|Service)|Consumer\s*(?:Care|Helpline)|Grievance|Helpline|Toll[\-\s]?Free)[:\-\s]*([\d\s\-+()]+(?:@[^\s]+)?)",
-        r"(?:For\s*complaints?|Contact\s*us)[:\-\s]*([^\n]+)",
+        r"(?:For\s*(?:queries|feedback|complaints?)|Contact\s*(?:NIVEA\s*CARE\s*Executive|us))[:\-\s]*([^\n]+)",
         r"(1800[\-\s]?\d{3}[\-\s]?\d{3,4})",  # Toll-free pattern
         r"([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})",  # Email
     ],
 
     # PCR-2011-R6(1)(g) — Batch / Lot Number
     "batchNumber": [
-        r"(?:Batch\s*(?:No\.?|Code)|B\.?\s*No\.?|Lot\s*(?:No\.?|Code))[:\-\s]*([A-Za-z0-9\-\/]+)",
+        r"(?:Batch\s*(?:No\.?|Code)|B\.?\s*No\.?|Lot\s*(?:No\.?|Code))[:\-\s]*([A-Za-z0-9\-\/\s]+)",
+        r"(?:^|\b)(?:B|BN|LOT)[:\s\-.]*([A-Za-z0-9]{4,16}(?:\s+[A-Za-z0-9]{1,4})?)\b",
     ],
 
     # Manufacturer name (separate from address)
@@ -292,18 +297,24 @@ def _llm_parse_ocr_text(raw_text: str) -> Dict[str, str]:
 Clean, auto-correct OCR typos into real dictionary words, and extract all statutory declarations from raw OCR text into precise JSON.
 
 RULES FOR PARSING & SPELL CORRECTION:
-1. productName: Auto-correct obvious OCR typos into proper brand/commodity words (e.g., 'B Naura Mied Fui' -> 'B Natural Mixed Fruit').
-2. mrp: Exact numeric price in Indian Rupees (e.g., '152.00'). Do NOT include 'Rs.' or 'incl. of taxes'.
-3. netQuantity: Clean metric weight/volume (e.g., '1 L', '500 g', '200 ml').
-4. manufacturer: Legal company name only (e.g., 'ITC LIMITED').
-5. address: Full premises address with PIN code (e.g., 'ITC GREEN CENTRE - 10TH FLOOR, NO. 18, BANASWADI MAIN ROAD, BENGALURU - 560005').
-6. manufacturingDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '19/08/2026').
-7. expiryDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '18/05/2027').
-8. batchNumber: Clean batch/lot code (e.g., 'H9XM190826').
-9. customerCare: Phone/toll-free number and email (e.g., '1800 425 444 444 / itccares@itc.in').
-10. fssaiLicense: 14-digit FSSAI license number (e.g., '10012031000312').
-11. countryOfOrigin: Country name (e.g., 'India').
-12. barcode: EAN barcode number (e.g., '8901725100025').
+1. productName: Auto-correct obvious OCR typos into proper brand/commodity words (e.g., 'B Naura Mied Fui' -> 'B Natural Mixed Fruit', 'NIVEA Soft Skin Cream').
+2. mrp: Exact numeric price in Indian Rupees (e.g., '550.00' or '152.00'). Do NOT include 'Rs.' or 'incl. of taxes'. When MRP and USP are printed side-by-side (e.g. '₹ 550 ₹ 1.83/ml'), the total price '550' is MRP and '1.83/ml' is unitSalePrice.
+3. unitSalePrice: Clean unit sale price (e.g., '₹ 1.83/ml', 'Rs. 0.50/g').
+4. netQuantity: Clean metric weight/volume (e.g., '300 ml (293.7g)', '500 g', '200 ml').
+5. manufacturer: Legal company name only (e.g., 'Nivea India Pvt. Ltd.', 'ITC LIMITED').
+6. address: Full premises address with PIN code (e.g., 'SM-9/1, Sanand II Industrial Estate, Vill Bol. Tal. Sanand Dist. Ahmedabad (Gujrat) Pin: 382110').
+7. manufacturingDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '11/2023', '19/08/2026'). Note: Frequently printed with prefix 'M' or 'MFD. (M)' such as 'M 11/23 22:15' -> '11/2023'.
+8. expiryDate: Date format MM/YYYY or DD/MM/YYYY (e.g., '10/2026', '18/05/2027'). Note: Frequently printed with prefix 'U' (for Use Before), 'UB', 'EXP', or 'BB' such as 'U 10/26' -> '10/2026'.
+9. batchNumber: Clean batch/lot code (e.g., 'B34431350 11', 'H9XM190826'). Note: Frequently printed with prefix 'B' or 'BN' such as 'B34431350 11'.
+10. customerCare: Phone/toll-free number and email (e.g., '(022) 62487999, care@beiersdorf.com').
+11. countryOfOrigin: Country name (e.g., 'India', 'Germany').
+12. barcode: EAN barcode number (e.g., '4005808679829').
+
+IMPORTANT FOR INDIAN FMCG PACKAGING ABBREVIATIONS:
+When packaging has compound stamp headers like "MRP ₹ (Incl. of all taxes), USP, Batch No., MFD. (M) & Use Before (U): ↓":
+- 'M' means Manufacturing Date (e.g. 'M 11/23' -> 11/2023)
+- 'U' means Use Before / Expiry Date (e.g. 'U 10/26' -> 10/2026)
+- 'B' means Batch Number (e.g. 'B34431350 11')
 
 RAW OCR TEXT:
 {raw_text[:3000]}

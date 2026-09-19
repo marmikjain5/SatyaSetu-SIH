@@ -53,11 +53,6 @@ export const CitizenProductCard: React.FC<CitizenProductCardProps> = ({
               <span className="text-[10px] text-slate-400 uppercase block font-sans">{t('mrpInclTaxes')}</span>
               <div className="flex items-baseline gap-1.5 mt-0.5">
                 <span className="text-base font-bold text-slate-900">{formatCurrency(product.mrp)}</span>
-                {product.listedPrice < product.mrp && (
-                  <span className="text-xs text-slate-400 line-through">
-                    {formatCurrency(product.listedPrice)}
-                  </span>
-                )}
               </div>
             </div>
             <div className="text-right">

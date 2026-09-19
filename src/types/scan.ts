@@ -134,6 +134,12 @@ export interface ExtractedProductData {
   compliancePayload: LegalMetrologyCompliancePayload;
   imageDimensions: { width: number; height: number };
   ocrPassResults: OcrPassSummary[];
+  preprocessedVariants?: Array<{
+    name: string;
+    dataUrl: string;
+    description: string;
+    scale: number;
+  }>;
 }
 
 /** A single uploaded image pending or processed */

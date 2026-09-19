@@ -253,6 +253,7 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
       compliancePayload,
       imageDimensions: imgDimensions,
       ocrPassResults: passSummaries,
+      preprocessedVariants: variants,
     };
 
     onProgress?.(100, 'Legal Metrology Extraction Complete');

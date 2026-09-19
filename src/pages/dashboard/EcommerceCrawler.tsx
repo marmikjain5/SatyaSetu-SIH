@@ -22,6 +22,7 @@ import {
   Eye,
   Send,
   Zap,
+  ImageOff,
 } from 'lucide-react';
 import {
   crawlerService,
@@ -401,12 +402,31 @@ export const EcommerceCrawler: React.FC = () => {
               <CardContent className="p-5">
                 <div className="flex flex-col lg:flex-row gap-5">
                   {/* Thumbnail Image */}
-                  <div className="w-full lg:w-36 h-36 shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative">
-                    <img
-                      src={p.image_url}
-                      alt={p.title}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-full lg:w-36 h-36 shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative flex items-center justify-center group">
+                    {p.image_url && p.image_url.trim() && !p.image_url.includes('unsplash.com') ? (
+                      <img
+                        src={p.image_url}
+                        alt={p.title}
+                        className="w-full h-full object-contain p-2"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            const fallback = parent.querySelector('.img-not-avail-box');
+                            if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={cn(
+                        'img-not-avail-box flex-col items-center justify-center text-center p-3 text-slate-400 dark:text-slate-500',
+                        p.image_url && p.image_url.trim() && !p.image_url.includes('unsplash.com') ? 'hidden' : 'flex'
+                      )}
+                    >
+                      <ImageOff className="h-6 w-6 mb-1 text-slate-400 dark:text-slate-500" />
+                      <span className="text-[11px] font-medium leading-tight">Image Not Available</span>
+                    </div>
                     <div className="absolute top-2 left-2">
                       <span
                         className={cn(

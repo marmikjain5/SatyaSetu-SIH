@@ -101,19 +101,32 @@ export interface CrawlerLogEntry {
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+export const generatePlatformSku = (platform: string, seedNum?: number): string => {
+  const p = platform.toLowerCase();
+  let prefix = 'ECO';
+  if (p.includes('amazon')) prefix = 'AMZ';
+  else if (p.includes('flipkart')) prefix = 'FLP';
+  else if (p.includes('blinkit')) prefix = 'BLK';
+  else if (p.includes('zepto')) prefix = 'ZPT';
+  else if (p.includes('meesho')) prefix = 'MSH';
+  else if (p.includes('bigbasket')) prefix = 'BB';
+  const num = seedNum ?? Math.floor(100000 + Math.random() * 900000);
+  return `${prefix}-${num}`;
+};
+
 // Built-in catalog benchmarks for client-side fallback if backend server is unreachable
 const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
   {
     platform: 'Amazon',
     url: 'https://www.amazon.in/dp/B07HG8SBDV',
-    sku: 'AMZ-IN-OIL-8491',
+    sku: 'AMZ-345645',
     scrape_method: 'jina_reader',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
     title: 'Fortune Sunlite Refined Sunflower Oil, 1L Pouch',
     brand: 'Fortune',
     category: 'Edible Oils & Fats',
-    manufacturer: 'Adani Wilmar Limited, Fortune House, Navrangpura, Ahmedabad, Gujarat - 380009',
+    manufacturer: 'Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009',
     country_of_origin: 'India',
     net_weight: '1 L (910 g)',
     mrp: 155.0,
@@ -121,12 +134,13 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     unit_sale_price: '₹139.00 / 1 L',
     mfg_date: '04/2026',
     customer_care: 'care@adaniwilmar.in / 1800-233-9999',
-    image_url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80',
+    image_url: '',
+    known_compliance_issues: [],
   },
   {
     platform: 'Amazon',
-    url: 'https://www.amazon.in/dp/B08XJ8P2W1',
-    sku: 'AMZ-IN-SUPP-3920',
+    url: 'https://www.amazon.in/dp/B07575775M',
+    sku: 'AMZ-892104',
     scrape_method: 'jina_reader',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
@@ -141,16 +155,38 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     unit_sale_price: '', // Violation: Missing USP
     mfg_date: '02/2026',
     customer_care: 'support@proultra.com',
-    image_url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80',
+    image_url: '',
+    known_compliance_issues: ['RULE-6-10-ORIGIN', 'RULE-5-USP'],
   },
   {
     platform: 'Flipkart',
-    url: 'https://www.flipkart.com/tata-tea-gold-leaf-tea/p/itmfc128392',
-    sku: 'FK-TEA-GOLD-4912',
+    url: 'https://www.flipkart.com/fortune-sunlite-refined-sunflower-oil-pouch/p/itmd88fef5c0c926',
+    sku: 'FLP-491203',
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
-    title: 'Tata Tea Gold Leaf Tea 500g Pet Jar',
+    title: 'Fortune Sunlite Refined Sunflower Oil 1 L Pouch',
+    brand: 'Fortune',
+    category: 'Edible Oils & Fats',
+    manufacturer: 'Adani Wilmar Limited, Fortune House, Navrangpura, Ahmedabad, Gujarat - 380009',
+    country_of_origin: 'India',
+    net_weight: '1 L',
+    mrp: 155.0,
+    listed_price: 139.0,
+    unit_sale_price: '₹139.00 / 1 L',
+    mfg_date: '03/2026',
+    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    image_url: '',
+    known_compliance_issues: [],
+  },
+  {
+    platform: 'Flipkart',
+    url: 'https://www.flipkart.com/tata-tea-gold-leaf-black/p/itmfc128392fb689',
+    sku: 'FLP-821940',
+    scrape_method: 'direct_stealth',
+    is_live_scraped: true,
+    extracted_at: new Date().toISOString(),
+    title: 'Tata Tea Gold Leaf Black Tea 500g Pet Jar',
     brand: 'Tata Tea',
     category: 'Packaged Food & Beverages',
     manufacturer: 'Tata Consumer Products Limited, 1 Bishop Lefroy Road, Kolkata, West Bengal - 700020',
@@ -161,12 +197,76 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     unit_sale_price: '₹55.00 / 100 g',
     mfg_date: '03/2026',
     customer_care: 'care@tataconsumer.com / 1800-345-1720',
-    image_url: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80',
+    image_url: '',
+    known_compliance_issues: [],
+  },
+  {
+    platform: 'Blinkit',
+    url: 'https://blinkit.com/prn/fortune-sunlite-refined-sunflower-oil/prid/37398',
+    sku: 'BLK-373981',
+    scrape_method: 'direct_stealth',
+    is_live_scraped: true,
+    extracted_at: new Date().toISOString(),
+    title: 'Fortune Sunlite Refined Sunflower Oil (Pouch)',
+    brand: 'Fortune',
+    category: 'Edible Oils & Fats',
+    manufacturer: 'Adani Wilmar Limited, Fortune House, Near Navrangpura Railway Crossing, Ahmedabad, Gujarat - 380009',
+    country_of_origin: 'India',
+    net_weight: '1 L',
+    mrp: 155.0,
+    listed_price: 139.0,
+    unit_sale_price: '₹139.00 / 1 L',
+    mfg_date: '04/2026',
+    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    image_url: '',
+    known_compliance_issues: [],
+  },
+  {
+    platform: 'Blinkit',
+    url: 'https://blinkit.com/prn/amul-taaza-toned-fresh-milk/prid/178',
+    sku: 'BLK-178920',
+    scrape_method: 'direct_stealth',
+    is_live_scraped: true,
+    extracted_at: new Date().toISOString(),
+    title: 'Amul Taaza Toned Fresh Milk 500ml Pouch',
+    brand: 'Amul',
+    category: 'Dairy & Fresh Foods',
+    manufacturer: 'Gujarat Co-operative Milk Marketing Federation Ltd, Anand - 388001, Gujarat, India',
+    country_of_origin: 'India',
+    net_weight: '500 ml',
+    mrp: 27.0,
+    listed_price: 27.0,
+    unit_sale_price: '₹5.40 / 100 ml',
+    mfg_date: '04/2026',
+    customer_care: 'customercare@amul.coop / 1800-258-3333',
+    image_url: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=540/app/images/products/sliding_image/178a.jpg',
+    known_compliance_issues: [],
   },
   {
     platform: 'Zepto',
-    url: 'https://www.zeptonow.com/pn/glamglow-radiance-face-serum-30ml/p/829102',
-    sku: 'ZPT-COSM-GLOW-7721',
+    url: 'https://www.zeptonow.com/pn/fortune-sunlite-refined-sunflower-oil-1l/p/f22ff6fe-0112-4217-a065-2bc38ef2fa1d',
+    sku: 'ZPT-482910',
+    scrape_method: 'direct_stealth',
+    is_live_scraped: true,
+    extracted_at: new Date().toISOString(),
+    title: 'Fortune Sunlite Refined Sunflower Oil 1 Litre',
+    brand: 'Fortune',
+    category: 'Edible Oils & Fats',
+    manufacturer: 'Adani Wilmar Limited, Fortune House, Navrangpura, Ahmedabad, Gujarat - 380009',
+    country_of_origin: 'India',
+    net_weight: '1 L',
+    mrp: 155.0,
+    listed_price: 139.0,
+    unit_sale_price: '₹139.00 / 1 L',
+    mfg_date: '03/2026',
+    customer_care: 'care@adaniwilmar.in / 1800-233-9999',
+    image_url: '',
+    known_compliance_issues: [],
+  },
+  {
+    platform: 'Zepto',
+    url: 'https://www.zeptonow.com/pn/amul-pasteurised-butter-100g/p/62d8ea0e-749d-4be9-b003-9c8784d14210',
+    sku: 'ZPT-628104',
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
@@ -181,12 +281,13 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     unit_sale_price: '₹24.97 / 1 ml',
     mfg_date: '', // Missing mfg date
     customer_care: 'info@glamglow.in',
-    image_url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&auto=format&fit=crop&q=80',
+    image_url: '',
+    known_compliance_issues: ['RULE-6-1-A-ADDR', 'RULE-6-1-E-DATE', 'RULE-6-1-G-CARE'],
   },
   {
     platform: 'Meesho',
-    url: 'https://www.meesho.com/s/p/premium-cashews-w240-500g/8k39f',
-    sku: 'MSH-DRYFRT-CASHEW-109',
+    url: 'https://www.meesho.com/s/p/234479',
+    sku: 'MSH-234479',
     scrape_method: 'direct_stealth',
     is_live_scraped: true,
     extracted_at: new Date().toISOString(),
@@ -201,7 +302,8 @@ const CLIENT_SEED_PRODUCTS: CrawlerProductData[] = [
     unit_sale_price: '', // Missing USP
     mfg_date: '03/2026',
     customer_care: '', // Missing Consumer Care
-    image_url: 'https://images.unsplash.com/photo-1509912760195-4f5a34079813?w=600&auto=format&fit=crop&q=80',
+    image_url: '',
+    known_compliance_issues: ['RULE-6-10-ORIGIN', 'RULE-5-USP', 'RULE-6-1-G-CARE'],
   },
 ];
 
@@ -681,7 +783,7 @@ class CrawlerService {
     const customProduct: CrawlerProductData = {
       platform,
       url,
-      sku: `LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+      sku: generatePlatformSku(platform),
       scrape_method: isLive ? 'jina_reader' : 'fallback_catalog',
       is_live_scraped: isLive,
       extracted_at: new Date().toISOString(),
@@ -696,7 +798,7 @@ class CrawlerService {
       unit_sale_price: '₹79.80 / 100 g',
       mfg_date: '03/2026',
       customer_care: 'grievance@marketplace.in / 1800-123-4567',
-      image_url: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600',
+      image_url: '',
     };
 
     const audit = this.auditProduct(customProduct);

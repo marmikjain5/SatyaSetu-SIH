@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useComplianceStore } from '../store/complianceStore';
 import { useAuthStore } from '../store/authStore';
 import { useLanguageStore } from '../store/languageStore';
@@ -16,8 +16,6 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import {
   Search,
-  ShieldCheck,
-  ArrowRight,
   Languages,
 } from 'lucide-react';
 
@@ -226,27 +224,7 @@ export const PublicDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        {/* Citizen Rights & Metrology Callout Banner */}
-        <div className="rounded-2xl bg-blue-50 border border-blue-200 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1.5 max-w-2xl">
-            <div className="flex items-center gap-2 text-blue-900 font-bold text-sm">
-              <ShieldCheck className="h-5 w-5 text-blue-600" />
-              <span>Mandatory Statutory Packaging Standards (Legal Metrology Rules, 2011)</span>
-            </div>
-            <p className="text-xs text-blue-800 leading-relaxed">
-              Every packaged commodity sold in India or on e-commerce marketplaces must clearly display MRP (inclusive of all taxes), Unit Sale Price, Name & Address of Manufacturer/Packer, Net Quantity, Country of Origin, and Customer Care contact details.
-            </p>
-          </div>
 
-          <div className="shrink-0 flex items-center gap-3">
-            <Link to="/login?portal=consumer">
-              <Button variant="primary" size="md" className="gap-2 text-xs shadow-xs">
-                <span>Customer Portal Login</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}
