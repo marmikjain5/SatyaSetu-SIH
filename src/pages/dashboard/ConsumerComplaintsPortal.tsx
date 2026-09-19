@@ -1565,8 +1565,14 @@ export const ConsumerComplaintsPortal: React.FC = () => {
             </div>
           )}
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
-            <Button variant="outline" size="sm" type="button" onClick={() => setIsSubmitModalOpen(false)}>
+          <div className="sticky bottom-0 -mx-3 sm:-mx-6 -mb-3 sm:-mb-6 p-3 sm:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-t border-slate-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-3 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => setIsSubmitModalOpen(false)}
+              className="w-full sm:w-auto justify-center min-h-[40px]"
+            >
               {t('cancelBtn')}
             </Button>
             <Button
@@ -1574,13 +1580,13 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               size="sm"
               type="submit"
               disabled={isSubmitting || newComplaintData.description.trim().length < 30}
-              className={`gap-1.5 text-white font-semibold ${
+              className={`w-full sm:w-auto justify-center min-h-[40px] gap-1.5 text-white font-semibold ${
                 isSubmitting || newComplaintData.description.trim().length < 30
                   ? 'bg-slate-400 cursor-not-allowed'
                   : 'bg-blue-700 hover:bg-blue-800'
               }`}
             >
-              <Send className="h-3.5 w-3.5" />
+              <Send className="h-3.5 w-3.5 shrink-0" />
               <span>{isSubmitting ? 'Processing...' : t('submitComplaintBtn')}</span>
             </Button>
           </div>
