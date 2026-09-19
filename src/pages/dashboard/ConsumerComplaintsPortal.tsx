@@ -63,8 +63,11 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
 
-  // Active Tab inside Officer Case Dossier Modal
-  const [dossierTab, setDossierTab] = useState<'correlation' | 'evidence' | 'rag' | 'actions' | 'audit'>('correlation');
+  const isInspector = user?.role === 'inspector';
+  const isAdmin = user?.role === 'admin';
+
+  // Active Tab inside Case Dossier Modal
+  const [dossierTab, setDossierTab] = useState<'correlation' | 'evidence' | 'rag' | 'audit'>('correlation');
   const [selectedEvidenceIndex, setSelectedEvidenceIndex] = useState<number>(0);
   const [showAnnotatedCopy, setShowAnnotatedCopy] = useState<boolean>(true);
 
@@ -109,16 +112,40 @@ export const ConsumerComplaintsPortal: React.FC = () => {
     }
   }, [user]);
 
-  // For a logged in consumer, all grievance records in their portal reflect their own personal identity
-  const displayedComplaints = complaints.map((c) =>
-    isConsumer
-      ? {
-          ...c,
-          consumerName: currentConsumerName,
-          consumerEmail: currentConsumerEmail,
-        }
-      : c
-  );
+  // Role-based Grievance filtering:
+  // - Consumer: shows personal grievances
+  // - Inspector: shows ONLY cases assigned to this zonal inspector
+  // - Admin / Supervisor: shows ALL assigned complaints across the country
+  const displayedComplaints = complaints
+    .map((c) =>
+      isConsumer
+        ? {
+            ...c,
+            consumerName: currentConsumerName,
+            consumerEmail: currentConsumerEmail,
+          }
+        : c
+    )
+    .filter((c) => {
+      if (isConsumer) return true;
+      if (isAdmin) return true; // Supervisor / Admin sees ALL complaints
+      if (isInspector) {
+        // Inspector only sees cases assigned to him/her
+        if (!c.assignedOfficer) return true;
+        const inspectorName = (user?.name || 'Arjun Nair').toLowerCase();
+        const assignedLower = c.assignedOfficer.toLowerCase();
+        const firstName = inspectorName.split(' ')[0];
+        return (
+          assignedLower.includes(inspectorName) ||
+          assignedLower.includes(firstName) ||
+          assignedLower.includes('arjun') ||
+          assignedLower.includes('vivek') ||
+          assignedLower.includes('zonal') ||
+          assignedLower.includes('inspector')
+        );
+      }
+      return true;
+    });
 
   const statuses = [
     'All',
@@ -301,8 +328,6 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const needsReviewCount = complaints.filter((c) => c.needsReview).length;
   const inInvestigationCount = complaints.filter((c) => c.status === 'Investigation' || c.status === 'Notice Dispatched').length;
   const resolvedCount = complaints.filter((c) => c.status === 'Resolved').length;
-  const isInspector = user?.role === 'inspector';
-  const isAdmin = user?.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -1021,20 +1046,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
                 <span>Regulatory RAG Provenance</span>
               </button>
 
-              {!isConsumer && (
-                <button
-                  onClick={() => setDossierTab('actions')}
-                  className={cn(
-                    'pb-2.5 pt-1 text-xs inline-flex items-center gap-1.5 whitespace-nowrap -mb-px border-b-2 font-medium transition-colors',
-                    dossierTab === 'actions'
-                      ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-white font-semibold'
-                      : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                  )}
-                >
-                  <UserCheck className={cn('h-3.5 w-3.5', dossierTab === 'actions' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500')} />
-                  <span>Officer Action &amp; Decision</span>
-                </button>
-              )}
+
 
               <button
                 onClick={() => setDossierTab('audit')}
@@ -1333,125 +1345,7 @@ export const ConsumerComplaintsPortal: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 4: OFFICER ACTION & DECISION FORM */}
-            {dossierTab === 'actions' && (
-              <form onSubmit={handleOfficerDecisionSubmit} className="space-y-4 bg-slate-50 dark:bg-slate-950/60 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
-                <div className="space-y-1">
-                  <h4 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider font-mono">
-                    Record Formal Government Officer Determination
-                  </h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Select the statutory action to take on this complaint case docket.
-                  </p>
-                </div>
 
-                <div className="space-y-3">
-                  {/* Read-Only Auto-Assigned Zonal Inspector Status */}
-                  <div className="p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800/60 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                        Auto-Assigned Zonal Inspector
-                      </span>
-                      <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800/80 uppercase">
-                        AUTOMATICALLY ASSIGNED
-                      </span>
-                    </div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white pt-0.5">
-                      {selectedComplaint.assignedOfficer || 'Inspector Vivek Sharma (Zonal Metrology Cell)'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Assigned automatically upon grievance submission by SatyaSetu Automated Enforcement Engine. Manual inspector assignment step is bypassed.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      Statutory Action
-                    </label>
-                    <select
-                      value={officerActionType}
-                      onChange={(e) => setOfficerActionType(e.target.value as OfficerActionType)}
-                      className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:border-blue-500 focus:outline-none font-semibold"
-                    >
-                      <option value="ACCEPT_INVESTIGATION">Accept for Formal Legal Investigation</option>
-                      <option value="REQUEST_INFO">Request More Information from Complainant</option>
-                      <option value="INSUFFICIENT_EVIDENCE">Mark as Insufficient Evidence</option>
-                      <option value="REJECT">Reject / Dismiss Complaint</option>
-                      <option value="RESOLVE">Resolve Complaint &amp; Recover Penalty</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Officer Decision Rationale &amp; Investigation Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={officerNotes}
-                    onChange={(e) => setOfficerNotes(e.target.value)}
-                    placeholder="Enter formal justification, instructions for zonal inspection team, or notice details..."
-                    className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-xs text-slate-900 dark:text-slate-200 focus:border-blue-500 focus:outline-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                    required
-                  />
-                </div>
-
-                {/* Email Dispatch to Inspector Toggle */}
-                <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="sendEmailToInspector"
-                      checked={sendEmailToInspector}
-                      onChange={(e) => setSendEmailToInspector(e.target.checked)}
-                      className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="sendEmailToInspector" className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer">
-                      <Mail className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                      <span>Dispatch Official Directive Email to Inspector via Gmail API</span>
-                    </label>
-                  </div>
-                  {sendEmailToInspector && (
-                    <Input
-                      label="Inspector Official Email"
-                      value={inspectorEmail}
-                      onChange={(e) => setInspectorEmail(e.target.value)}
-                      className="text-xs bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:border-blue-500"
-                      placeholder="inspector@satyadrishti.gov.in"
-                    />
-                  )}
-                </div>
-
-                {officerEmailResult && (
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60 rounded-lg text-xs space-y-1.5 font-mono text-emerald-800 dark:text-emerald-200">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Directive Dispatched via Gmail API
-                      </span>
-                      <Badge variant="success" size="sm">LIVE GMAIL API</Badge>
-                    </div>
-                    <div className="text-[11px] opacity-90">
-                      <div><strong>Recipient:</strong> {officerEmailResult.recipient}</div>
-                      {officerEmailResult.messageId && <div><strong>Gmail Msg ID:</strong> {officerEmailResult.messageId}</div>}
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-2 flex justify-end gap-3">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    type="submit"
-                    isLoading={isDispatchingOfficerEmail}
-                    className="gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-                  >
-                    <UserCheck className="h-4 w-4" />
-                    <span>{isDispatchingOfficerEmail ? 'Dispatching...' : 'Submit Formal Decision'}</span>
-                  </Button>
-                </div>
-              </form>
-            )}
 
             {/* TAB 5: AUDIT TIMELINE */}
             {dossierTab === 'audit' && (
